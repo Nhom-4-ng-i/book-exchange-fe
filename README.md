@@ -1,66 +1,78 @@
-# 💻 Exchange Old Books FE
+# 📚 Exchange Old Books - Frontend
 
-## Tổng quan
-Repo này chứa mã nguồn **frontend** của ứng dụng di động.  
-Mục tiêu chính là xây dựng giao diện và tối ưu trải nghiệm người dùng khi đăng bán, tìm kiếm và trao đổi sách/tài liệu cũ.  
+## 🌐 Giới thiệu
 
-## Nội dung 
-- Source code React Native (Android & iOS).  
-- Các component giao diện chính: đăng sách, tìm kiếm/lọc, quản lý tài khoản.  
-- Tích hợp API từ backend.  
+Đây là mã nguồn **frontend** cho ứng dụng di động **Exchange Old Books**, được xây dựng bằng **React Native + Expo**.
+Ứng dụng giúp người dùng **đăng bán, tìm kiếm và trao đổi sách/tài liệu cũ**, mang lại trải nghiệm tiện lợi và dễ sử dụng.
 
-## Cách chạy
+---
+
+## ✨ Tính năng chính
+
+* 📖 Đăng bán và quản lý sách cũ
+* 🔍 Tìm kiếm, lọc và xem chi tiết sách
+* 👤 Quản lý tài khoản cá nhân
+* 🔗 Tích hợp API từ backend
+
+---
+
+## 🚀 Cách chạy dự án
+
+### 1. Cài đặt dependencies
+
 ```bash
 npm install
-npm start
+```
 
-# Welcome to your Expo app 👋
+### 2. Chạy ứng dụng
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+```bash
+npx expo start
+```
 
-## Get started
+Sau khi chạy, bạn có thể lựa chọn:
 
-1. Install dependencies
+* 📱 **Expo Go** (trên Android/iOS)
+* 📱 **Android Emulator** (Android Studio)
+* 🍏 **iOS Simulator** (Xcode)
+* 🛠️ **Development Build**
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## 📂 Cấu trúc thư mục
 
-   ```bash
-   npx expo start
-   ```
+* `app/` → chứa source code chính theo [file-based routing](https://docs.expo.dev/router/introduction/)
+* `components/` → các component UI tái sử dụng
+* `services/` → gọi API backend
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🛠️ Lệnh hữu ích
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Reset về dự án trống để phát triển từ đầu:
 
 ```bash
 npm run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 📚 Tài liệu tham khảo
 
-To learn more about developing your project with Expo, look at the following resources:
+* [Expo Documentation](https://docs.expo.dev/)
+* [Learn Expo Tutorial](https://docs.expo.dev/tutorial/introduction/)
+* [React Native Docs](https://reactnative.dev/)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## 🤝 Cộng đồng
 
-Join our community of developers creating universal apps.
+* [Expo GitHub](https://github.com/expo/expo)
+* [Expo Discord](https://chat.expo.dev)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 👋 Welcome
+
+Chỉnh sửa file trong thư mục **app/** để bắt đầu phát triển.
+Mỗi thay đổi sẽ được cập nhật trực tiếp khi ứng dụng đang chạy 🚀
