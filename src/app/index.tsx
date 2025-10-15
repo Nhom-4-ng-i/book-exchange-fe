@@ -1,25 +1,11 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import IconExport from "../icons/IconExport";
+import { router } from "expo-router";
+import { Button, Text, View } from "react-native";
 
 export default function Index() {
   return (
-    <View>
-      <Text style={styles.text}>Edit app/index.tsx to edit this screen.</Text>
-      <Text>Hello</Text>
-      <IconExport />
-      <TextInput style={styles.textInput} />
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Text>Đây là trang chủ 📚</Text>
+      <Button title="Hồ sơ" onPress={() => router.push("./profile")} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  text: {
-    color: "red",
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: "red",
-    padding: 10,
-    borderRadius: 5,
-  },
-})
