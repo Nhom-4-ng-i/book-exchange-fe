@@ -1,0 +1,29 @@
+# Nội dung cho file: .github/workflows/ci.yml
+
+name: Run Tests (CI)
+
+# Bot này sẽ chạy khi nào?
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # Dùng Node.js 20 (giống file lint)
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test # Chạy lệnh test

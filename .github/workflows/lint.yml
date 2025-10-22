@@ -1,0 +1,29 @@
+# Nội dung cho .github/workflows/lint.yml
+
+name: Lint Code
+
+# Bot này sẽ chạy khi nào?
+on:
+  push: # 1. Khi có ai đó push code lên
+    branches: ["main"] #    chỉ trên nhánh main
+  pull_request: # 2. Khi có ai đó tạo Pull Request
+    branches: ["main"] #    nhắm vào nhánh main
+
+# Các bước nó sẽ làm:
+jobs:
+  build:
+    runs-on: ubuntu-latest # Dùng một máy chủ ảo Ubuntu
+    steps:
+      - uses: actions/checkout@v4 # 1. Lấy code của bạn về
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4 # 2. Cài đặt Node.js
+        with:
+          node-version: "20" # Dùng Node.js phiên bản 20
+          cache: "npm" # Lưu lại cache npm cho nhanh
+
+      - name: Install dependencies
+        run: npm install # 3. Chạy 'npm install'
+
+      - name: Run linter
+        run: npm run lint # 4. Chạy 'npm run lint' (giống hệt bạn chạy ở máy)

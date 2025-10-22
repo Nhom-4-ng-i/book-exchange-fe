@@ -1,0 +1,24 @@
+version: 2
+updates:
+  # Kích hoạt kiểm tra phiên bản cho npm/yarn
+  - package-ecosystem: "npm" # Dùng "npm" (hoặc "yarn" nếu bạn dùng yarn.lock)
+    directory: "/" # Thư mục gốc chứa file package.json
+    schedule:
+      interval: "weekly" # Tần suất kiểm tra: "daily" (hàng ngày), "weekly" (hàng tuần)
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "deps"
+
+  # Quét GitHub Actions workflow
+  - package-ecosystem: "github-actions"
+    directory: "/" # workflows luôn ở root
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "actions"
+    commit-message:
+      prefix: "ci"

@@ -1,0 +1,41 @@
+name: Close Stale Issues and PRs
+
+on:
+  schedule:
+    # Lịch chạy: Bot này sẽ tự chạy mỗi ngày 1 lần
+    # (vào lúc 5h sáng UTC, tức là 12h trưa giờ Việt Nam)
+    - cron: "0 5 * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    # Cảnh báo: Cần cấp quyền để bot có thể bình luận và đóng Issues/PRs
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          # Token bắt buộc để bot có thể thay mặt bạn hành động
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Tin nhắn mà bot sẽ đăng khi một Issue/PR bị "stale"
+          stale-issue-message: >
+            Issue này đã không có hoạt động nào trong 60 ngày.
+            Nó sẽ bị đóng trong 7 ngày nữa nếu không có cập nhật mới.
+            (Bot tự động)
+          stale-pr-message: >
+            Pull Request này đã không có hoạt động nào trong 60 ngày.
+            Nó sẽ bị đóng trong 7 ngày nữa nếu không có cập nhật mới.
+            (Bot tự động)
+
+          # Số ngày không hoạt động trước khi bị đánh dấu là "stale" (cũ)
+          days-before-stale: 60
+
+          # Số ngày chờ đợi sau khi đã "stale" trước khi đóng hẳn
+          days-before-close: 7
+
+          # Tên cái nhãn (label) bot sẽ tự động thêm vào
+          stale-issue-label: "stale"
+          stale-pr-label: "stale"
