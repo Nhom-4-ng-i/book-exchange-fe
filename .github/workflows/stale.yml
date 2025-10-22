@@ -15,7 +15,7 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@v10
         with:
           # Token bắt buộc để bot có thể thay mặt bạn hành động
           repo-token: ${{ secrets.GITHUB_TOKEN }}
