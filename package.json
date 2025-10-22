@@ -12,7 +12,10 @@
     "test": "jest --passWithNoTests"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "./jest-setup.js"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
