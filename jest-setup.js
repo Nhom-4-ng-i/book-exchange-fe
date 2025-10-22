@@ -1,34 +1,47 @@
-// Nội dung cho file: jest-setup.js (Bản cập nhật)
+// File: jest-setup.js (PHIÊN BẢN SỬA LỖI)
 
-// 1. Mock react-native-gesture-handler (cần thiết cho Stack/Tabs)
+// 1. Mock react-native-gesture-handler (Luôn để ở đầu)
 import 'react-native-gesture-handler/jestSetup';
 
-// 2. Mock các module của Expo
+// 2. Giả lập toàn bộ module 'expo-router'
+jest.mock('expo-router', () => {
+    // Lấy module gốc
+    const actual = jest.requireActual('expo-router');
+    const React = require('react');
+
+    // Tạo component <Stack> giả
+    const MockStack = ({ children }) => <>{children}</>;
+    // Tạo component <Stack.Screen> giả
+    MockStack.Screen = ({ children }) => <>{children}</>;
+
+    return {
+        ...actual, // Giữ lại mọi thứ của expo-router (như useRouter)
+
+        // Thay thế Stack bằng component giả của chúng ta
+        Stack: MockStack,
+
+        // Giả lập cái hook 'useLinkPreviewContext' đã gây ra lỗi crash
+        useLinkPreviewContext: () => ({
+            isPressing: false,
+            setIsPressing: jest.fn(),
+        }),
+    };
+});
+
+// 3. Giả lập @expo/vector-icons (cho Ionicons)
+jest.mock('@expo/vector-icons', () => {
+    const React = require('react');
+    const { View } = require('react-native');
+    return {
+        Ionicons: (props) => <View testID="mock-icon" {...props} />,
+    };
+});
+
+// 4. Giả lập expo-linking
 jest.mock('expo-linking', () => {
     const actual = jest.requireActual('expo-linking');
     return {
         ...actual,
         createURL: jest.fn(),
-    };
-});
-
-// 3. Mock cái Context gây lỗi của Expo Router (bạn đã thấy)
-jest.mock('expo-router/src/link/preview/LinkPreviewContext', () => ({
-    LinkPreviewContextProvider: ({ children }) => <>{children}</>,
-    useLinkPreviewContext: () => ({
-        isPressing: false,
-        setIsPressing: jest.fn(),
-    }),
-}));
-
-// 4. Mock @expo/vector-icons (do bạn dùng Ionicons) (RẤT QUAN TRỌNG)
-jest.mock('@expo/vector-icons', () => {
-    // Trả về một component giả lập
-    const React = require('react');
-    const { View } = require('react-native');
-    return {
-        Ionicons: (props) => <View testID="mock-icon" {...props} />,
-        // Thêm các loại icon khác nếu bạn dùng (ví dụ: FontAwesome)
-        // FontAwesome: (props) => <View testID="mock-icon" {...props} />,
     };
 });
