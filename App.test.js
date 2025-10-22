@@ -1,20 +1,25 @@
+// File: _layout.test.js
+
 import { render } from '@testing-library/react-native';
 import React from 'react';
 
-// Giả sử file entry của bạn là App.js
-// Nếu file chính của bạn là index.js hay gì khác, hãy đổi tên ở đây
-import App from './App';
+// ĐỔI DÒNG QUAN TRỌNG NÀY:
+// Import file layout chính của bạn (thay vì App.js)
+// Thư mục 'app' nằm ở gốc, nên đường dẫn là './app/_layout'
+import RootLayout from './src/app/_layout';
 
-describe('<App />', () => {
+describe('<RootLayout />', () => {
     it('renders correctly', () => {
-        // Test này chỉ kiểm tra xem app có "vẽ" ra được mà không bị crash hay không
-        render(<App />);
+        // Test này kiểm tra xem file layout có "vẽ" ra được
+        // mà không bị crash hay không
+
+        // Cũng đổi <App /> thành <RootLayout />
+        render(<RootLayout />);
     });
 
+    // Bạn có thể giữ hoặc xóa test 'has 1 child'
     it('has 1 child', () => {
-        // Một ví dụ test đơn giản khác
-        const tree = render(<App />);
-        // Kiểm tra xem component App có ít nhất 1 "con" bên trong nó
+        const tree = render(<RootLayout />);
         expect(tree.toJSON().children.length).toBeGreaterThanOrEqual(1);
     });
 });
