@@ -1,10 +1,21 @@
 import { AntDesign } from '@expo/vector-icons';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import IconFacebook from '../../../icons/IconFacebook';
 import IconGoogle from '../../../icons/IconGoogle';
 
 export default function LoginScreen() {
+    const [googlePressed, setGooglePressed] = useState(false);
+    const [applePressed, setApplePressed] = useState(false);
+    const [facebookPressed, setFacebookPressed] = useState(false);
+
+    const getButtonStyle = (isPressed: boolean) => ({
+        backgroundColor: isPressed ? '#f3f4f6' : '#f9fafb',
+        borderColor: isPressed ? '#d1d5db' : '#e5e7eb',
+        transform: [{ scale: isPressed ? 0.98 : 1 }],
+        opacity: isPressed ? 0.8 : 1,
+    });
+
     return (
         <View className="flex-1 bg-white">
             <View className="flex-1 px-6 pt-4">
@@ -21,14 +32,21 @@ export default function LoginScreen() {
                 <View>
                     {/* Nút Google */}
                     <Pressable
-                        className="flex-row items-center justify-center bg-gray-50 border border-gray-200 rounded-full h-16 mb-6 shadow-sm"
-                        style={{
-                            shadowColor: '#000000',
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.08,
-                            shadowRadius: 8,
-                            elevation: 4,
-                        }}
+                        className="flex-row items-center justify-center rounded-full h-16 mb-6 shadow-sm"
+                        style={[
+                            {
+                                shadowColor: '#000000',
+                                shadowOffset: { width: 0, height: 4 },
+                                shadowOpacity: 0.08,
+                                shadowRadius: 8,
+                                elevation: 4,
+                                borderWidth: 1,
+                            },
+                            getButtonStyle(googlePressed)
+                        ]}
+                        onPressIn={() => setGooglePressed(true)}
+                        onPressOut={() => setGooglePressed(false)}
+                        onPress={() => console.log('Login with Google')}
                     >
                         <View className="absolute left-6">
                             <IconGoogle />
@@ -40,14 +58,21 @@ export default function LoginScreen() {
 
                     {/* Nút Apple */}
                     <Pressable
-                        className="flex-row items-center justify-center bg-gray-50 border border-gray-200 rounded-full h-16 mb-6 shadow-sm"
-                        style={{
-                            shadowColor: '#000000',
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.08,
-                            shadowRadius: 8,
-                            elevation: 4,
-                        }}
+                        className="flex-row items-center justify-center rounded-full h-16 mb-6 shadow-sm"
+                        style={[
+                            {
+                                shadowColor: '#000000',
+                                shadowOffset: { width: 0, height: 4 },
+                                shadowOpacity: 0.08,
+                                shadowRadius: 8,
+                                elevation: 4,
+                                borderWidth: 1,
+                            },
+                            getButtonStyle(applePressed)
+                        ]}
+                        onPressIn={() => setApplePressed(true)}
+                        onPressOut={() => setApplePressed(false)}
+                        onPress={() => console.log('Login with Apple')}
                     >
                         <View className="absolute left-6">
                             <AntDesign name="apple" size={20} color="#000000" />
@@ -59,14 +84,21 @@ export default function LoginScreen() {
 
                     {/* Nút Facebook */}
                     <Pressable
-                        className="flex-row items-center justify-center bg-gray-50 border border-gray-200 rounded-full h-16 mb-6 shadow-sm"
-                        style={{
-                            shadowColor: '#000000',
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.08,
-                            shadowRadius: 8,
-                            elevation: 4,
-                        }}
+                        className="flex-row items-center justify-center rounded-full h-16 mb-6 shadow-sm"
+                        style={[
+                            {
+                                shadowColor: '#000000',
+                                shadowOffset: { width: 0, height: 4 },
+                                shadowOpacity: 0.08,
+                                shadowRadius: 8,
+                                elevation: 4,
+                                borderWidth: 1,
+                            },
+                            getButtonStyle(facebookPressed)
+                        ]}
+                        onPressIn={() => setFacebookPressed(true)}
+                        onPressOut={() => setFacebookPressed(false)}
+                        onPress={() => console.log('Login with Facebook')}
                     >
                         <View className="absolute left-6">
                             <IconFacebook />
