@@ -17,7 +17,7 @@
       "<rootDir>/jest.setup.js"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!(jest-)?react-native|react-clone-referenced-element|@react-native-community|expo(native)?|@expo(native)?/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|@sentry/.*|expo-*|@expo-google-fonts/.*)"
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo|@expo(f)s?|@expo-google-fonts|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)/)"
     ],
     "testEnvironment": "jsdom",
     "moduleNameMapper": {
