@@ -6,6 +6,7 @@ export default function Index() {
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <Text>Đây là trang chủ 📚</Text>
       <Button title="Hồ sơ" onPress={() => router.push("./profile")} />
+      <Button title="Đăng nhập" onPress={() => router.push("./auth/login")} />
     </View>
   );
 }
