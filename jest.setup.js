@@ -1,15 +1,70 @@
 /* eslint-disable no-undef */
-// jest.setup.js
+// Setup file for Jest tests
 
-// 1. Thêm các hàm test "native" (như toBeVisible(), toBeOnTheScreen())
+// Add custom matchers for React Native
 import '@testing-library/jest-native/extend-expect';
 
-// 2. Mock thư viện react-native-reanimated
+// Mock React Native Reanimated
 jest.mock('react-native-reanimated', () => {
   const Reanimated = require('react-native-reanimated/mock');
-
-  // Thêm mock cho .call, vì thư viện này cần nó
-  Reanimated.default.call = () => {};
-
-  return Reanimated;
+  
+  // Mock the default export and any specific methods you use
+  return {
+    ...Reanimated,
+    useSharedValue: jest.fn(Reanimated.useSharedValue),
+    useAnimatedStyle: jest.fn(style => () => style()),
+    withTiming: jest.fn(Reanimated.withTiming),
+    withSpring: jest.fn(Reanimated.withSpring),
+    runOnJS: jest.fn(fn => fn),
+  };
 });
+
+// Mock expo modules
+jest.mock('expo-constants', () => ({
+  manifest: {},
+  sessionId: 'test-session-id',
+  systemFonts: [],
+}));
+
+// Mock react-native-gesture-handler
+jest.mock('react-native-gesture-handler', () => {
+  const View = require('react-native/Libraries/Components/View/View');
+  return {
+    Swipeable: View,
+    DrawerLayout: View,
+    State: {},
+    ScrollView: View,
+    Slider: View,
+    Switch: View,
+    TextInput: View,
+    ToolbarAndroid: View,
+    ViewPagerAndroid: View,
+    DrawerLayoutAndroid: View,
+    WebView: View,
+    NativeViewGestureHandler: View,
+    TapGestureHandler: View,
+    FlingGestureHandler: View,
+    ForceTouchGestureHandler: View,
+    LongPressGestureHandler: View,
+    PanGestureHandler: View,
+    PinchGestureHandler: View,
+    RotationGestureHandler: View,
+    /* Buttons */
+    RawButton: View,
+    BaseButton: View,
+    RectButton: View,
+    BorderlessButton: View,
+    /* Other */
+    FlatList: View,
+    gestureHandlerRootHOC: jest.fn(),
+    Directions: {},
+  };
+});
+
+// Mock react-native-vector-icons
+jest.mock('@expo/vector-icons', () => ({
+  FontAwesome: 'FontAwesome',
+  MaterialIcons: 'MaterialIcons',
+  AntDesign: 'AntDesign',
+  // Add other icon families as needed
+}));
