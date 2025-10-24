@@ -1,6 +1,6 @@
-import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import { Pressable } from "react-native";
+import 'react-native-gesture-handler';
 
 export default function RootLayout() {
   return (
@@ -18,7 +18,6 @@ export default function RootLayout() {
           title: "Chi tiết",
           headerLeft: () => (
             <Pressable onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="black" />
             </Pressable>
           ),
         })}
