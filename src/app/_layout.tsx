@@ -34,6 +34,13 @@ export default function RootLayout() {
             headerBackButtonDisplayMode: 'minimal',
           }}
         />
+        <Stack.Screen
+          name="success" 
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
       </Stack>
     </View>
   );

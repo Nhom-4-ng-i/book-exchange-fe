@@ -7,7 +7,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import IconFacebook from '../../../icons/IconFacebook';
 import IconGoogle from '../../../icons/IconGoogle';
 
-// Needed for some expo auth flows
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
@@ -19,8 +18,8 @@ export default function LoginScreen() {
     const [userInfo, setUserInfo] = useState<any>(null);
 
     const [request, response, promptAsync] = Google.useAuthRequest({
-        iosClientId: '826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com',
-        androidClientId: '826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com',
+        iosClientId: '826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b.apps.googleusercontent.com',
+        androidClientId: '826333210617-ocer35aga9t2mp9o2f76av6d70k1ikdh.apps.googleusercontent.com',
         webClientId: '826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
     });
@@ -43,8 +42,10 @@ export default function LoginScreen() {
         setUserInfo(user);
         console.log('Google user:', user);
 
+        router.push('/success');
+
         } catch (err) {
-        console.warn('Failed to fetch user info', err);
+            console.warn('Failed to fetch user info', err);
         }
     };
 
@@ -69,13 +70,11 @@ export default function LoginScreen() {
                         onPressIn={() => setGooglePressed(true)}
                         onPressOut={() => setGooglePressed(false)}
                         onPress={() => {
-                        // mở flow Google consent
-                        // nếu request chưa được khởi tạo, có thể disable button hoặc báo lỗi
                         if (!request) {
                             console.warn('Google auth request not ready yet');
                             return;
                         }
-                        promptAsync(); // useProxy giúp dev suôn sẻ trên Expo Go; tuỳ env bạn có thể bỏ
+                        promptAsync();
                         }}
                     >
                         <View style={styles.iconLeft}>

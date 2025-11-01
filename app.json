@@ -5,11 +5,17 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "exchangeoldbooks",
+    "scheme": "exchangeoldbooks", 
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kandyz2705.exchangeoldbooks", 
+      "config": {
+        "googleSignIn": {
+          "clientId": "826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b.apps.googleusercontent.com"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,13 +24,24 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "package": "com.kandyz2705.exchangeoldbooks", 
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "googleSignIn": {
+          "clientId": "826333210617-ocer35aga9t2mp9o2f76av6d70k1ikdh.apps.googleusercontent.com"
+        }
+      }
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png",
-      "bundler": "metro"
+      "bundler": "metro",
+      "config": {
+        "googleSignIn": {
+          "clientId": "826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com"
+        }
+      }
     },
     "plugins": [
       "expo-router",
