@@ -1,54 +1,35 @@
 import { Stack } from 'expo-router';
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import 'react-native-gesture-handler';
-import "../../styles/global.css";
-globalThis.React = React;
- 
+import '../../global.css';
+
 export default function RootLayout() {
   return (
-    <View style={styles.container}>
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            title: 'Trang Chủ',
-            headerShown: false,
-            headerTitleAlign: 'center',
-            headerBackButtonDisplayMode: 'minimal',
-          }}
-        />
+    <Stack>
+      <Stack.Screen 
+        name="index" 
+        options={{ 
+          title: "Trang Chủ", 
+          headerShown: false 
+        }} 
+      />
 
-        <Stack.Screen
-          name="login/index"
-          options={{
-            headerShown: false,
-            headerBackButtonDisplayMode: 'minimal',
-          }}
-        />
+      <Stack.Screen 
+        name="auth/login/index" 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="auth/phone/index" 
+        options={{ headerShown: false }} 
+      />
 
-        <Stack.Screen
-          name="profile/index"
-          options={{
-            headerShown: false,
-            headerBackButtonDisplayMode: 'minimal',
-          }}
-        />
-        <Stack.Screen
-          name="success" 
-          options={{
-            presentation: 'modal',
-            headerShown: false,
-          }}
-        />
-      </Stack>
-    </View>
+      <Stack.Screen 
+        name="profile/index" 
+        options={{ headerShown: false }} 
+      />
+
+      <Stack.Screen 
+        name="success" 
+        options={{ headerShown: false }} 
+      />
+    </Stack>
   );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
-});

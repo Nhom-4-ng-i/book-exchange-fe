@@ -3,7 +3,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import IconFacebook from '../../../icons/IconFacebook';
 import IconGoogle from '../../../icons/IconGoogle';
 
@@ -12,9 +12,6 @@ WebBrowser.maybeCompleteAuthSession();
 export default function LoginScreen() {
     const router = useRouter();
 
-    const [googlePressed, setGooglePressed] = useState(false);
-    const [applePressed, setApplePressed] = useState(false);
-    const [facebookPressed, setFacebookPressed] = useState(false);
     const [userInfo, setUserInfo] = useState<any>(null);
 
     const [request, response, promptAsync] = Google.useAuthRequest({
@@ -49,26 +46,21 @@ export default function LoginScreen() {
         }
     };
 
-    const getButtonStyle = (isPressed: boolean) => ({
-        backgroundColor: isPressed ? '#f3f4f6' : '#f9fafb',
-        borderColor: isPressed ? '#d1d5db' : '#e5e7eb',
-        transform: [{ scale: isPressed ? 0.98 : 1 }],
-        opacity: isPressed ? 0.8 : 1,
-    });
+    const buttonBaseClass = "flex-row items-center justify-center rounded-full h-[52px] mb-2 shadow-md border position-relative bg-gray-50 border-gray-200";
+    const buttonActiveClass = "active:bg-gray-100 active:border-gray-300 active:scale-[.98] active:opacity-80";
 
     return (
-        <View style={styles.container}>
-            <View style={styles.innerContainer}>
-                <View style={styles.header}>
-                    <Text style={styles.title}>Chào mừng bạn trở lại 👋</Text>
-                    <Text style={styles.subtitle}>Đăng nhập vào tài khoản của bạn</Text>
+        <View className="flex-1 bg-white">
+
+            <View className="flex-1 px-6 pt-4 mt-28">
+                <View className="mb-[131px]">
+                    <Text className="text-2xl font-bold text-black mb-2">Chào mừng bạn trở lại 👋</Text>
+                    <Text className="text-base text-gray-500">Đăng nhập vào tài khoản của bạn</Text>
                 </View>
 
                 <View>
                     <Pressable
-                        style={({ pressed }) => [styles.button, getButtonStyle(pressed || googlePressed)]}
-                        onPressIn={() => setGooglePressed(true)}
-                        onPressOut={() => setGooglePressed(false)}
+                        className={`${buttonBaseClass} ${buttonActiveClass}`}
                         onPress={() => {
                         if (!request) {
                             console.warn('Google auth request not ready yet');
@@ -77,40 +69,30 @@ export default function LoginScreen() {
                         promptAsync();
                         }}
                     >
-                        <View style={styles.iconLeft}>
-                        <IconGoogle />
+                        <View className="absolute left-6">
+                            <IconGoogle />
                         </View>
-                        <Text style={styles.buttonText}>Đăng nhập với Google</Text>
+                        <Text className="text-sm font-normal text-gray-800">Đăng nhập với Google</Text>
                     </Pressable>
 
                     <Pressable
-                        style={({ pressed }) => [
-                            styles.button,
-                            getButtonStyle(pressed || applePressed),
-                        ]}
-                        onPressIn={() => setApplePressed(true)}
-                        onPressOut={() => setApplePressed(false)}
+                        className={`${buttonBaseClass} ${buttonActiveClass}`}
                         onPress={() => router.push('./phone')}
                     >
-                        <View style={styles.iconLeft}>
+                        <View className="absolute left-6">
                             <AntDesign name="apple" size={20} color="#000000" />
                         </View>
-                        <Text style={styles.buttonText}>Đăng nhập với Apple</Text>
+                        <Text className="text-sm font-normal text-gray-800">Đăng nhập với Apple</Text>
                     </Pressable>
 
                     <Pressable
-                        style={({ pressed }) => [
-                            styles.button,
-                            getButtonStyle(pressed || facebookPressed),
-                        ]}
-                        onPressIn={() => setFacebookPressed(true)}
-                        onPressOut={() => setFacebookPressed(false)}
+                        className={`${buttonBaseClass} ${buttonActiveClass}`}
                         onPress={() => console.log('Login with Facebook')}
                     >
-                        <View style={styles.iconLeft}>
+                        <View className="absolute left-6">
                             <IconFacebook />
                         </View>
-                        <Text style={styles.buttonText}>Đăng nhập với Facebook</Text>
+                        <Text className="text-sm font-normal text-gray-800">Đăng nhập với Facebook</Text>
                     </Pressable>
                 </View>
             </View>
@@ -118,51 +100,3 @@ export default function LoginScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
-    innerContainer: {
-        flex: 1,
-        paddingHorizontal: 24,
-        paddingTop: 16,
-    },
-    header: {
-        marginBottom: 131,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#000000',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontSize: 16,
-        color: '#6b7280',
-    },
-    button: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 9999,
-        height: 52,
-        marginBottom: 8,
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 4,
-        borderWidth: 1,
-        position: 'relative',
-    },
-    iconLeft: {
-        position: 'absolute',
-        left: 24,
-    },
-    buttonText: {
-        fontSize: 14,
-        fontWeight: '400',
-        color: '#1f2937',
-    },
-});
