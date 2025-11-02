@@ -1,16 +1,16 @@
 {
   "expo": {
     "name": "Exchange-old-books",
-    "slug": "Exchange-old-books",
+    "slug": "bkoo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "exchangeoldbooks", 
+    "scheme": "exchangeoldbooks",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kandyz2705.exchangeoldbooks", 
+      "bundleIdentifier": "com.kandyz2705.exchangeoldbooks",
       "config": {
         "googleSignIn": {
           "clientId": "826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b.apps.googleusercontent.com"
@@ -24,7 +24,7 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "package": "com.kandyz2705.exchangeoldbooks", 
+      "package": "com.kandyz2705.exchangeoldbooks",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "config": {
@@ -57,12 +57,20 @@
           }
         }
       ],
+      "expo-font",
       "expo-secure-store",
       "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6d04f9f7-204a-4eba-a95a-03fa64d6fdb7"
+      }
+    },
+    "owner": "trieuman2705"
   }
 }
