@@ -34,7 +34,15 @@ export default function RootLayout() {
             headerBackButtonDisplayMode: 'minimal',
           }}
         />
+          <Stack.Screen
+          name="onboarding"
+          options={{
+            headerShown: false,
+            headerBackButtonDisplayMode: 'minimal',
+          }}
+        />
       </Stack>
+      
     </View>
   );
 }
