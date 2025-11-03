@@ -1,7 +1,22 @@
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
+import { ActivityIndicator, View } from 'react-native';
 import '../../global.css';
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    noto_sans: require('../../assets/fonts/Noto_Sans/static/NotoSans-Regular.ttf'),
+    roboto: require('../../assets/fonts/Roboto/static/Roboto-Regular.ttf'),
+  });
+
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#54408C" />
+      </View>
+    );
+  }
+
   return (
     <Stack>
       <Stack.Screen 

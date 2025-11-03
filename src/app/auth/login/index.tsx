@@ -3,46 +3,45 @@ import * as Google from 'expo-auth-session/providers/google';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import IconFacebook from '../../../icons/IconFacebook';
 import IconGoogle from '../../../icons/IconGoogle';
 
+// Cần thiết cho web
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
     const router = useRouter();
-
     const [userInfo, setUserInfo] = useState<any>(null);
 
     const [request, response, promptAsync] = Google.useAuthRequest({
         iosClientId: '826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b.apps.googleusercontent.com',
-        androidClientId: '826333210617-ocer35aga9t2mp9o2f76av6d70k1ikdh.apps.googleusercontent.com',
         webClientId: '826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com',
+        androidClientId: '826333210617-ocer35aga9t2mp9o2f76av6d70k1ikdh.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
     });
 
     useEffect(() => {
         if (response?.type === 'success') {
-        const { authentication } = response;
-        if (authentication?.accessToken) {
-            fetchUserInfo(authentication.accessToken);
-        }
+            const { authentication } = response;
+            if (authentication?.accessToken) {
+                fetchUserInfo(authentication.accessToken);
+            }
         }
     }, [response]);
 
     const fetchUserInfo = async (accessToken: string) => {
         try {
-        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        const user = await res.json();
-        setUserInfo(user);
-        console.log('Google user:', user);
-
-        router.push('/success');
-
-        } catch (err) {
-            console.warn('Failed to fetch user info', err);
+            const response = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            const user = await response.json();
+            setUserInfo(user);
+            console.log('User Info:', user);
+            router.push('/success');
+        } catch (error) {
+            console.error('Error fetching user info:', error);
+            Alert.alert('Lỗi', 'Không thể lấy thông tin người dùng');
         }
     };
 
@@ -61,13 +60,8 @@ export default function LoginScreen() {
                 <View>
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => {
-                        if (!request) {
-                            console.warn('Google auth request not ready yet');
-                            return;
-                        }
-                        promptAsync();
-                        }}
+                        onPress={() => promptAsync()}
+                        disabled={!request}
                     >
                         <View className="absolute left-6">
                             <IconGoogle />
@@ -87,7 +81,7 @@ export default function LoginScreen() {
 
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => console.log('Login with Facebook')}
+                        onPress={() => promptAsync()}
                     >
                         <View className="absolute left-6">
                             <IconFacebook />
