@@ -3,12 +3,13 @@ import { StatusBar } from "expo-status-bar";
 import {
   Image,
   Pressable,
-  SafeAreaView,
   ScrollView,
   Text,
   View,
 } from "react-native";
 import HeaderHome from "../components/HeaderHome";
+
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const books = [
   {

@@ -4,11 +4,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   Text,
   TextInput,
   View
 } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
 import Header from '../../../components/Header';
 import IconPhone from '../../../icons/IconPhone';
 
