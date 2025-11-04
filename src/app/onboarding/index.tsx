@@ -1,69 +1,94 @@
-import React, { useRef, useState, useMemo, useCallback } from 'react';
+
+
+import React, { useRef, useState, useMemo, useCallback, useEffect } from 'react';
+import { View, Text, FlatList, Pressable, StyleSheet, Dimensions, ViewToken, StatusBar, SafeAreaView } from 'react-native';
 import IconOnboarding1 from '../../icons/IconOnboarding';
 import IconOnboarding2 from '../../icons/IconOnboarding2';
 import IconOnboarding3 from '../../icons/IconOnboarding3';
-import {
-  View,
-  Text,
-  Image,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Dimensions,
-  ViewToken,
-  StatusBar,
-  SafeAreaView,
-} from 'react-native';
+import LogoBkoo1 from '../../icons/logoBkoo1'
+import LogoBkoo2 from '../../icons/logoBkoo2'
 
 const { width, height } = Dimensions.get('window');
-
 const PADDING_H = 24;
 const PURPLE = '#5E3EA1';
 const PURPLE_DARK = '#4B3282';
 const GRAY = '#8C8C8C';
 const DOT_INACTIVE = '#D8CFF2';
 const DOT_ACTIVE = PURPLE;
-type OnboardingItem = {
+
+
+type IconLike = React.ComponentType<{ width?: number; height?: number }>;
+
+type IntroSlide = {
+  kind: 'intro';
+  key: string;
+  variant: 'purple' | 'white';   
+  Logo: React.ComponentType<any>; 
+};
+
+type OnboardingSlide = {
+  kind: 'onboarding';
   key: string;
   title: string;
   subtitle: string;
-  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  Icon: IconLike;
 };
 
+type Slide = IntroSlide | OnboardingSlide;
 
-const ONBOARDING_DATA = [
+const INTRO_SLIDES: IntroSlide[] = [
+  { kind: 'intro', key: 'intro-purple', variant: 'purple' ,  Logo: LogoBkoo2  },
+  { kind: 'intro', key: 'intro-white', variant: 'white' ,  Logo: LogoBkoo1 },
+];
+
+const ONBOARDING_SLIDES: OnboardingSlide[] = [
   {
+    kind: 'onboarding',
     key: 'find',
     title: 'Tìm sách nhanh',
     subtitle:
       'Tìm và lọc sách theo môn, trạng thái, trường, phạm vi giá,… Hỗ trợ nhanh lẹ trong việc tìm kiếm có kết quả ngay.',
-      Icon: IconOnboarding1,
+    Icon: IconOnboarding1,
   },
   {
+    kind: 'onboarding',
     key: 'sell',
     title: 'Đăng bán trong 1 phút',
     subtitle:
       'Đăng tải ảnh sách lên, điền các thông tin cơ bản cần thiết và bấm “Đăng lên”. Người mua thấy ngay lập tức!',
-      Icon: IconOnboarding2,
+    Icon: IconOnboarding2,
   },
   {
+    kind: 'onboarding',
     key: 'wishlist',
     title: 'Wishlist thông minh',
     subtitle:
       'Lưu sách mà bạn mong muốn mua; nhận thông báo ngay khi có người đăng bán sách tương ứng.',
-      Icon: IconOnboarding3,
+    Icon: IconOnboarding3,
   },
 ];
 
-type Props = {
-  onDone?: () => void; 
-};
+const SLIDES: Slide[] = [...INTRO_SLIDES, ...ONBOARDING_SLIDES];
+const INTRO_COUNT = INTRO_SLIDES.length;
+const OB_COUNT = ONBOARDING_SLIDES.length;
 
-export default function OnboardingScreen({onDone} : Props ) {
-  const listRef = useRef<FlatList>(null);
+type Props = { onDone?: () => void };
+
+export default function OnboardingScreen({ onDone }: Props) {
+  const listRef = useRef<FlatList<Slide>>(null);
   const [index, setIndex] = useState(0);
+  const isLast = index === SLIDES.length - 1;
+  const inIntro = index < INTRO_COUNT;
+  const obIndex = Math.max(0, index - INTRO_COUNT); 
+
   
-  const isLast = index === ONBOARDING_DATA.length - 1;
+  useEffect(() => {
+    if (!inIntro) return;
+    const t = setTimeout(() => {
+      listRef.current?.scrollToIndex({ index: index + 1, animated: true });
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [index, inIntro]);
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 60 });
   const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -73,39 +98,53 @@ export default function OnboardingScreen({onDone} : Props ) {
   });
 
   const goNext = useCallback(() => {
-    if (isLast) {
-      console.log('Onboarding done');
-      onDone?.(); 
+    if (!isLast) {
       listRef.current?.scrollToIndex({ index: index + 1, animated: true });
+    } else {
+      onDone?.();
     }
   }, [index, isLast, onDone]);
 
   const goPrev = useCallback(() => {
-    if (index > 0) {
-      listRef.current?.scrollToIndex({ index: index - 1, animated: true });
-    }
+    if (index > 0) listRef.current?.scrollToIndex({ index: index - 1, animated: true });
   }, [index]);
 
   const skipToLast = useCallback(() => {
-    const last = ONBOARDING_DATA.length - 1;
-    listRef.current?.scrollToIndex({ index: last, animated: true });
+    listRef.current?.scrollToIndex({ index: SLIDES.length - 1, animated: true });
   }, []);
 
-  const renderItem = useCallback(({ item }: { item: OnboardingItem }) => {
+  const renderIntro = (variant: IntroSlide['variant']) => {
+    if (variant === 'purple') {
+      return (
+        <View style={[styles.introBase, { backgroundColor: PURPLE }]}>
+          <LogoBkoo2/>
+          <Text style={styles.taglineWhite}>Mua — Bán sách và tài liệu trong trường, nhanh và tiết kiệm.</Text>
+        </View>
+      );
+    }
+    return (
+      <View style={[styles.introBase, { backgroundColor: 'white' }]}>
+         <LogoBkoo1/>
+        <Text style={styles.taglinePurple}>Mua — Bán sách và tài liệu trong trường, nhanh và tiết kiệm.</Text>
+      </View>
+    );
+  };
+
+  const renderItem = useCallback(({ item }: { item: Slide }) => {
+    if (item.kind === 'intro') {
+      return <View style={styles.slide}>{renderIntro(item.variant)}</View>;
+    }
     return (
       <View style={styles.slide}>
-        {/* Bỏ qua */}
         <Pressable onPress={skipToLast} hitSlop={10} style={styles.skipWrap}>
           <Text style={styles.skipText}>Bỏ qua</Text>
         </Pressable>
 
-        {/* Ảnh + aura */}
         <View style={styles.illustrationWrap}>
           <View style={styles.aura} />
-          <item.Icon className="w-64 h-64" />
+          <item.Icon width={width * 0.6} height={width * 0.6} />
         </View>
 
-        {/* Text */}
         <View style={styles.textBlock}>
           <Text style={styles.title}>{item.title}</Text>
           <Text style={styles.subtitle}>{item.subtitle}</Text>
@@ -114,34 +153,34 @@ export default function OnboardingScreen({onDone} : Props ) {
     );
   }, [skipToLast]);
 
-  const dots = useMemo(
-    () => (
+  const dots = useMemo(() => {
+    if (inIntro) return null;
+    return (
       <View style={styles.dotsRow}>
-        {ONBOARDING_DATA.map((_, i) => (
+        {Array.from({ length: OB_COUNT }).map((_, i) => (
           <View
             key={i}
             style={[
               styles.dot,
               {
-                backgroundColor: i === index ? DOT_ACTIVE : DOT_INACTIVE,
-                width: i === index ? 18 : 8,
+                backgroundColor: i === obIndex ? DOT_ACTIVE : DOT_INACTIVE,
+                width: i === obIndex ? 18 : 8,
               },
             ]}
           />
         ))}
       </View>
-    ),
-    [index]
-  );
+    );
+  }, [inIntro, obIndex]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle={inIntro ? 'light-content' : 'dark-content'} />
 
       <FlatList
         ref={listRef}
         horizontal
-        data={ONBOARDING_DATA}
+        data={SLIDES}
         keyExtractor={(it) => it.key}
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -149,37 +188,41 @@ export default function OnboardingScreen({onDone} : Props ) {
         onViewableItemsChanged={onViewableItemsChanged.current}
         viewabilityConfig={viewConfigRef.current}
         getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
+        scrollEnabled={!inIntro} 
       />
 
-      {/* Dots */}
       {dots}
 
-      {/* Buttons */}
-      <View style={styles.actions}>
-        <Pressable style={[styles.primaryBtn, isLast && styles.primaryBtnLast]} onPress={goNext}>
-          <Text style={styles.primaryText}>{isLast ? 'Bắt đầu' : 'Tiếp tục'}</Text>
-        </Pressable>
-
-        {index > 0 && (
-          <Pressable style={styles.secondaryBtn} onPress={goPrev}>
-            <Text style={styles.secondaryText}>Quay lại</Text>
+      
+      {!inIntro && (
+        <View style={styles.actions}>
+          <Pressable style={[styles.primaryBtn, isLast && styles.primaryBtnLast]} onPress={goNext}>
+            <Text style={styles.primaryText}>{isLast ? 'Bắt đầu' : 'Tiếp tục'}</Text>
           </Pressable>
-        )}
-      </View>
+          {index > INTRO_COUNT && (
+            <Pressable style={styles.secondaryBtn} onPress={goPrev}>
+              <Text style={styles.secondaryText}>Quay lại</Text>
+            </Pressable>
+          )}
+        </View>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  slide: {
-    width,
-    paddingHorizontal: PADDING_H,
-    paddingTop: 8,
-    paddingBottom: 24,
-  },
+  slide: { width,height },
+  // paddingHorizontal: PADDING_H, 
+  // Intro styles
+  introBase: { flex: 1, alignItems: 'center', justifyContent: 'center' ,  maxWidth: width,height },
+  brandWhite: { color: 'white', fontSize: 36, fontWeight: '800', marginBottom: 12},
+  taglineWhite: { color: 'white', opacity: 0.9, fontSize: 14, paddingHorizontal: PADDING_H },
+  brandPurple: { color: PURPLE, fontSize: 36, fontWeight: '800', marginBottom: 12 },
+  taglinePurple: { color: PURPLE, opacity: 0.9, fontSize: 14,paddingHorizontal: PADDING_H },
+
   skipWrap: { alignSelf: 'flex-start', marginBottom: 8 },
-  skipText: { fontSize: 14, color: PURPLE, fontWeight: '600' },
+  skipText: { fontSize: 14, color: PURPLE, fontWeight: '600' , marginLeft : 20 , marginTop : 20 },
 
   illustrationWrap: {
     alignItems: 'center',
@@ -202,7 +245,6 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     elevation: 8,
   },
-  image: { width: width * 0.75, height: '100%' },
 
   textBlock: { marginTop: 8, alignItems: 'center', paddingHorizontal: 8 },
   title: { fontSize: 22, fontWeight: '700', color: '#111111', textAlign: 'center', marginBottom: 8 },
@@ -213,15 +255,10 @@ const styles = StyleSheet.create({
 
   actions: { marginTop: 16, paddingHorizontal: PADDING_H, paddingBottom: 12, gap: 12 },
   primaryBtn: {
-    backgroundColor: PURPLE,
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: PURPLE, borderRadius: 14, paddingVertical: 14, alignItems: 'center', justifyContent: 'center',
   },
   primaryBtnLast: { backgroundColor: PURPLE_DARK },
   primaryText: { color: 'white', fontSize: 16, fontWeight: '700' },
-
   secondaryBtn: {
     backgroundColor: '#F4F1FB',
     borderRadius: 14,
@@ -233,4 +270,5 @@ const styles = StyleSheet.create({
   },
   secondaryText: { color: PURPLE, fontSize: 15, fontWeight: '600' },
 });
+
 
