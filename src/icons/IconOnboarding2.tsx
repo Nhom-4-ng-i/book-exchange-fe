@@ -1,4 +1,5 @@
 import * as React from "react";
+import Svg, { Path } from 'react-native-svg';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & {
   /** Tuỳ chọn: mô tả cho accessibility */
@@ -7,7 +8,7 @@ type SvgProps = React.SVGProps<SVGSVGElement> & {
 
 const IconOnboarding2 = React.forwardRef<SVGSVGElement, SvgProps>(
   ({ title, width = 320, height = 320, ...rest }, ref) => (
-    <svg
+    <Svg
       ref={ref}
       xmlns="http://www.w3.org/2000/svg"
       width={width}
@@ -933,7 +934,7 @@ const IconOnboarding2 = React.forwardRef<SVGSVGElement, SvgProps>(
       fill="#54408C"
       d="m97.338 166.765.365-.595.102.076-.147 1.869a.959.959 0 0 1-.301.493l-.128-.435.109-1.408ZM95.789 169.005l1.331-.768.122.441-1.664.96c-.148.039-.224 0-.25-.179l.46-.454ZM97.74 163.795c.142-.045.231 0 .25.173l-.147 1.869-.121.198-.308-.205.116-1.408.21-.627ZM95.718 167.258l.244-.397 1.44-.832.198.141-.243.396-1.44.832-.199-.14ZM95.898 167.597l-.103 1.273-.454.455.134-1.735.128-.204.295.211ZM95.974 166.656l-.364.595-.103-.064.141-1.741.429-.057-.103 1.267Z"
     />
-    </svg>
+    </Svg>
   )
 );
 
