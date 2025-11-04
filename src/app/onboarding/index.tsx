@@ -1,4 +1,7 @@
 import React, { useRef, useState, useMemo, useCallback } from 'react';
+import IconOnboarding1 from '../../icons/IconOnboarding';
+import IconOnboarding2 from '../../icons/IconOnboarding2';
+import IconOnboarding3 from '../../icons/IconOnboarding3';
 import {
   View,
   Text,
@@ -24,7 +27,7 @@ type OnboardingItem = {
   key: string;
   title: string;
   subtitle: string;
-  image: string;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
 
@@ -34,21 +37,21 @@ const ONBOARDING_DATA = [
     title: 'Tìm sách nhanh',
     subtitle:
       'Tìm và lọc sách theo môn, trạng thái, trường, phạm vi giá,… Hỗ trợ nhanh lẹ trong việc tìm kiếm có kết quả ngay.',
-    image: 'https://dummyimage.com/800x600/eeeeee/aaaaaa.png&text=Find+books',
+      Icon: IconOnboarding1,
   },
   {
     key: 'sell',
     title: 'Đăng bán trong 1 phút',
     subtitle:
       'Đăng tải ảnh sách lên, điền các thông tin cơ bản cần thiết và bấm “Đăng lên”. Người mua thấy ngay lập tức!',
-    image: 'https://dummyimage.com/800x600/eeeeee/aaaaaa.png&text=Sell+fast',
+      Icon: IconOnboarding2,
   },
   {
     key: 'wishlist',
     title: 'Wishlist thông minh',
     subtitle:
       'Lưu sách mà bạn mong muốn mua; nhận thông báo ngay khi có người đăng bán sách tương ứng.',
-    image: 'https://dummyimage.com/800x600/eeeeee/aaaaaa.png&text=Smart+wishlist',
+      Icon: IconOnboarding3,
   },
 ];
 
@@ -72,8 +75,7 @@ export default function OnboardingScreen({onDone} : Props ) {
   const goNext = useCallback(() => {
     if (isLast) {
       console.log('Onboarding done');
-      onDone?.(); // tuỳ bạn có muốn bắt sự kiện này không
-    } else {
+      onDone?.(); 
       listRef.current?.scrollToIndex({ index: index + 1, animated: true });
     }
   }, [index, isLast, onDone]);
@@ -100,7 +102,7 @@ export default function OnboardingScreen({onDone} : Props ) {
         {/* Ảnh + aura */}
         <View style={styles.illustrationWrap}>
           <View style={styles.aura} />
-          <Image source={{ uri: item.image }} resizeMode="contain" style={styles.image} />
+          <item.Icon className="w-64 h-64" />
         </View>
 
         {/* Text */}
