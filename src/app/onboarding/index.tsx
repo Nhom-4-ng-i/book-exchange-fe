@@ -18,9 +18,12 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingGate } from "../hooks/useOnboardingGate";
 
+import IconLogoPrimary from "../../icons/IconLogoPrimary";
+import IconLogoWhite from "../../icons/IconLogoWhite";
 import IconOnboarding1 from "../../icons/IconOnboarding1";
 import IconOnboarding2 from "../../icons/IconOnboarding2";
 import IconOnboarding3 from "../../icons/IconOnboarding3";
+
 import LogoBkoo1 from "../../icons/logoBkoo1";
 import LogoBkoo2 from "../../icons/logoBkoo2";
 
@@ -66,20 +69,77 @@ export default function Onboarding() {
 
   const [phase, setPhase] = useState<Phase>("intro1");
 
-  const fade = useSharedValue(0);
-  const translate = useSharedValue(20);
+
+  const containerFade = useSharedValue(0);
+  const logoOpacity = useSharedValue(0);
+  const logoTranslateY = useSharedValue(0);
+  const textOpacity = useSharedValue(0);
+  const textTranslateY = useSharedValue(0);
+
+
+  const animatePhase1In = () => {
+    containerFade.value = withTiming(1, { duration: 260 });
+    logoOpacity.value = 0;
+    logoTranslateY.value = 20;
+    logoOpacity.value = withTiming(1, { duration: 260 });
+    logoTranslateY.value = withTiming(0, { duration: 260 });
+
+    textOpacity.value = 0;
+    textTranslateY.value = 20;
+    textOpacity.value = withTiming(1, { duration: 260 });
+    textTranslateY.value = withTiming(0, { duration: 260 });
+  };
+
+  const animatePhase1Out = (cb?: () => void) => {
+    containerFade.value = withTiming(0, { duration: 220 });
+    logoOpacity.value = withTiming(0, { duration: 220 });
+    logoTranslateY.value = withTiming(-30, { duration: 220 });
+
+    textOpacity.value = withTiming(0, { duration: 220 });
+    textTranslateY.value = withTiming(30, { duration: 220 }, (finished) => {
+      if (finished && cb) {
+        runOnJS(cb)();
+      }
+    });
+  };
+
+  const animatePhase2In = () => {
+    containerFade.value = withTiming(1, { duration: 260 });
+    logoOpacity.value = 0;
+    logoTranslateY.value = -30;
+    logoOpacity.value = withTiming(1, { duration: 260 });
+    logoTranslateY.value = withTiming(0, { duration: 260 });
+
+    textOpacity.value = 0;
+    textTranslateY.value = 30;
+    textOpacity.value = withTiming(1, { duration: 260 });
+    textTranslateY.value = withTiming(0, { duration: 260 });
+  };
+
+  const animatePhase2Out = (cb?: () => void) => {
+    containerFade.value = withTiming(0, { duration: 220 });
+    logoOpacity.value = withTiming(0, { duration: 220 });
+
+    textOpacity.value = withTiming(0, { duration: 220 });
+
+    containerFade.value = withTiming(0, { duration: 220 }, (finished) => {
+      if (finished && cb) {
+        runOnJS(cb)();
+      }
+    });
+  };
 
   useEffect(() => {
     let t1: NodeJS.Timeout | undefined;
     let t2: NodeJS.Timeout | undefined;
 
     const run = async () => {
-      animateIn();
+      animatePhase1In();
       t1 = setTimeout(() => {
-        animateOut(() => {
+        animatePhase1Out(() => {
           setPhase("intro2");
-          animateIn();
-          t2 = setTimeout(() => animateOut(() => setPhase("slides")), 900);
+          animatePhase2In();
+          t2 = setTimeout(() => animatePhase2Out(() => setPhase("slides")), 900);
         });
       }, 900);
     };
@@ -93,33 +153,30 @@ export default function Onboarding() {
 
   useEffect(() => {
     if (phase === "slides") {
-      fade.value = 1;
-      translate.value = 0;
+      containerFade.value = 1;
     }
   }, [phase]);
 
-  const animateIn = () => {
-    fade.value = 0;
-    translate.value = 20;
-    fade.value = withTiming(1, { duration: 260 });
-    translate.value = withTiming(0, { duration: 260 });
-  };
-
-  const animateOut = (cb?: () => void) => {
-    fade.value = withTiming(0, { duration: 220 });
-    translate.value = withTiming(-10, { duration: 220 }, (finished) => {
-      if (finished && cb) {
-        runOnJS(cb)();
-      }
-    });
-  };
-
-  const introAnimatedStyle = useAnimatedStyle(() => {
+  const containerAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: fade.value,
-      transform: [{ translateY: translate.value }],
+      opacity: containerFade.value,
     };
   });
+
+  const logoAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: logoOpacity.value,
+      transform: [{ translateY: logoTranslateY.value }],
+    };
+  });
+
+  const textAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: textOpacity.value,
+      transform: [{ translateY: textTranslateY.value }],
+    };
+  });
+
 
   const listRef = useRef<FlatList<Slide>>(null);
   const [index, setIndex] = useState(0);
@@ -156,6 +213,7 @@ export default function Onboarding() {
     };
   });
 
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <StatusBar barStyle={phase === "intro1" ? "light-content" : "dark-content"} />
@@ -165,14 +223,17 @@ export default function Onboarding() {
           className={`flex-1 items-center justify-center ${
             phase === "intro1" ? "bg-[#5E3EA1]" : "bg-white"
           }`}
-          style={introAnimatedStyle}
+          style={containerAnimatedStyle}
         >
-          <View className="items-center justify-center">
+          <Animated.View className="items-center justify-center" style={logoAnimatedStyle}>
             {phase === "intro1" ? (
               <LogoBkoo2 width={140} height={40} fill="#fff" />
             ) : (
               <LogoBkoo1 width={140} height={40} fill="primary" />
             )}
+          </Animated.View>
+
+          <Animated.View style={textAnimatedStyle}>
             <Text
               className={`mt-3 text-center text-sm opacity-90 ${
                 phase === "intro1" ? "text-white" : "text-primary"
@@ -180,15 +241,20 @@ export default function Onboarding() {
             >
               Mua — Bán sách và tài liệu trong trường, nhanh và tiết kiệm.
             </Text>
+          </Animated.View>
+
+          <View className="absolute bottom-10 left-5">
+            {phase === "intro1" ? (
+              <IconLogoWhite />
+            ) : (
+              <IconLogoPrimary />
+            )}
           </View>
 
-          <View className="absolute bottom-0 left-0 right-0 h-52 items-center justify-end">
-            <View className="w-[220px] h-[220px] bg-white/10 rounded-3xl translate-y-10" />
-          </View>
         </Animated.View>
       ) : (
         <View className="flex-1 bg-white">
-          <View className="px-6 pt-2 items-start"> 
+          <View className="px-6 pt-2 items-start">
             <Pressable onPress={onSkip} hitSlop={12}>
               <Text className="text-primary text-[14px] font-semibold opacity-90 px-4 py-2">
                 Bỏ qua
@@ -216,7 +282,7 @@ export default function Onboarding() {
                 style={{ width }}
               >
                 <View className="mt-10 mb-5 items-center justify-center">
-                  <item.IconOnboarding width={width} height={width*1.1} />
+                  <item.IconOnboarding width={width} height={width * 1.1} />
                 </View>
                 <Text className="px-[25px] text-[24px] font-extrabold text-center mb-2 text-[#1C1C1E]">
                   {item.title}
@@ -229,7 +295,7 @@ export default function Onboarding() {
           />
 
           <View className="px-5 py-4">
-            <View className="flex-row justify-center items-center mb-5 space-x-2">
+            <View className="flex-row justify-center items-center mb-5">
               {SLIDES.map((_, i) => (
                 <AnimatedDot key={i} index={i} currentIndex={index} />
               ))}
