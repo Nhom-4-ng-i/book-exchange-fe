@@ -27,7 +27,7 @@ export default function SuccessScreen() {
 
       <View className="p-6 pt-10">
         <Pressable 
-          className="bg-[#54408C] h-12 rounded-full items-center justify-center active:opacity-80"
+          className="bg-primary h-12 rounded-full items-center justify-center active:opacity-80"
           onPress={handleStart}
         >
           <Text className="text-white font-bold text-base">Bắt đầu</Text>

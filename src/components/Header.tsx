@@ -23,32 +23,30 @@ export default function Header({
 
   return (
     <SafeAreaView className="bg-white" edges={['top']}>
-      <View className="pt-3">
-        <View className="flex-row items-center justify-between px-6 py-2 h-16">
-        
-        <View className="flex-1 items-start">
-          {showBackButton && (
-            <Pressable onPress={handleBack} className="p-2 active:opacity-70">
-              <IconBack />
-            </Pressable>
-          )}
-        </View>
+      <View className="flex-row items-center justify-between px-6 py-2 h-16">
+      
+      <View className="flex-1 items-start">
+        {showBackButton && (
+          <Pressable onPress={handleBack} className="p-2 active:opacity-70">
+            <IconBack />
+          </Pressable>
+        )}
+      </View>
 
-        <View className="flex-1 items-center">
-          {title && (
-            <Text className="text-lg font-bold text-gray-900">{title}</Text>
-          )}
-        </View>
+      <View className="flex-1 items-center">
+        {title && (
+          <Text className="text-lg font-bold text-gray-900">{title}</Text>
+        )}
+      </View>
 
-        <View className="flex-1 items-end">
-          {showSkipButton && (
-            <Pressable onPress={onSkipPress} className="p-2 active:opacity-70">
-              <Text className="text-base font-medium text-[#54408C]">Bỏ qua</Text>
-            </Pressable>
-          )}
-        </View>
+      <View className="flex-1 items-end">
+        {showSkipButton && (
+          <Pressable onPress={onSkipPress} className="p-2 active:opacity-70">
+            <Text className="text-base font-medium text-primary">Bỏ qua</Text>
+          </Pressable>
+        )}
+      </View>
 
-        </View>
       </View>
     </SafeAreaView>
   );

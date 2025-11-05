@@ -84,7 +84,7 @@ export default function Index() {
         contentContainerClassName="pb-24"
       >
         <View className="px-4 mb-4 mt-4">
-          <Pressable className="w-full h-10 bg-[#54408C] items-center justify-center text-white font-bold rounded-lg tracking-wide">
+          <Pressable className="w-full py-3 bg-primary items-center justify-center text-white font-bold rounded-lg tracking-wide">
             <Text className="text-white font-bold text-base tracking-wide">
               + Đăng sách/tài liệu mới
             </Text>
@@ -100,7 +100,7 @@ export default function Index() {
             {categories.map((category, index) => (
               <Pressable
                 key={index}
-                className={`px-2 py-1.5 rounded-lg whitespace-nowrap ${
+                className={`px-2 py-1 rounded-lg whitespace-nowrap ${
                   index === 0
                     ? "bg-gray-500/20"
                     : "border border-[#E5E5E5]"
@@ -145,7 +145,7 @@ export default function Index() {
                     {book.title}
                   </Text>
                   <View className="flex-row items-center gap-2">
-                    <Text className="text-xs font-bold text-[#54408C] tracking-wide">
+                    <Text className="text-xs font-bold text-primary tracking-wide">
                       {book.price}
                     </Text>
                     {book.hasDiscount && book.originalPrice && (

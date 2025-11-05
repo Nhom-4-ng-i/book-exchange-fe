@@ -8,7 +8,6 @@ import {
   TextInput,
   View
 } from 'react-native';
-import { SafeAreaView } from "react-native-safe-area-context";
 import Header from '../../../components/Header';
 import IconPhone from '../../../icons/IconPhone';
 
@@ -35,7 +34,7 @@ export default function PhoneNumberScreen() {
   const canContinue = digits.length >= 6;
 
   return (
-    <SafeAreaView className="flex-1 bg-white h-full">
+    <View className="flex-1 bg-white h-full">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
@@ -50,7 +49,7 @@ export default function PhoneNumberScreen() {
 
           <View className="mt-2">
             <Text className="font-medium mb-2 text-sm">Số điện thoại</Text>
-            <View className="flex-row items-center bg-gray-50 rounded-lg py-3 px-3">
+            <View className="flex-row justify-center items-center bg-gray-50 rounded-lg h-14 px-3">
               <View className="flex-row items-center mr-1">
                 <IconPhone />
                 <Text className="ml-1 text-base text-gray-900 font-semibold">
@@ -59,7 +58,7 @@ export default function PhoneNumberScreen() {
               </View>
               
               <TextInput
-                className="flex-1 text-base text-gray-900"
+                className="flex-1 text-base text-gray-900 py-3"
                 value={formatted}
                 onChangeText={onTextChange}
                 placeholder="123 435 7565"
@@ -75,14 +74,14 @@ export default function PhoneNumberScreen() {
           <Pressable
             disabled={!canContinue}
             onPress={() => router.push('./')}
-            className="bg-[#54408C] h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
+            className="bg-primary h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
           >
             <Text className="text-white font-bold text-base">Tiếp tục</Text>
           </Pressable>
         </View>
 
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 

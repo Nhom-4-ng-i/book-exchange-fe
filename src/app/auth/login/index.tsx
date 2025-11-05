@@ -45,7 +45,7 @@ export default function LoginScreen() {
         }
     };
 
-    const buttonBaseClass = "flex-row items-center justify-center rounded-full h-[52px] mb-2 shadow-md border position-relative bg-gray-50 border-gray-200";
+    const buttonBaseClass = "flex-row items-center justify-center rounded-full h-[52px] mb-2 border position-relative border-gray-200";
     const buttonActiveClass = "active:bg-gray-100 active:border-gray-300 active:scale-[.98] active:opacity-80";
 
     return (
