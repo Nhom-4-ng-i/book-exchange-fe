@@ -7,7 +7,6 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import IconFacebook from '../../../icons/IconFacebook';
 import IconGoogle from '../../../icons/IconGoogle';
 
-// Cần thiết cho web
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
@@ -60,7 +59,7 @@ export default function LoginScreen() {
                 <View>
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => promptAsync()}
+                        onPress={() => router.push('/success')}
                         disabled={!request}
                     >
                         <View className="absolute left-6">

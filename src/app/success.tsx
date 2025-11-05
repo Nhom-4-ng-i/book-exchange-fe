@@ -8,7 +8,7 @@ import IconSuccess from '../icons/IconSuccess';
 export default function SuccessScreen() {
   
   const handleStart = () => {
-    router.replace('/'); 
+    router.replace('/home'); 
   };
 
   return (
