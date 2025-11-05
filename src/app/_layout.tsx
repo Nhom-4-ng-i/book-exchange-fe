@@ -1,55 +1,50 @@
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import 'react-native-gesture-handler';
-import "../../styles/global.css";
-globalThis.React = React;
- 
+import { ActivityIndicator, View } from 'react-native';
+import '../../global.css';
+
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    noto_sans: require('../../assets/fonts/Noto_Sans/static/NotoSans-Regular.ttf'),
+    roboto: require('../../assets/fonts/Roboto/static/Roboto-Regular.ttf'),
+  });
+
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#54408C" />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            title: 'Trang Chủ',
-            headerShown: false,
-            headerTitleAlign: 'center',
-            headerBackButtonDisplayMode: 'minimal',
-          }}
-        />
+    <Stack>
+      <Stack.Screen 
+        name="index" 
+        options={{ 
+          title: "Trang Chủ", 
+          headerShown: false 
+        }} 
+      />
 
-        <Stack.Screen
-          name="login/index"
-          options={{
-            headerShown: false,
-            headerBackButtonDisplayMode: 'minimal',
-          }}
-        />
+      <Stack.Screen 
+        name="auth/login/index" 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="auth/phone/index" 
+        options={{ headerShown: false }} 
+      />
 
-        <Stack.Screen
-          name="profile/index"
-          options={{
-            headerShown: false,
-            headerBackButtonDisplayMode: 'minimal',
-          }}
-        />
-          <Stack.Screen
-          name="onboarding"
-          options={{
-            headerShown: false,
-            headerBackButtonDisplayMode: 'minimal',
-          }}
-        />
-      </Stack>
-      
-    </View>
+      <Stack.Screen 
+        name="profile/index" 
+        options={{ headerShown: false }} 
+      />
+
+      <Stack.Screen 
+        name="success" 
+        options={{ headerShown: false }} 
+      />
+    </Stack>
   );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-    },
-});
