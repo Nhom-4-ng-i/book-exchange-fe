@@ -82,6 +82,7 @@
     "@babel/preset-typescript": "^7.28.5",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^13.3.3",
+    "@types/expo": "^32.0.13",
     "@types/jest": "29.5.14",
     "@types/react": "~19.1.0",
     "@types/react-native-onboarding-swiper": "^1.1.9",
