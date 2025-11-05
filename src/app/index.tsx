@@ -1,15 +1,21 @@
 import BottomNav from "@/components/BottomNav";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
   Text,
-  View,
+  View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import HeaderHome from "../components/HeaderHome";
 
-import { SafeAreaView } from "react-native-safe-area-context";
+const HAS_LAUNCHED = 'hasLaunched';
+const IS_LOGGED_IN = 'isLoggedIn';
 
 const books = [
   {
@@ -18,7 +24,7 @@ const books = [
     price: "120.000đ",
     originalPrice: "150.000đ",
     image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
+      "../../assets/images/Giaitich_test.webp",
     badge: "Khá",
     hasDiscount: true,
   },
@@ -27,7 +33,7 @@ const books = [
     title: "Giải tích",
     price: "120.000đ",
     image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
+      "../../assets/images/Giaitich_test.webp",
     badge: "Khá",
   },
   {
@@ -35,7 +41,7 @@ const books = [
     title: "Giải tích",
     price: "120.000đ",
     image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
+      "../../assets/images/Giaitich_test.webp",
     badge: "Khá",
   },
   {
@@ -43,7 +49,7 @@ const books = [
     title: "Giải tích",
     price: "120.000đ",
     image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
+      "../../assets/images/Giaitich_test.webp",
     badge: "Khá",
   },
   {
@@ -51,7 +57,7 @@ const books = [
     title: "Giải tích",
     price: "120.000đ",
     image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/5aea3e48bfb08f92b89974c85ade7f6ef5189779?width=328",
+      "../../assets/images/Giaitich_test.webp",
     badge: "Khá",
   },
   {
@@ -59,7 +65,7 @@ const books = [
     title: "Giải tích",
     price: "120.000đ",
     image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/5aea3e48bfb08f92b89974c85ade7f6ef5189779?width=328",
+      "../../assets/images/Giaitich_test.webp",
     badge: "Khá",
   },
 ];
@@ -67,6 +73,49 @@ const books = [
 const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
 
 export default function Index() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkFirstLaunch = async () => {
+      try {
+        // Kiểm tra xem đã từng mở app chưa
+        const hasLaunched = await AsyncStorage.getItem(HAS_LAUNCHED);
+        
+        // Kiểm tra trạng thái đăng nhập
+        const isLoggedIn = await AsyncStorage.getItem(IS_LOGGED_IN);
+        
+        // if (hasLaunched === null) {
+        //   // Lần đầu mở app, chuyển đến màn hình onboarding
+        //   await AsyncStorage.setItem(HAS_LAUNCHED, 'true');
+          router.replace('/onboarding');
+        //   return;
+        // }
+
+        // if (!isLoggedIn || isLoggedIn !== 'true') {
+        //   // Chưa đăng nhập, chuyển đến màn hình đăng nhập
+        //   router.replace('/auth/login');
+        //   return;
+        // }
+        
+        // Đã từng mở app và đã đăng nhập, hiển thị màn hình chính
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Lỗi khi kiểm tra trạng thái khởi chạy:', error);
+        setIsLoading(false);
+      }
+    };
+
+    checkFirstLaunch();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   const IconPlaceholder = () => (
     <View className="w-6 h-6 bg-gray-200 border border-gray-400 rounded items-center justify-center">
       <Text className="text-[10px] text-gray-500">Icon</Text>

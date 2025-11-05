@@ -1,6 +1,7 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
+import 'react-native-reanimated';
 import '../../global.css';
 
 export default function RootLayout() {
@@ -43,6 +44,10 @@ export default function RootLayout() {
 
       <Stack.Screen 
         name="success" 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="onboarding/index"
         options={{ headerShown: false }} 
       />
     </Stack>

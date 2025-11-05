@@ -10,9 +10,11 @@ module.exports = {
       },
       colors: {
         primary: '#54408C',
+        primary50: '#FAF9FD',
+        primaryDark: '#5E3EA1',
         secondary: '#F5F5F5',
         text: '#1E1E1E',
-        textSecondary: '#666666',
+        textGray500: '#A6A6A6',
         textTertiary: '#999999',
         textQuaternary: '#CCCCCC',
         textQuinary: '#E5E5E5',

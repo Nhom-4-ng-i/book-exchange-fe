@@ -60,7 +60,7 @@ export default function LoginScreen() {
                 <View>
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => promptAsync()}
+                        onPress={() => router.push('/success')}
                         disabled={!request}
                     >
                         <View className="absolute left-6">
