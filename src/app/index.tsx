@@ -1,216 +1,162 @@
-import BottomNav from "@/components/BottomNav";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View
-} from "react-native";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { StatusBar, Text, View } from "react-native";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import HeaderHome from "../components/HeaderHome";
 
-const HAS_LAUNCHED = 'hasLaunched';
-const IS_LOGGED_IN = 'isLoggedIn';
+import IconLogoPrimary from "@/icons/IconLogoPrimary";
+import IconLogoWhite from "@/icons/IconLogoWhite";
+import LogoBkoo1 from "@/icons/logoBkoo1";
+import LogoBkoo2 from "@/icons/logoBkoo2";
 
-const books = [
-  {
-    id: 1,
-    title: "Giải tích",
-    price: "120.000đ",
-    originalPrice: "150.000đ",
-    image:
-      "../../assets/images/Giaitich_test.webp",
-    badge: "Khá",
-    hasDiscount: true,
-  },
-  {
-    id: 2,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "../../assets/images/Giaitich_test.webp",
-    badge: "Khá",
-  },
-  {
-    id: 3,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "../../assets/images/Giaitich_test.webp",
-    badge: "Khá",
-  },
-  {
-    id: 4,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "../../assets/images/Giaitich_test.webp",
-    badge: "Khá",
-  },
-  {
-    id: 5,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "../../assets/images/Giaitich_test.webp",
-    badge: "Khá",
-  },
-  {
-    id: 6,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "../../assets/images/Giaitich_test.webp",
-    badge: "Khá",
-  },
-];
+type Phase = "intro1" | "intro2" | "navigating";
 
-const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
+export default function LaunchAnimationScreen() {
+  const router = useRouter();
+  const [phase, setPhase] = useState<Phase>("intro1");
 
-export default function Index() {
-  const [isLoading, setIsLoading] = useState(true);
+  const containerFade = useSharedValue(0);
+  const logoOpacity = useSharedValue(0);
+  const logoTranslateY = useSharedValue(0);
+  const textOpacity = useSharedValue(0);
+  const textTranslateY = useSharedValue(0);
+
+  const animatePhase1In = () => {
+    containerFade.value = withTiming(1, { duration: 260 });
+    logoOpacity.value = 0;
+    logoTranslateY.value = 20;
+    logoOpacity.value = withTiming(1, { duration: 260 });
+    logoTranslateY.value = withTiming(0, { duration: 260 });
+    textOpacity.value = 0;
+    textTranslateY.value = 20;
+    textOpacity.value = withTiming(1, { duration: 260 });
+    textTranslateY.value = withTiming(0, { duration: 260 });
+  };
+
+  const animatePhase1Out = (cb?: () => void) => {
+    containerFade.value = withTiming(0, { duration: 220 });
+    logoOpacity.value = withTiming(0, { duration: 220 });
+    logoTranslateY.value = withTiming(-30, { duration: 220 });
+    textOpacity.value = withTiming(0, { duration: 220 });
+    textTranslateY.value = withTiming(30, { duration: 220 }, (finished) => {
+      if (finished && cb) {
+        runOnJS(cb)();
+      }
+    });
+  };
+
+  const animatePhase2In = () => {
+    containerFade.value = withTiming(1, { duration: 260 });
+    logoOpacity.value = 0;
+    logoTranslateY.value = -30;
+    logoOpacity.value = withTiming(1, { duration: 260 });
+    logoTranslateY.value = withTiming(0, { duration: 260 });
+    textOpacity.value = 0;
+    textTranslateY.value = 30;
+    textOpacity.value = withTiming(1, { duration: 260 });
+    textTranslateY.value = withTiming(0, { duration: 260 });
+  };
+
+  const animatePhase2Out = (cb?: () => void) => {
+    containerFade.value = withTiming(0, { duration: 220 });
+    logoOpacity.value = withTiming(0, { duration: 220 });
+    textOpacity.value = withTiming(0, { duration: 220 });
+    containerFade.value = withTiming(0, { duration: 220 }, (finished) => {
+      if (finished && cb) {
+        runOnJS(cb)();
+      }
+    });
+  };
 
   useEffect(() => {
-    const checkFirstLaunch = async () => {
-      try {
-        // Kiểm tra xem đã từng mở app chưa
-        const hasLaunched = await AsyncStorage.getItem(HAS_LAUNCHED);
-        
-        // Kiểm tra trạng thái đăng nhập
-        const isLoggedIn = await AsyncStorage.getItem(IS_LOGGED_IN);
-        
-        // if (hasLaunched === null) {
-        //   // Lần đầu mở app, chuyển đến màn hình onboarding
-        //   await AsyncStorage.setItem(HAS_LAUNCHED, 'true');
-          router.replace('/onboarding');
-        //   return;
-        // }
+    let t1: NodeJS.Timeout | undefined;
+    let t2: NodeJS.Timeout | undefined;
 
-        // if (!isLoggedIn || isLoggedIn !== 'true') {
-        //   // Chưa đăng nhập, chuyển đến màn hình đăng nhập
-        //   router.replace('/auth/login');
-        //   return;
-        // }
-        
-        // Đã từng mở app và đã đăng nhập, hiển thị màn hình chính
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Lỗi khi kiểm tra trạng thái khởi chạy:', error);
-        setIsLoading(false);
-      }
+    const run = async () => {
+      animatePhase1In();
+      t1 = setTimeout(() => {
+        animatePhase1Out(() => {
+          setPhase("intro2");
+          animatePhase2In();
+          t2 = setTimeout(() => {
+            animatePhase2Out(() => {
+              setPhase("navigating");
+            });
+          }, 900);
+        });
+      }, 900);
     };
+    run();
 
-    checkFirstLaunch();
+    return () => {
+      if (t1) clearTimeout(t1);
+      if (t2) clearTimeout(t2);
+    };
   }, []);
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (phase === "navigating") {
+      router.replace("/onboarding");
+    }
+  }, [phase, router]);
 
-  const IconPlaceholder = () => (
-    <View className="w-6 h-6 bg-gray-200 border border-gray-400 rounded items-center justify-center">
-      <Text className="text-[10px] text-gray-500">Icon</Text>
-    </View>
-  );
+  const containerAnimatedStyle = useAnimatedStyle(() => {
+    return { opacity: containerFade.value };
+  });
+  const logoAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: logoOpacity.value,
+      transform: [{ translateY: logoTranslateY.value }],
+    };
+  });
+  const textAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: textOpacity.value,
+      transform: [{ translateY: textTranslateY.value }],
+    };
+  });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" />
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+      <StatusBar barStyle={phase === "intro1" ? "light-content" : "dark-content"} />
 
-      <HeaderHome title="Trang chủ" />
-
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="pb-24"
+      <Animated.View
+        className={`flex-1 items-center justify-center ${
+          phase === "intro1" ? "bg-[#5E3EA1]" : "bg-white"
+        }`}
+        style={containerAnimatedStyle}
       >
-        <View className="px-4 mb-4 mt-4">
-          <Pressable className="w-full py-3 bg-primary items-center justify-center text-white font-bold rounded-lg tracking-wide">
-            <Text className="text-white font-bold text-base tracking-wide">
-              + Đăng sách/tài liệu mới
-            </Text>
-          </Pressable>
-        </View>
+        <Animated.View className="items-center justify-center" style={logoAnimatedStyle}>
+          {phase === "intro1" ? (
+            <LogoBkoo2 width={140} height={40} fill="#fff" />
+          ) : (
+            <LogoBkoo1 width={140} height={40} fill="primary" />
+          )}
+        </Animated.View>
 
-        <View className="mb-6">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerClassName="px-4 flex-row gap-2"
+        <Animated.View style={textAnimatedStyle}>
+          <Text
+            className={`mt-3 text-center text-sm opacity-90 ${
+              phase === "intro1" ? "text-white" : "text-primary"
+            }`}
           >
-            {categories.map((category, index) => (
-              <Pressable
-                key={index}
-                className={`px-2 py-1 rounded-lg whitespace-nowrap ${
-                  index === 0
-                    ? "bg-gray-500/20"
-                    : "border border-[#E5E5E5]"
-                }`}
-              >
-                <Text className="text-sm text-gray-800">{category}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        </View>
-
-        <View className="px-4 mb-6">
-          <Text className="text-lg font-bold tracking-tight text-gray-900">
-            Danh sách
+            Mua — Bán sách và tài liệu trong trường, nhanh và tiết kiệm.
           </Text>
-        </View>
+        </Animated.View>
 
-
-        <View className="px-4">
-          <View className="flex-row flex-wrap justify-between">
-            {books.map((book) => (
-              <Pressable
-                key={book.id}
-                className="w-[48%] mb-8"
-              >
-                <View className="flex-col">
-                  <View className="relative mb-2">
-                    <Image
-                      source={{ uri: book.image }}
-                      className="w-full aspect-[164/256] object-cover rounded-lg"
-                      resizeMode="cover"
-                    />
-                    {book.badge && (
-                      <View className="absolute top-2 left-2 px-2 py-0.5 bg-white rounded-lg">
-                        <Text className="text-xs text-gray-800">
-                          {book.badge}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text className="text-sm text-gray-900 mb-1">
-                    {book.title}
-                  </Text>
-                  <View className="flex-row items-center gap-2">
-                    <Text className="text-xs font-bold text-primary tracking-wide">
-                      {book.price}
-                    </Text>
-                    {book.hasDiscount && book.originalPrice && (
-                      <Text className="text-xs text-gray-500 line-through">
-                        {book.originalPrice}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              </Pressable>
-            ))}
-          </View>
+        <View className="absolute bottom-10 left-5">
+          {phase === "intro1" ? (
+            <IconLogoWhite />
+          ) : (
+            <IconLogoPrimary />
+          )}
         </View>
-      </ScrollView>
-      <BottomNav />
+      </Animated.View>
     </SafeAreaView>
   );
 }
-
