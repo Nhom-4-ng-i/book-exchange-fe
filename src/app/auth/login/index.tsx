@@ -59,7 +59,7 @@ export default function LoginScreen() {
                 <View>
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => router.push('/success')}
+                        onPress={() => router.push('./phone')}
                         disabled={!request}
                     >
                         <View className="absolute left-6">
@@ -80,7 +80,7 @@ export default function LoginScreen() {
 
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => promptAsync()}
+                        onPress={() => router.push('./phone')}
                     >
                         <View className="absolute left-6">
                             <IconFacebook />
