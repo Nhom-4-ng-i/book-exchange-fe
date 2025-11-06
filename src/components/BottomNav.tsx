@@ -23,7 +23,7 @@ const navItems: NavItem[] = [
   },
   { 
     name: 'Hồ sơ', 
-    path: '/auth/login', 
+    path: '/profile', 
     icon: IconProfile
   },
 ];

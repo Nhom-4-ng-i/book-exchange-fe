@@ -126,7 +126,7 @@ export default function OnboardingScreen() {
               className="flex-1 items-center px-5"
               style={{ width }}
             >
-              <View className="mt-10 mb-5 items-center justify-center">
+              <View className="mt-2 mb-5 items-center justify-center">
                 <item.IconOnboarding width={width} height={width * 1.1} />
               </View>
               <Text className="px-[25px] text-[24px] font-extrabold text-center mb-2 text-[#1C1C1E]">
