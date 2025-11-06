@@ -13,6 +13,7 @@ import IconLogoPrimary from "@/icons/IconLogoPrimary";
 import IconLogoWhite from "@/icons/IconLogoWhite";
 import LogoBkoo1 from "@/icons/logoBkoo1";
 import LogoBkoo2 from "@/icons/logoBkoo2";
+import { getData } from "utils/asyncStorage";
 
 type Phase = "intro1" | "intro2" | "navigating";
 
@@ -85,7 +86,8 @@ export default function LaunchAnimationScreen() {
           animatePhase2In();
           t2 = setTimeout(() => {
             animatePhase2Out(() => {
-              setPhase("navigating");
+              // setPhase("navigating");
+              checkFirstTimeOpen();
             });
           }, 900);
         });
@@ -98,12 +100,6 @@ export default function LaunchAnimationScreen() {
       if (t2) clearTimeout(t2);
     };
   }, []);
-
-  useEffect(() => {
-    if (phase === "navigating") {
-      router.replace("/onboarding");
-    }
-  }, [phase, router]);
 
   const containerAnimatedStyle = useAnimatedStyle(() => {
     return { opacity: containerFade.value };
@@ -120,6 +116,15 @@ export default function LaunchAnimationScreen() {
       transform: [{ translateY: textTranslateY.value }],
     };
   });
+const checkFirstTimeOpen = async () => {
+    let onboarded = await getData('onboarded');
+    if (onboarded !== '1') {
+      router.replace('/onboarding');
+    }
+    else{
+      router.replace('/auth/login');
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>

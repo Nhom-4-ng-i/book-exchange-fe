@@ -17,6 +17,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingGate } from "../hooks/useOnboardingGate";
 
+import { storeData } from "utils/asyncStorage";
 import IconOnboarding1 from "../../icons/IconOnboarding1";
 import IconOnboarding2 from "../../icons/IconOnboarding2";
 import IconOnboarding3 from "../../icons/IconOnboarding3";
@@ -68,12 +69,12 @@ export default function OnboardingScreen() {
     if (index < SLIDES.length - 1) {
       listRef.current?.scrollToIndex({ index: index + 1, animated: true });
     } else {
-      onDone();
+      backToHome();
     }
   };
   const onPrev = () =>
     index > 0 && listRef.current?.scrollToIndex({ index: index - 1, animated: true });
-  const onSkip = () => onDone();
+  const onSkip = () => backToHome();
   const onDone = async () => {
     await markDone();
     router.replace("/auth/login");
@@ -94,13 +95,18 @@ export default function OnboardingScreen() {
     };
   });
 
+  const backToHome = async() => {
+    await storeData('onboarded', '1');
+    router.replace("/auth/login");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <StatusBar barStyle="dark-content" />
 
       <View className="flex-1 bg-white">
         <View className="px-6 pt-2 items-start">
-          <Pressable onPress={onSkip} hitSlop={12}>
+          <Pressable onPress={backToHome} hitSlop={12}>
             <Text className="text-textPrimary500 text-[14px] font-semibold opacity-90 px-4 py-2">
               Bỏ qua
             </Text>

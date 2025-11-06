@@ -8,13 +8,13 @@
     "scheme": "exchangeoldbooks",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "assetBundlePatterns": ["assets/images/*"],
-
+    "assetBundlePatterns": [
+      "assets/images/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kandyz2705.exchangeoldbooks"
     },
-
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -64,6 +64,12 @@
         "webClientId": "826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com"
       }
     },
-    "owner": "trieuman2705"
+    "owner": "trieuman2705",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6d04f9f7-204a-4eba-a95a-03fa64d6fdb7"
+    }
   }
 }

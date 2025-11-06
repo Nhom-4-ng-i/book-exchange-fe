@@ -1,11 +1,7 @@
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
@@ -72,44 +68,44 @@ const books = [
 
 const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
 
+
 export default function Index() {
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const checkFirstLaunch = async () => {
-      try {
-        const hasLaunched = await AsyncStorage.getItem(HAS_LAUNCHED);
+  // useEffect(() => {
+  // //   const checkFirstLaunch = async () => {
+  // //     try {
+  // //       const hasLaunched = await AsyncStorage.getItem(HAS_LAUNCHED);
         
-        const isLoggedIn = await AsyncStorage.getItem(IS_LOGGED_IN);
+  // //       const isLoggedIn = await AsyncStorage.getItem(IS_LOGGED_IN);
         
-        if (hasLaunched === null) {
-          await AsyncStorage.setItem(HAS_LAUNCHED, 'true');
-          router.replace('/onboarding');
-          return;
-        }
+  //       // if (hasLaunched === null) {
+  //       //   await AsyncStorage.setItem(HAS_LAUNCHED, 'true');
+  //       //   router.replace('/onboarding');
+  //       //   return;
+  //       // }
 
-        // if (!isLoggedIn || isLoggedIn !== 'true') {
-        //   router.replace('/auth/login');
-        //   return;
-        // }
+  //       // if (!isLoggedIn || isLoggedIn !== 'true') {
+  //       //   router.replace('/auth/login');
+  //       //   return;
+  //       // }
         
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Lỗi khi kiểm tra trạng thái khởi chạy:', error);
-        setIsLoading(false);
-      }
-    };
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       console.error('Lỗi khi kiểm tra trạng thái khởi chạy:', error);
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    checkFirstLaunch();
-  }, []);
+  // //   checkFirstLaunch();
+  // }, []);
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <View className="flex-1 items-center justify-center bg-white">
+  //       <ActivityIndicator size="large" color="#0000ff" />
+  //     </View>
+  //   );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
