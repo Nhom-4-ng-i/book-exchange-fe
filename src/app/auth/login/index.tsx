@@ -59,7 +59,7 @@ export default function LoginScreen() {
                 <View>
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => router.push('/success')}
+                        onPress={() => router.push('/auth/phone')}
                         disabled={!request}
                     >
                         <View className="absolute left-6">
@@ -70,7 +70,7 @@ export default function LoginScreen() {
 
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => router.push('./phone')}
+                        onPress={() => router.push('/auth/phone')}
                     >
                         <View className="absolute left-6">
                             <AntDesign name="apple" size={20} color="#000000" />
@@ -80,7 +80,7 @@ export default function LoginScreen() {
 
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => promptAsync()}
+                        onPress={() => router.push('/auth/phone')}
                     >
                         <View className="absolute left-6">
                             <IconFacebook />

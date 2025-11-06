@@ -1,3 +1,4 @@
+import IconPhone from '@/icons/IconPhone';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
@@ -9,7 +10,6 @@ import {
   View
 } from 'react-native';
 import Header from '../../../components/Header';
-import IconPhone from '../../../icons/IconPhone';
 
 export default function PhoneNumberScreen() {
   const router = useRouter();
@@ -52,13 +52,18 @@ export default function PhoneNumberScreen() {
             <View className="flex-row justify-center items-center bg-gray-50 rounded-lg h-14 px-3">
               <View className="flex-row items-center mr-1">
                 <IconPhone />
-                <Text className="ml-1 text-base text-gray-900 font-semibold">
+                <Text className="ml-1 text-[16px] text-gray-900 font-semibold">
                   {countryCode}
                 </Text>
               </View>
               
               <TextInput
-                className="flex-1 text-base text-gray-900 py-3"
+                style={{
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                  lineHeight: 20
+                }}
+                className="flex-1 text-[16px] text-gray-900"
                 value={formatted}
                 onChangeText={onTextChange}
                 placeholder="123 435 7565"
@@ -73,7 +78,7 @@ export default function PhoneNumberScreen() {
           
           <Pressable
             disabled={!canContinue}
-            onPress={() => router.push('./')}
+            onPress={() => router.push('/success')}
             className="bg-primary h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
           >
             <Text className="text-white font-bold text-base">Tiếp tục</Text>
@@ -84,4 +89,3 @@ export default function PhoneNumberScreen() {
     </View>
   );
 }
-
