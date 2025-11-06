@@ -1,6 +1,7 @@
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from 'react';
 import {
@@ -77,26 +78,21 @@ export default function Index() {
   useEffect(() => {
     const checkFirstLaunch = async () => {
       try {
-        // Kiểm tra xem đã từng mở app chưa
         const hasLaunched = await AsyncStorage.getItem(HAS_LAUNCHED);
         
-        // Kiểm tra trạng thái đăng nhập
         const isLoggedIn = await AsyncStorage.getItem(IS_LOGGED_IN);
         
-        // if (hasLaunched === null) {
-        //   // Lần đầu mở app, chuyển đến màn hình onboarding
-        //   await AsyncStorage.setItem(HAS_LAUNCHED, 'true');
-        //   router.replace('/onboarding');
-        //   return;
-        // }
+        if (hasLaunched === null) {
+          await AsyncStorage.setItem(HAS_LAUNCHED, 'true');
+          router.replace('/onboarding');
+          return;
+        }
 
         // if (!isLoggedIn || isLoggedIn !== 'true') {
-        //   // Chưa đăng nhập, chuyển đến màn hình đăng nhập
         //   router.replace('/auth/login');
         //   return;
         // }
         
-        // Đã từng mở app và đã đăng nhập, hiển thị màn hình chính
         setIsLoading(false);
       } catch (error) {
         console.error('Lỗi khi kiểm tra trạng thái khởi chạy:', error);
@@ -115,12 +111,6 @@ export default function Index() {
     );
   }
 
-  const IconPlaceholder = () => (
-    <View className="w-6 h-6 bg-gray-200 border border-gray-400 rounded items-center justify-center">
-      <Text className="text-[10px] text-gray-500">Icon</Text>
-    </View>
-  );
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
@@ -132,7 +122,7 @@ export default function Index() {
         contentContainerClassName="pb-24"
       >
         <View className="px-4 mb-4 mt-4">
-          <Pressable className="w-full py-3 bg-primary items-center justify-center text-white font-bold rounded-lg tracking-wide">
+          <Pressable className="w-full py-3 bg-textPrimary500 items-center justify-center text-white font-bold rounded-lg tracking-wide">
             <Text className="text-white font-bold text-base tracking-wide">
               + Đăng sách/tài liệu mới
             </Text>
@@ -193,7 +183,7 @@ export default function Index() {
                     {book.title}
                   </Text>
                   <View className="flex-row items-center gap-2">
-                    <Text className="text-xs font-bold text-primary tracking-wide">
+                    <Text className="text-xs font-bold text-textPrimary500 tracking-wide">
                       {book.price}
                     </Text>
                     {book.hasDiscount && book.originalPrice && (

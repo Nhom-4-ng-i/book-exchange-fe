@@ -135,14 +135,14 @@ export default function LaunchAnimationScreen() {
           {phase === "intro1" ? (
             <LogoBkoo2 width={140} height={40} fill="#fff" />
           ) : (
-            <LogoBkoo1 width={140} height={40} fill="primary" />
+            <LogoBkoo1 width={140} height={40} fill="textPrimary500" />
           )}
         </Animated.View>
 
         <Animated.View style={textAnimatedStyle}>
           <Text
             className={`mt-3 text-center text-sm opacity-90 ${
-              phase === "intro1" ? "text-white" : "text-primary"
+              phase === "intro1" ? "text-white" : "text-textPrimary500"
             }`}
           >
             Mua — Bán sách và tài liệu trong trường, nhanh và tiết kiệm.

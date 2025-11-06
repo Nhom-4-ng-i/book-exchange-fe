@@ -42,7 +42,7 @@ export default function Header({
       <View className="flex-1 items-end">
         {showSkipButton && (
           <Pressable onPress={onSkipPress} className="p-2 active:opacity-70">
-            <Text className="text-base font-medium text-primary">Bỏ qua</Text>
+            <Text className="text-base font-medium text-textPrimary500">Bỏ qua</Text>
           </Pressable>
         )}
       </View>

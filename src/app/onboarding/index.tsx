@@ -101,7 +101,7 @@ export default function OnboardingScreen() {
       <View className="flex-1 bg-white">
         <View className="px-6 pt-2 items-start">
           <Pressable onPress={onSkip} hitSlop={12}>
-            <Text className="text-primary text-[14px] font-semibold opacity-90 px-4 py-2">
+            <Text className="text-textPrimary500 text-[14px] font-semibold opacity-90 px-4 py-2">
               Bỏ qua
             </Text>
           </Pressable>
@@ -148,7 +148,7 @@ export default function OnboardingScreen() {
 
           <View className="flex-col items-stretch justify-center">
             <Pressable
-              className="w-full bg-primary py-4 rounded-xl items-center justify-center"
+              className="w-full bg-textPrimary500 py-4 rounded-xl items-center justify-center"
               onPress={onNext}
             >
               <Text className="text-white font-bold text-base px-5">
@@ -157,12 +157,12 @@ export default function OnboardingScreen() {
             </Pressable>
 
             <AnimatedPressable
-              className={`w-full py-4 rounded-xl items-center justify-center mt-3 bg-primary50 mb-4`}
+              className={`w-full py-4 rounded-xl items-center justify-center mt-3 bg-textPrimary50 mb-4`}
               disabled={index === 0}
               onPress={onPrev}
               style={backButtonAnimatedStyle}
             >
-              <Text className="text-primary font-bold text-base">
+              <Text className="text-textPrimary500 font-bold text-base">
                 Quay lại
               </Text>
             </AnimatedPressable>

@@ -48,11 +48,11 @@ export default function BottomNav() {
               <Pressable 
                 className={`items-center py-2 px-4`}
               >
-                <View className={`${isActive ? 'text-primary' : 'text-gray-500'}`}>
+                <View className={`${isActive ? 'text-textPrimary500' : 'text-gray-500'}`}>
                   <Icon color={iconColor} />
                 </View>
                 <Text 
-                  className={`text-xs mt-1 ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
+                  className={`text-xs mt-1 ${isActive ? 'text-textPrimary500 font-semibold' : 'text-gray-600'}`}
                 >
                   {item.name}
                 </Text>

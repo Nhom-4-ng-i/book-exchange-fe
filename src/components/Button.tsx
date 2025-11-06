@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, PressableProps, Text } from 'react-native';
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger';
+type ButtonVariant = 'textPrimary500' | 'secondary' | 'danger';
 
 interface ButtonProps extends PressableProps {
   title?: string;
@@ -11,9 +11,9 @@ interface ButtonProps extends PressableProps {
   variant?: ButtonVariant;
 }
 
-export const Button: React.FC<ButtonProps> = ({ title, onPress, className, children, variant = 'primary', ...props }) => {
+export const Button: React.FC<ButtonProps> = ({ title, onPress, className, children, variant = 'textPrimary500', ...props }) => {
   const variants: Record<ButtonVariant, string> = {
-    primary: 'bg-blue-500 active:bg-blue-300 ',
+    textPrimary500: 'bg-textPrimary500 active:bg-textPrimary500 ',
     secondary: 'bg-gray-500 active:bg-gray-300 ',
     danger: 'bg-red-500 active:bg-red-300 ',
   };

@@ -79,7 +79,7 @@ export default function PhoneNumberScreen() {
           <Pressable
             disabled={!canContinue}
             onPress={() => router.push('/success')}
-            className="bg-primary h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
+            className="bg-textPrimary500 h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
           >
             <Text className="text-white font-bold text-base">Tiếp tục</Text>
           </Pressable>
