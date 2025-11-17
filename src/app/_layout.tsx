@@ -1,19 +1,29 @@
 import * as Sentry from "@sentry/react-native";
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useNavigationContainerRef } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import 'react-native-reanimated';
 import '../../global.css';
-import '../../sentry';
+import { navigationIntegration } from '../../sentry';
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     noto_sans: require('../../assets/fonts/Noto_Sans/static/NotoSans-Regular.ttf'),
     roboto: require('../../assets/fonts/Roboto/static/Roboto-Regular.ttf'),
   });
 
-useEffect(() => {
+  const ref = useNavigationContainerRef();
+
+  // Đăng ký navigation container
+  useEffect(() => {
+    if (ref) {
+      navigationIntegration.registerNavigationContainer(ref);
+    }
+  }, [ref]);
+
+  // Thiết lập user context cho analytics
+  useEffect(() => {
     Sentry.setUser({
       id: "nhom4_test_2025",
       email: "man.ngotrieuman27@hcmut.edu.vn",
@@ -34,9 +44,7 @@ useEffect(() => {
     <Stack>
       <Stack.Screen 
         name="index" 
-        options={{ 
-          headerShown: false 
-        }} 
+        options={{ headerShown: false }} 
       />
       <Stack.Screen 
         name="home/index" 
@@ -71,3 +79,5 @@ useEffect(() => {
     </Stack>
   );
 }
+
+export default Sentry.wrap(RootLayout);
