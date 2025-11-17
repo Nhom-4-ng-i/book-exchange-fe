@@ -1,9 +1,10 @@
 import { AntDesign } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Google from 'expo-auth-session/providers/google';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Button, Pressable, Text, View } from 'react-native';
 import IconFacebook from '../../../icons/IconFacebook';
 import IconGoogle from '../../../icons/IconGoogle';
 
@@ -89,6 +90,23 @@ export default function LoginScreen() {
                     </Pressable>
                 </View>
             </View>
+
+            {/* DEV TOOL */}
+            {__DEV__ && (
+                <View className="absolute top-10 left-4 z-50 bg-red-600 p-4 rounded-xl shadow-2xl">
+                    <Text className="text-white font-bold text-base mb-3 text-center">
+                        DEV TOOL – NHÓM 4
+                    </Text>
+                    <Button
+                        title="VÀO LẠI ONBOARDING"
+                        color="#ffffff"
+                        onPress={async () => {
+                            await AsyncStorage.removeItem('onboarded');
+                            router.replace('/onboarding');
+                        }}
+                    />
+                </View>
+            )}
         </View>
     );
 }

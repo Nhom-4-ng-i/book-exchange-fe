@@ -70,42 +70,6 @@ const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ng�
 
 
 export default function Index() {
-  // const [isLoading, setIsLoading] = useState(true);
-
-  // useEffect(() => {
-  // //   const checkFirstLaunch = async () => {
-  // //     try {
-  // //       const hasLaunched = await AsyncStorage.getItem(HAS_LAUNCHED);
-        
-  // //       const isLoggedIn = await AsyncStorage.getItem(IS_LOGGED_IN);
-        
-  //       // if (hasLaunched === null) {
-  //       //   await AsyncStorage.setItem(HAS_LAUNCHED, 'true');
-  //       //   router.replace('/onboarding');
-  //       //   return;
-  //       // }
-
-  //       // if (!isLoggedIn || isLoggedIn !== 'true') {
-  //       //   router.replace('/auth/login');
-  //       //   return;
-  //       // }
-        
-  //       setIsLoading(false);
-  //     } catch (error) {
-  //       console.error('Lỗi khi kiểm tra trạng thái khởi chạy:', error);
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  // //   checkFirstLaunch();
-  // }, []);
-
-  // if (isLoading) {
-  //   return (
-  //     <View className="flex-1 items-center justify-center bg-white">
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //     </View>
-  //   );
 
   return (
     <SafeAreaView className="flex-1 bg-white">

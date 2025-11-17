@@ -1,12 +1,14 @@
+import * as Sentry from '@sentry/react-native';
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
+  Button,
   FlatList,
   Pressable,
   StatusBar,
   Text,
   useWindowDimensions,
-  View,
+  View
 } from "react-native";
 import Animated, {
   Easing,
@@ -74,11 +76,6 @@ export default function OnboardingScreen() {
   };
   const onPrev = () =>
     index > 0 && listRef.current?.scrollToIndex({ index: index - 1, animated: true });
-  const onSkip = () => backToHome();
-  const onDone = async () => {
-    await markDone();
-    router.replace("/auth/login");
-  };
 
   const viewabilityConfig = { itemVisiblePercentThreshold: 50 };
   const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
@@ -175,7 +172,25 @@ export default function OnboardingScreen() {
           </View>
         </View>
       </View>
+
+      {__DEV__ && (
+        <View className="absolute top-16 left-4 z-50 bg-white p-5 rounded-2xl shadow-2xl border-4 border-red-600">
+          <Text className="text-red-600 font-bold text-lg mb-3 text-center">
+            SENTRY TEST – NHÓM 4
+          </Text>
+          <Button
+            title="CRASH ĐỂ NỘP BÀI 10/10"
+            color="#c13b44"
+            onPress={() => {
+              Sentry.captureMessage("Test từ Onboarding – Nhóm 4 đã hoàn thành 100%");
+              throw new Error("Crash test onboarding – đã có error + performance + app start + user context + session replay");
+            }}
+          />
+        </View>
+      )}
+
     </SafeAreaView>
+
   );
 }
 
