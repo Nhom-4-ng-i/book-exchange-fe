@@ -4,6 +4,7 @@ export const navigationIntegration = Sentry.reactNavigationIntegration();
 
 Sentry.init({
   dsn: 'https://cdf50c32e2af1aa0e5dbb90fa2525c24@o4510374047186944.ingest.de.sentry.io/4510379644354640',  // Thay bằng DSN của bạn
+  tracePropagationTargets: ["https://myproject.org", /^\/api\//],
   debug: true,// Bật để xem logs khi test
 
   // Performance Monitoring
@@ -18,16 +19,34 @@ Sentry.init({
   profilesSampleRate: 1.0,
   
   // Session Replay
-  replaysSessionSampleRate: 0.1, // 10% sessions
-  replaysOnErrorSampleRate: 1.0, // 100% khi có error
+  replaysSessionSampleRate: 1.0, // Ghi lại 100% session khi test
+  replaysOnErrorSampleRate: 1.0, // Ghi lại 100% khi có error
   
   // Integrations
   integrations: [
+    // Mobile replay integration with minimal configuration
+    // See: https://docs.sentry.io/platforms/react-native/session-replay/configuration/
+    Sentry.mobileReplayIntegration({
+      maskAllText: true,
+      maskAllImages: true,
+    }),
     navigationIntegration,
-    Sentry.mobileReplayIntegration(),
+    Sentry.hermesProfilingIntegration({
+      platformProfilers: true,
+    }),
   ],
   
   // Privacy
   sendDefaultPii: false, // Không gửi thông tin cá nhân mặc định
   maxBreadcrumbs: 150,
+  
+  // Enable native crash handling
+  enableNative: true,
+  enableNativeCrashHandling: true,
+  enableAutoPerformanceTracing: true,
+  
+  // Debug configuration
+  _experiments: {
+    captureFailedRequests: true,
+  },
 });
