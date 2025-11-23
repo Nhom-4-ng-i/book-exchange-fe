@@ -1,5 +1,6 @@
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
+import * as Sentry from "@sentry/react-native";
 import { StatusBar } from "expo-status-bar";
 import {
   Image,
@@ -82,11 +83,33 @@ export default function Index() {
         contentContainerClassName="pb-24"
       >
         <View className="px-4 mb-4 mt-4">
-          <Pressable className="w-full py-3 bg-textPrimary500 items-center justify-center text-white font-bold rounded-lg tracking-wide">
-            <Text className="text-white font-bold text-base tracking-wide">
-              + Đăng sách/tài liệu mới
-            </Text>
-          </Pressable>
+          <Pressable
+          className="w-full py-3 bg-textPrimary500 items-center justify-center text-white font-bold rounded-lg tracking-wide"
+          onPress={() => {
+            console.log("=== TEST SENTRY: Crash tại nút + Đăng sách/tài liệu mới ===");
+
+            // Gửi message
+            Sentry.captureMessage(
+              "Test Sentry từ nút + Đăng sách/tài liệu mới – Nhóm 4 test crash"
+            );
+
+            // Gửi exception
+            Sentry.captureException(
+              new Error(
+                "SENTRY ERROR: Crash test – nút + Đăng sách/tài liệu mới (error + sourcemaps + performance)"
+              )
+            );
+
+            // Crash thật
+            throw new Error(
+              "CRASHED: Crash test từ màn hình Đăng Sách/Tài Liệu – Sentry test"
+            );
+          }}
+        >
+          <Text className="text-white font-bold text-base tracking-wide">
+            + Đăng sách/tài liệu mới
+          </Text>
+        </Pressable>
         </View>
 
         <View className="mb-6">

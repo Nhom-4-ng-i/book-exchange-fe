@@ -97,32 +97,6 @@ export default function OnboardingScreen() {
     router.replace("/auth/login");
   };
 
-  const handleOnboardingPress = () => {
-    // Nếu CHƯA phải slide cuối → next như bình thường
-    if (index !== SLIDES.length - 1) {
-      onNext();
-      return;
-    }
-
-    // Slide cuối → gửi log + error lên Sentry rồi crash để test
-    console.log("=== TEST SENTRY: Onboarding last slide pressed ===");
-
-    Sentry.captureMessage(
-      "Test từ Onboarding – Nhóm 4 đã hoàn thành 100% (nhấn Bắt đầu)"
-    );
-
-    Sentry.captureException(
-      new Error(
-        "SENTRY ERROR: Crash test onboarding – đã có error + performance + app start + user context"
-      )
-    );
-
-    // Crash thật để kiểm tra sourcemaps + performance
-    throw new Error(
-      "CRASHED: Onboarding last slide – Crash test để nộp bài Sentry 10/10"
-    );
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <StatusBar barStyle="dark-content" />
@@ -178,7 +152,7 @@ export default function OnboardingScreen() {
           <View className="flex-col items-stretch justify-center">
             <Pressable
               className="w-full bg-textPrimary500 py-4 rounded-xl items-center justify-center"
-              onPress={handleOnboardingPress}
+              onPress={onNext}
             >
               <Text className="text-white font-bold text-base px-5">
                 {index === SLIDES.length - 1 ? "Bắt đầu" : "Tiếp tục"}
