@@ -19,7 +19,7 @@
       "<rootDir>/jest.setup.js"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo|@expo(f)s?|@expo-google-fonts|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|expo-modules-core|expo-router)/)"
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo|@expo(f)s?|@expo-google-fonts|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|expo-modules-core|expo-router|@sentry/react-native)/)"
     ],
     "testMatch": [
       "**/__tests__/**/*.ts?(x)"
@@ -61,6 +61,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "@react-navigation/native-stack": "^7.3.16",
+    "@sentry/react-native": "~7.2.0",
     "@tanstack/react-query": "^5.90.5",
     "expo": "54.0.21",
     "expo-auth-session": "~7.0.8",
