@@ -64,6 +64,12 @@ Reset về dự án trống để phát triển từ đầu:
 npm run reset-project
 ```
 
+Chạy các test trong folder __tests__/
+
+```bash
+npm run test
+```
+
 ---
 
 ## 📚 Tài liệu tham khảo
@@ -86,6 +92,7 @@ npm run reset-project
 Chỉnh sửa file trong thư mục **app/** để bắt đầu phát triển.
 Mỗi thay đổi sẽ được cập nhật trực tiếp khi ứng dụng đang chạy 🚀
 
+---
 
 [![React Native CI - Test, Report & SonarCloud](https://github.com/Nhom-4-ng-i/book-exchange-fe/actions/workflows/ci.yml/badge.svg)](https://github.com/Nhom-4-ng-i/book-exchange-fe/actions/workflows/ci.yml)
 
