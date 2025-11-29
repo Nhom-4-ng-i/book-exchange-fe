@@ -17,7 +17,6 @@ export default function LoginScreen() {
 
     const redirectUri = AuthSession.makeRedirectUri({
         useProxy: true,
-        scheme: 'exchangeoldbooks',
     });
 
     const [request, response, promptAsync] = Google.useAuthRequest({
