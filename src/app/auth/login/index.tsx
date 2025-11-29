@@ -1,5 +1,6 @@
 import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -14,11 +15,14 @@ export default function LoginScreen() {
     const router = useRouter();
     const [userInfo, setUserInfo] = useState<any>(null);
 
+    const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+
     const [request, response, promptAsync] = Google.useAuthRequest({
         iosClientId: '826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b.apps.googleusercontent.com',
         webClientId: '826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com',
         androidClientId: '826333210617-ocer35aga9t2mp9o2f76av6d70k1ikdh.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
+        redirectUri,
     });
 
     useEffect(() => {
@@ -60,7 +64,7 @@ export default function LoginScreen() {
                 <View>
                     <Pressable
                         className={`${buttonBaseClass} ${buttonActiveClass}`}
-                        onPress={() => router.push('/auth/phone')}
+                        onPress={() => promptAsync({ useProxy: true })}
                         disabled={!request}
                     >
                         <View className="absolute left-6">
