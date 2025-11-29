@@ -15,15 +15,16 @@ export default function LoginScreen() {
     const router = useRouter();
     const [userInfo, setUserInfo] = useState<any>(null);
 
-    const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+    const redirectUri = AuthSession.makeRedirectUri({
+        useProxy: true,
+        scheme: 'exchangeoldbooks',
+    });
 
     const [request, response, promptAsync] = Google.useAuthRequest({
         expoClientId: '826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com',
         iosClientId: '826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b.apps.googleusercontent.com',
         webClientId: '826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com',
         androidClientId: '826333210617-ocer35aga9t2mp9o2f76av6d70k1ikdh.apps.googleusercontent.com',
-        responseType: 'token',
-        usePKCE: true,
         scopes: ['profile', 'email'],
         useProxy: true,
         redirectUri,
