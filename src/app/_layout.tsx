@@ -63,9 +63,25 @@ function RootLayout() {
         options={{ headerShown: false }} 
       />
 
-      <Stack.Screen 
-        name="profile/index" 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="profile/index"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="profile/my-posts"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="profile/buyer-management"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="profile/wishlist"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="profile/wishlist-create"
+        options={{ headerShown: false }}
       />
 
       <Stack.Screen 
