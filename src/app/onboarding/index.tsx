@@ -1,8 +1,6 @@
-import * as Sentry from '@sentry/react-native';
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-  Button,
   FlatList,
   Pressable,
   StatusBar,
@@ -173,7 +171,7 @@ export default function OnboardingScreen() {
         </View>
       </View>
 
-      {__DEV__ && (
+      {/* {__DEV__ && (
         <View className="absolute top-16 left-4 z-50 bg-white p-5 rounded-2xl shadow-2xl border-4 border-red-600">
           <Text className="text-red-600 font-bold text-lg mb-3 text-center">
             SENTRY TEST – NHÓM 4
@@ -187,7 +185,7 @@ export default function OnboardingScreen() {
             }}
           />
         </View>
-      )}
+      )} */}
 
     </SafeAreaView>
 

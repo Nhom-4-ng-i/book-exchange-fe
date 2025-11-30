@@ -12,7 +12,7 @@ export default function SuccessScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={['left', 'right', 'bottom']}>
       <View className="flex-1" /> 
 
       <View className="items-center px-6">

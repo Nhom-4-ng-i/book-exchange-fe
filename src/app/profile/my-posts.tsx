@@ -1,8 +1,8 @@
-import React from "react";
-import { ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Pressable } from "react-native";
+import React from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import { ArrowLeft } from "lucide-react-native";
 
 import { PostCard } from "@/components/profile/PostCard";
@@ -23,7 +23,7 @@ export default function MyPostsScreen() {
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <View className="flex-row items-center gap-3 px-4 pb-3 pt-4">
         <Pressable onPress={() => router.back()} className="rounded-full p-2 active:opacity-70">
-          <ArrowLeft size={22} color="#000" />
+          <ArrowLeft size={22} />
         </Pressable>
         <Text className="flex-1 text-center text-lg font-bold text-textPrimary900">Bài đăng của tôi</Text>
         <View className="w-8" />

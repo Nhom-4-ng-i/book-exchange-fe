@@ -9,8 +9,8 @@ interface ProfileStatProps {
 export function ProfileStat({ label, value }: ProfileStatProps) {
   return (
     <View className="items-center flex-1">
-      <Text className="text-xl font-semibold text-textPrimary500">{value}</Text>
-      <Text className="text-sm text-textGray700">{label}</Text>
+      <Text className="text-bodyLarge font-semibold text-textPrimary400">{value}</Text>
+      <Text className="text-bodyLarge text-textGray900">{label}</Text>
     </View>
   );
 }

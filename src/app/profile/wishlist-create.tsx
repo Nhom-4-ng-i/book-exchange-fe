@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { ScrollView, Text, TextInput, View, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, ChevronDown } from "lucide-react-native";
+import React, { useState } from "react";
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { InfoBanner } from "@/components/profile/InfoBanner";
 
@@ -16,7 +16,7 @@ export default function WishlistCreateScreen() {
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <View className="flex-row items-center gap-3 px-4 pb-3 pt-4">
         <Pressable onPress={() => router.back()} className="rounded-full p-2 active:opacity-70">
-          <ArrowLeft size={22} color="#000" />
+          <ArrowLeft size={22} />
         </Pressable>
         <Text className="flex-1 text-center text-lg font-bold text-textPrimary900">Tạo Wishlist</Text>
         <View className="w-8" />
@@ -45,7 +45,7 @@ export default function WishlistCreateScreen() {
                 }}
               >
                 <Text className="text-base text-textGray800">{selectedSubject || "Chọn môn học"}</Text>
-                <ChevronDown size={18} color="#7A7A7A" />
+                <ChevronDown size={18} />
               </Pressable>
             </View>
 
@@ -60,9 +60,9 @@ export default function WishlistCreateScreen() {
 
             <View className="rounded-2xl bg-textGray50 p-4">
               <Text className="mb-2 text-sm font-semibold text-textPrimary900">Ví dụ Wishlist:</Text>
-              <Text className="text-sm text-textGray800">- "Giải Tích 2" - Toán - Giá tối đa 50.000đ</Text>
-              <Text className="text-sm text-textGray800">- "Vật Lý" - Lý - Không giới hạn giá</Text>
-              <Text className="text-sm text-textGray800">- "Giáo Trình CTDL" - Trí tuệ nhân tạo - Giá tối đa 100,000đ</Text>
+              <Text className="text-sm text-textGray800">- &quot;Giải Tích 2&quot; - Toán - Giá tối đa 50.000đ</Text>
+              <Text className="text-sm text-textGray800">- &quot;Vật Lý&quot; - Lý - Không giới hạn giá</Text>
+              <Text className="text-sm text-textGray800">- &quot;Giáo Trình CTDL&quot; - Trí tuệ nhân tạo - Giá tối đa 100,000đ</Text>
             </View>
           </View>
         </View>

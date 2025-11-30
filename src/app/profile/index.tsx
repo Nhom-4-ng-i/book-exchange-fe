@@ -1,27 +1,31 @@
-import React from "react";
-import { ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { BookOpen, Heart, ShoppingBag, Users } from "lucide-react-native";
+import React from "react";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import BottomNav from "@/components/BottomNav";
+import HeaderHome from "@/components/HeaderHome";
+
 import { ProfileActionCard } from "@/components/profile/ProfileActionCard";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileStat } from "@/components/profile/ProfileStat";
+import IconHeart from "@/icons/IconHeart";
+import IconPost from "@/icons/IconPost";
+import IconUser from "@/icons/IconUser";
+import { StatusBar } from "expo-status-bar";
 
 export default function ProfileScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
-      <View className="border-b border-textGray200 px-6 pb-3 pt-4">
-        <Text className="text-center text-lg font-bold text-textPrimary900">Hồ sơ</Text>
-      </View>
+    <SafeAreaView className="flex-1 bg-white" edges={['left', 'right', 'bottom']}>
+      <StatusBar style="dark" />
+      <HeaderHome title="Hồ sơ" showSearch={false} showChat={false} showNotification={false} />
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView className="flex-1 mt-2" contentContainerStyle={{ paddingBottom: 100 }}>
         <ProfileHeader name="Đặng văn A" phone="08764349" onLogout={() => {}} />
 
-        <View className="mx-6 mb-6 mt-2 rounded-2xl bg-[#EDE7FB] p-4">
+        <View className="mx-6 mb-4 mt-4 rounded-2xl ">
           <View className="flex-row justify-between gap-3">
             <ProfileStat label="Đã đăng" value={12} />
             <ProfileStat label="Đã bán" value={12} />
@@ -29,24 +33,20 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View className="mx-6 gap-4">
+        <View className="mx-6">
           <ProfileActionCard
-            icon={<BookOpen color="#54408C" size={22} />}
+            icon={<IconPost />}
             label="Bài đăng của tôi"
             onPress={() => router.push("/profile/my-posts")}
           />
           <ProfileActionCard
-            icon={<ShoppingBag color="#54408C" size={22} />}
-            label="Đã mua"
-          />
-          <ProfileActionCard
-            icon={<Users color="#54408C" size={22} />}
+            icon={<IconUser />}
             label="Quản lý người mua"
             badgeCount={2}
             onPress={() => router.push("/profile/buyer-management")}
           />
           <ProfileActionCard
-            icon={<Heart color="#54408C" size={22} />}
+            icon={<IconHeart />}
             label="Quản lý Wishlist"
             badgeCount={2}
             onPress={() => router.push("/profile/wishlist")}
