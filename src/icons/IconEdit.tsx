@@ -1,11 +1,17 @@
 import { Image } from "react-native";
 import Svg, { Defs, Path, Pattern, Use } from "react-native-svg";
 
-const IconEdit = () => {
-  return (
+interface IconEditProps {
+  width?: number;
+  height?: number;
+  color?: string;
+}
+
+const IconEdit = ({ width = 12, height = 14, color = "#000" }: IconEditProps) => {
+  return (  
       <Svg
-        width={12}
-        height={14}
+        width={width}
+        height={height}
         fill="none"
       >
         <Path fill="url(#a)" d="M0 0h12v14H0z" />

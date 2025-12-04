@@ -1,7 +1,8 @@
+import IconEdit from "@/icons/IconEdit";
+import { Image } from "expo-image";
+import { Trash2 } from "lucide-react-native";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-import { Image } from "expo-image";
-import { Pencil, Trash2 } from "lucide-react-native";
 
 interface PostCardProps {
   title: string;
@@ -22,13 +23,13 @@ export function PostCard({ title, category, condition, price, status }: PostCard
       />
       <View className="flex-1 gap-2">
         <View className="flex-row items-center justify-between">
-          <Text className="text-base font-semibold text-textPrimary900">{title}</Text>
+          <Text className="text-heading5 font-bold text-textPrimary900">{title}</Text>
           <View className="flex-row gap-2">
             <Pressable className="rounded-full border border-textGray200 p-1">
-              <Pencil size={16} color="#54408C" />
+              <IconEdit width={20} height={20} />
             </Pressable>
             <Pressable className="rounded-full border border-textGray200 p-1">
-              <Trash2 size={16} color="#EF5A56" />
+              <Trash2/>
             </Pressable>
           </View>
         </View>

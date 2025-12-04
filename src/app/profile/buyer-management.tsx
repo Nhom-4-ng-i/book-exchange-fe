@@ -1,27 +1,42 @@
 import { useRouter } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
 import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { RequestCard } from "@/components/profile/RequestCard";
+import { StatusBar } from "expo-status-bar";
+import { ArrowLeft } from "lucide-react-native";
 
 export default function BuyerManagementScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
-      <View className="flex-row items-center gap-3 px-4 pb-3 pt-4">
-        <Pressable onPress={() => router.back()} className="rounded-full p-2 active:opacity-70">
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["left", "right", "bottom"]}
+    >
+      <StatusBar style="dark" />
+      <View className="flex-row items-center justify-between px-6 py-2 h-16">
+        <Pressable
+          onPress={() => router.back()}
+          className="rounded-full p-2 active:opacity-70"
+        >
           <ArrowLeft size={22} />
         </Pressable>
-        <Text className="flex-1 text-center text-lg font-bold text-textPrimary900">Quản lý người mua</Text>
+        <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
+          Quản lý Wishlist
+        </Text>
         <View className="w-8" />
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 32 }}
+      >
         <View className="px-6">
-          <Text className="mb-3 text-base font-semibold text-textPrimary900">Yêu cầu mới (2)</Text>
+          <Text className="mb-3 text-heading5 font-bold text-textPrimary900">
+            Yêu cầu mới (2)
+          </Text>
           <RequestCard
             buyerName="Phạm Minh Tuấn"
             buyerNote="Sách dùng giao tiếp hằng ngày"
@@ -42,7 +57,9 @@ export default function BuyerManagementScreen() {
         </View>
 
         <View className="px-6">
-          <Text className="mb-3 mt-2 text-base font-semibold text-textPrimary900">Đã chấp nhận (2)</Text>
+          <Text className="mb-3 mt-2 text-heading5 font-bold text-textPrimary900">
+            Đã chấp nhận (2)
+          </Text>
           <RequestCard
             buyerName="Phạm Minh Tuấn"
             bookTitle="Giải tích 2"
@@ -62,7 +79,9 @@ export default function BuyerManagementScreen() {
         </View>
 
         <View className="px-6">
-          <Text className="mb-3 mt-2 text-base font-semibold text-textPrimary900">Đã hoàn thành (1)</Text>
+          <Text className="mb-3 mt-2 text-heading5 font-bold text-textPrimary900">
+            Đã hoàn thành (1)
+          </Text>
           <RequestCard
             buyerName="Phạm Minh Tuấn"
             bookTitle="Giải tích 2"
