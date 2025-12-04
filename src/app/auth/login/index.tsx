@@ -1,7 +1,7 @@
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Alert, Platform, Pressable, Text, View } from "react-native";
 
 import {
   GoogleSignin,
@@ -26,27 +26,31 @@ export default function LoginScreen() {
   }, []);
 
   const handleGoogleLogin = async () => {
+    // 1. Nếu đang chạy web -> báo chưa hỗ trợ, đừng gọi GoogleSignin
+    if (Platform.OS === "web") {
+      Alert.alert(
+        "Chưa hỗ trợ",
+        "Đăng nhập Google chỉ hoạt động trên app mobile (Android/iOS), không dùng trên web."
+      );
+      return;
+    }
+
     try {
-      // Android: check Google Play Services
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
 
       const userInfo = await GoogleSignin.signIn();
 
-      // userInfo.user: { id, email, name, photo, ... }
       console.log("Google user id:", userInfo.data?.user.id);
       console.log("Google user email:", userInfo.data?.user.email);
 
-      // TODO: nếu có backend / Firebase thì gửi idToken ở đây
-      // const idToken = userInfo.idToken;
-
       router.replace("/(tabs)");
     } catch (error: any) {
-      console.log("Google Sign-In Error:", error);
+      console.log("Google Sign-In Error RAW:", error);
+      console.log("Google Sign-In Error JSON:", JSON.stringify(error, null, 2));
 
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user tự cancel → bỏ qua
         return;
       }
 
