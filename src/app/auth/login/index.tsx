@@ -1,12 +1,13 @@
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { Alert, Platform, Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 
 import {
   GoogleSignin,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
+import Constants from "expo-constants";
 import IconFacebook from "../../../icons/IconFacebook";
 import IconGoogle from "../../../icons/IconGoogle";
 
@@ -15,10 +16,8 @@ export default function LoginScreen() {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId:
-        "826333210617-2u5da7jc44f1ttibv621n9e2mdc5321s.apps.googleusercontent.com",
-      iosClientId:
-        "826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b.apps.googleusercontent.com",
+      webClientId: Constants.expoConfig?.extra?.googleSignIn?.webClientId,
+      iosClientId: Constants.expoConfig?.extra?.googleSignIn?.iosClientId,
       offlineAccess: false,
       scopes: ["profile", "email"],
       forceCodeForRefreshToken: false,
@@ -26,15 +25,6 @@ export default function LoginScreen() {
   }, []);
 
   const handleGoogleLogin = async () => {
-    // 1. Nếu đang chạy web -> báo chưa hỗ trợ, đừng gọi GoogleSignin
-    if (Platform.OS === "web") {
-      Alert.alert(
-        "Chưa hỗ trợ",
-        "Đăng nhập Google chỉ hoạt động trên app mobile (Android/iOS), không dùng trên web."
-      );
-      return;
-    }
-
     try {
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
@@ -45,7 +35,7 @@ export default function LoginScreen() {
       console.log("Google user id:", userInfo.data?.user.id);
       console.log("Google user email:", userInfo.data?.user.email);
 
-      router.replace("/(tabs)");
+      router.push("/auth/phone");
     } catch (error: any) {
       console.log("Google Sign-In Error RAW:", error);
       console.log("Google Sign-In Error JSON:", JSON.stringify(error, null, 2));
