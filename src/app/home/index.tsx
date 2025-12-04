@@ -73,7 +73,7 @@ const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ng�
 export default function Index() {
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={['left', 'right', 'bottom']}>
       <StatusBar style="dark" />
 
       <HeaderHome title="Trang chủ" />

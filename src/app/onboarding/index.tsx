@@ -1,14 +1,12 @@
-import * as Sentry from '@sentry/react-native';
 import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-  Button,
   FlatList,
   Pressable,
   StatusBar,
   Text,
   useWindowDimensions,
-  View
+  View,
 } from "react-native";
 import Animated, {
   Easing,
@@ -75,7 +73,8 @@ export default function OnboardingScreen() {
     }
   };
   const onPrev = () =>
-    index > 0 && listRef.current?.scrollToIndex({ index: index - 1, animated: true });
+    index > 0 &&
+    listRef.current?.scrollToIndex({ index: index - 1, animated: true });
 
   const viewabilityConfig = { itemVisiblePercentThreshold: 50 };
   const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
@@ -92,13 +91,16 @@ export default function OnboardingScreen() {
     };
   });
 
-  const backToHome = async() => {
-    await storeData('onboarded', '1');
+  const backToHome = async () => {
+    await storeData("onboarded", "1");
     router.replace("/auth/login");
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["left", "right", "bottom"]}
+    >
       <StatusBar barStyle="dark-content" />
 
       <View className="flex-1 bg-white">
@@ -125,10 +127,7 @@ export default function OnboardingScreen() {
           viewabilityConfig={viewabilityConfig}
           onViewableItemsChanged={onViewableItemsChanged}
           renderItem={({ item }) => (
-            <View
-              className="flex-1 items-center px-5"
-              style={{ width }}
-            >
+            <View className="flex-1 items-center px-5" style={{ width }}>
               <View className="mt-2 mb-5 items-center justify-center">
                 <item.IconOnboarding width={width} height={width * 1.1} />
               </View>
@@ -173,7 +172,7 @@ export default function OnboardingScreen() {
         </View>
       </View>
 
-      {__DEV__ && (
+      {/* {__DEV__ && (
         <View className="absolute top-16 left-4 z-50 bg-white p-5 rounded-2xl shadow-2xl border-4 border-red-600">
           <Text className="text-red-600 font-bold text-lg mb-3 text-center">
             SENTRY TEST – NHÓM 4
@@ -187,10 +186,8 @@ export default function OnboardingScreen() {
             }}
           />
         </View>
-      )}
-
+      )} */}
     </SafeAreaView>
-
   );
 }
 
@@ -219,10 +216,5 @@ const AnimatedDot = ({
     };
   });
 
-  return (
-    <Animated.View
-      className="rounded-full"
-      style={animatedStyle}
-    />
-  );
+  return <Animated.View className="rounded-full" style={animatedStyle} />;
 };

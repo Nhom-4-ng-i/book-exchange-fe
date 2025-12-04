@@ -22,7 +22,7 @@ export default function Header({
   const handleBack = () => router.back();
 
   return (
-    <SafeAreaView className="bg-white" edges={['top']}>
+    <SafeAreaView className="bg-white" edges={['left', 'right', 'bottom']}>
       <View className="flex-row items-center justify-between px-6 py-2 h-16">
       
       <View className="flex-1 items-start">

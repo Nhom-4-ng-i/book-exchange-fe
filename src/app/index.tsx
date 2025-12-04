@@ -116,19 +116,23 @@ export default function LaunchAnimationScreen() {
       transform: [{ translateY: textTranslateY.value }],
     };
   });
-const checkFirstTimeOpen = async () => {
-    let onboarded = await getData('onboarded');
-    if (onboarded !== '1') {
-      router.replace('/onboarding');
-    }
-    else{
-      router.replace('/auth/login');
+  const checkFirstTimeOpen = async () => {
+    let onboarded = await getData("onboarded");
+    if (onboarded !== "1") {
+      router.replace("/onboarding");
+    } else {
+      router.replace("/auth/login");
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
-      <StatusBar barStyle={phase === "intro1" ? "light-content" : "dark-content"} />
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["left", "right", "bottom"]}
+    >
+      <StatusBar
+        barStyle={phase === "intro1" ? "light-content" : "dark-content"}
+      />
 
       <Animated.View
         className={`flex-1 items-center justify-center ${
@@ -136,7 +140,10 @@ const checkFirstTimeOpen = async () => {
         }`}
         style={containerAnimatedStyle}
       >
-        <Animated.View className="items-center justify-center" style={logoAnimatedStyle}>
+        <Animated.View
+          className="items-center justify-center"
+          style={logoAnimatedStyle}
+        >
           {phase === "intro1" ? (
             <LogoBkoo2 width={140} height={40} fill="#fff" />
           ) : (
@@ -155,11 +162,7 @@ const checkFirstTimeOpen = async () => {
         </Animated.View>
 
         <View className="absolute bottom-10 left-5">
-          {phase === "intro1" ? (
-            <IconLogoWhite />
-          ) : (
-            <IconLogoPrimary />
-          )}
+          {phase === "intro1" ? <IconLogoWhite /> : <IconLogoPrimary />}
         </View>
       </Animated.View>
     </SafeAreaView>
