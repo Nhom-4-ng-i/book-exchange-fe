@@ -60,7 +60,7 @@ export default function MyPostsScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
       >
-        <View className="px-6">
+        <View className="px-6 mt-2">
           <Text className="mb-3 text-heading5 font-semibold text-textPrimary900">
             Đang bán ({sellingPosts.length})
           </Text>
