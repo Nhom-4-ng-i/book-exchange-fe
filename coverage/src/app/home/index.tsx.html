@@ -235,28 +235,7 @@
 <a name='L170'></a><a href='#L170'>170</a>
 <a name='L171'></a><a href='#L171'>171</a>
 <a name='L172'></a><a href='#L172'>172</a>
-<a name='L173'></a><a href='#L173'>173</a>
-<a name='L174'></a><a href='#L174'>174</a>
-<a name='L175'></a><a href='#L175'>175</a>
-<a name='L176'></a><a href='#L176'>176</a>
-<a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a>
-<a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L173'></a><a href='#L173'>173</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -320,8 +299,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
@@ -335,10 +312,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -372,9 +348,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -434,24 +407,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
 import * as Sentry from "@sentry/react-native";
 import { StatusBar } from "expo-status-bar";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View
-} from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 &nbsp;
-const HAS_LAUNCHED = 'hasLaunched';
-const IS_LOGGED_IN = 'isLoggedIn';
+const HAS_LAUNCHED = "hasLaunched";
+const IS_LOGGED_IN = "isLoggedIn";
 &nbsp;
 const books = [
   {
@@ -508,47 +472,44 @@ const books = [
 &nbsp;
 const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
 &nbsp;
-&nbsp;
 export default function Index() {
-&nbsp;
   return (
     &lt;SafeAreaView className="flex-1 bg-white"&gt;
       &lt;StatusBar style="dark" /&gt;
 &nbsp;
       &lt;HeaderHome title="Trang chủ" /&gt;
 &nbsp;
-      &lt;ScrollView
-        className="flex-1"
-        contentContainerClassName="pb-24"
-      &gt;
+      &lt;ScrollView className="flex-1" contentContainerClassName="pb-24"&gt;
         &lt;View className="px-4 mb-4 mt-4"&gt;
           &lt;Pressable
-          className="w-full py-3 bg-textPrimary500 items-center justify-center text-white font-bold rounded-lg tracking-wide"
-          onPress={() =&gt; {
-            console.log("=== TEST SENTRY: Crash tại nút + Đăng sách/tài liệu mới ===");
+            className="w-full py-3 bg-textPrimary500 items-center justify-center text-white font-bold rounded-lg tracking-wide"
+            onPress={() =&gt; {
+              console.log(
+                "=== TEST SENTRY: Crash tại nút + Đăng sách/tài liệu mới ==="
+              );
 &nbsp;
-            // Gửi message
-            Sentry.captureMessage(
-              "Test Sentry từ nút + Đăng sách/tài liệu mới – Nhóm 4 test crash"
-            );
+              // Gửi message
+              Sentry.captureMessage(
+                "Test Sentry từ nút + Đăng sách/tài liệu mới – Nhóm 4 test crash"
+              );
 &nbsp;
-            // Gửi exception
-            Sentry.captureException(
-              new Error(
-                "SENTRY ERROR: Crash test – nút + Đăng sách/tài liệu mới (error + sourcemaps + performance)"
-              )
-            );
+              // Gửi exception
+              Sentry.captureException(
+                new Error(
+                  "SENTRY ERROR: Crash test – nút + Đăng sách/tài liệu mới (error + sourcemaps + performance)"
+                )
+              );
 &nbsp;
-            // Crash thật
-            throw new Error(
-              "CRASHED: Crash test từ màn hình Đăng Sách/Tài Liệu – Sentry test"
-            );
-          }}
-        &gt;
-          &lt;Text className="text-white font-bold text-base tracking-wide"&gt;
-            + Đăng sách/tài liệu mới
-          &lt;/Text&gt;
-        &lt;/Pressable&gt;
+              // Crash thật
+              throw new Error(
+                "CRASHED: Crash test từ màn hình Đăng Sách/Tài Liệu – Sentry test"
+              );
+            }}
+          &gt;
+            &lt;Text className="text-white font-bold text-base tracking-wide"&gt;
+              + Đăng sách/tài liệu mới
+            &lt;/Text&gt;
+          &lt;/Pressable&gt;
         &lt;/View&gt;
 &nbsp;
         &lt;View className="mb-6"&gt;
@@ -561,9 +522,7 @@ export default function Index() {
               &lt;Pressable
                 key={index}
                 className={`px-2 py-1 rounded-lg whitespace-nowrap ${
-                  index === 0
-                    ? "bg-gray-500/20"
-                    : "border border-[#E5E5E5]"
+                  index === 0 ? "bg-gray-500/20" : "border border-[#E5E5E5]"
                 }`}
               &gt;
                 &lt;Text className="text-sm text-gray-800"&gt;{category}&lt;/Text&gt;
@@ -578,14 +537,10 @@ export default function Index() {
           &lt;/Text&gt;
         &lt;/View&gt;
 &nbsp;
-&nbsp;
         &lt;View className="px-4"&gt;
           &lt;View className="flex-row flex-wrap justify-between"&gt;
             {books.map((book) =&gt; (
-              &lt;Pressable
-                key={book.id}
-                className="w-[48%] mb-8"
-              &gt;
+              &lt;Pressable key={book.id} className="w-[48%] mb-8"&gt;
                 &lt;View className="flex-col"&gt;
                   &lt;View className="relative mb-2"&gt;
                     &lt;Image
@@ -631,7 +586,7 @@ export default function Index() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-26T16:47:55.489Z
+                at 2025-12-09T15:27:02.541Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
