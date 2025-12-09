@@ -9,10 +9,10 @@
 
 ## ✨ Tính năng chính
 
-* 📖 Đăng bán và quản lý sách cũ
-* 🔍 Tìm kiếm, lọc và xem chi tiết sách
-* 👤 Quản lý tài khoản cá nhân
-* 🔗 Tích hợp API từ backend
+- 📖 Đăng bán và quản lý sách cũ
+- 🔍 Tìm kiếm, lọc và xem chi tiết sách
+- 👤 Quản lý tài khoản cá nhân
+- 🔗 Tích hợp API từ backend
 
 ---
 
@@ -32,27 +32,29 @@ npx expo start
 
 Sau khi chạy, bạn có thể lựa chọn:
 
-* 📱 **Expo Go** (trên Android/iOS)
-* 📱 **Android Emulator** (Android Studio)
-* 🍏 **iOS Simulator** (Xcode)
-* 🛠️ **Development Build**
+- 📱 **Expo Go** (trên Android/iOS)
+- 📱 **Android Emulator** (Android Studio)
+- 🍏 **iOS Simulator** (Xcode)
+- 🛠️ **Development Build**
 
 ---
 
 ## 📂 Cấu trúc thư mục
 
-* `app/` → chứa source code chính theo [file-based routing](https://docs.expo.dev/router/introduction/)
-* `components/` → các component UI tái sử dụng
-* `services/` → gọi API backend
-* `icons/` → các icon sử dụng trong ứng dụng
-* `features/` → các tính năng của ứng dụng
-* `assets/` → các tài nguyên như ảnh, video, font
+- `app/` → chứa source code chính theo [file-based routing](https://docs.expo.dev/router/introduction/)
+- `components/` → các component UI tái sử dụng
+- `services/` → gọi API backend
+- `icons/` → các icon sử dụng trong ứng dụng
+- `features/` → các tính năng của ứng dụng
+- `assets/` → các tài nguyên như ảnh, video, font
 
 ---
+
 ## 🔍 Hướng dẫn lấy icon
+
 - Vào Figma copy dưới dạng svg
 - paste phần nội dung copy vào [link](https://react-svgr.com/playground)
-- Copy code 
+- Copy code
 - Tạo file icon trong thư mục icons rồi paste phần trong () của JSX output vào như mẫu "IconExport.tsx"
 - Nhớ chuyển <sgv> thành <Svg> và <path> thành <Path>
 
@@ -64,26 +66,32 @@ Reset về dự án trống để phát triển từ đầu:
 npm run reset-project
 ```
 
-Chạy các test trong folder __tests__/
+Chạy các test trong folder **tests**/
 
 ```bash
 npm run test
+```
+
+Muốn cập nhật API khi backend thay đổi
+
+```bash
+npm run generate:api
 ```
 
 ---
 
 ## 📚 Tài liệu tham khảo
 
-* [Expo Documentation](https://docs.expo.dev/)
-* [Learn Expo Tutorial](https://docs.expo.dev/tutorial/introduction/)
-* [React Native Docs](https://reactnative.dev/)
+- [Expo Documentation](https://docs.expo.dev/)
+- [Learn Expo Tutorial](https://docs.expo.dev/tutorial/introduction/)
+- [React Native Docs](https://reactnative.dev/)
 
 ---
 
 ## 🤝 Cộng đồng
 
-* [Expo GitHub](https://github.com/expo/expo)
-* [Expo Discord](https://chat.expo.dev)
+- [Expo GitHub](https://github.com/expo/expo)
+- [Expo Discord](https://chat.expo.dev)
 
 ---
 
