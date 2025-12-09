@@ -2,17 +2,11 @@ import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
 import * as Sentry from "@sentry/react-native";
 import { StatusBar } from "expo-status-bar";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View
-} from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const HAS_LAUNCHED = 'hasLaunched';
-const IS_LOGGED_IN = 'isLoggedIn';
+const HAS_LAUNCHED = "hasLaunched";
+const IS_LOGGED_IN = "isLoggedIn";
 
 const books = [
   {
@@ -69,47 +63,44 @@ const books = [
 
 const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
 
-
 export default function Index() {
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
 
       <HeaderHome title="Trang chủ" />
 
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="pb-24"
-      >
+      <ScrollView className="flex-1" contentContainerClassName="pb-24">
         <View className="px-4 mb-4 mt-4">
           <Pressable
-          className="w-full py-3 bg-textPrimary500 items-center justify-center text-white font-bold rounded-lg tracking-wide"
-          onPress={() => {
-            console.log("=== TEST SENTRY: Crash tại nút + Đăng sách/tài liệu mới ===");
+            className="w-full py-3 bg-textPrimary500 items-center justify-center text-white font-bold rounded-lg tracking-wide"
+            onPress={() => {
+              console.log(
+                "=== TEST SENTRY: Crash tại nút + Đăng sách/tài liệu mới ==="
+              );
 
-            // Gửi message
-            Sentry.captureMessage(
-              "Test Sentry từ nút + Đăng sách/tài liệu mới – Nhóm 4 test crash"
-            );
+              // Gửi message
+              Sentry.captureMessage(
+                "Test Sentry từ nút + Đăng sách/tài liệu mới – Nhóm 4 test crash"
+              );
 
-            // Gửi exception
-            Sentry.captureException(
-              new Error(
-                "SENTRY ERROR: Crash test – nút + Đăng sách/tài liệu mới (error + sourcemaps + performance)"
-              )
-            );
+              // Gửi exception
+              Sentry.captureException(
+                new Error(
+                  "SENTRY ERROR: Crash test – nút + Đăng sách/tài liệu mới (error + sourcemaps + performance)"
+                )
+              );
 
-            // Crash thật
-            throw new Error(
-              "CRASHED: Crash test từ màn hình Đăng Sách/Tài Liệu – Sentry test"
-            );
-          }}
-        >
-          <Text className="text-white font-bold text-base tracking-wide">
-            + Đăng sách/tài liệu mới
-          </Text>
-        </Pressable>
+              // Crash thật
+              throw new Error(
+                "CRASHED: Crash test từ màn hình Đăng Sách/Tài Liệu – Sentry test"
+              );
+            }}
+          >
+            <Text className="text-white font-bold text-base tracking-wide">
+              + Đăng sách/tài liệu mới
+            </Text>
+          </Pressable>
         </View>
 
         <View className="mb-6">
@@ -122,9 +113,7 @@ export default function Index() {
               <Pressable
                 key={index}
                 className={`px-2 py-1 rounded-lg whitespace-nowrap ${
-                  index === 0
-                    ? "bg-gray-500/20"
-                    : "border border-[#E5E5E5]"
+                  index === 0 ? "bg-gray-500/20" : "border border-[#E5E5E5]"
                 }`}
               >
                 <Text className="text-sm text-gray-800">{category}</Text>
@@ -139,14 +128,10 @@ export default function Index() {
           </Text>
         </View>
 
-
         <View className="px-4">
           <View className="flex-row flex-wrap justify-between">
             {books.map((book) => (
-              <Pressable
-                key={book.id}
-                className="w-[48%] mb-8"
-              >
+              <Pressable key={book.id} className="w-[48%] mb-8">
                 <View className="flex-col">
                   <View className="relative mb-2">
                     <Image

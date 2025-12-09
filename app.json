@@ -35,6 +35,13 @@
       "bundler": "metro"
     },
     "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b", 
+          "scopes": ["profile", "email"]
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
