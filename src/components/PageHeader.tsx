@@ -3,17 +3,17 @@ import IconNotification from '@/icons/IconNotification';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-interface AppHeaderCart {
+interface PageHeader {
     title : String , 
     onChatPress?: () => void;
     onBellPress?: () => void;
 }
 
-export default function AppHeaderCart({
+export default function PageHeader({
     title,
     onChatPress,
     onBellPress,
-}: AppHeaderCart){
+}: PageHeader){
     return(
         <View className="bg-white z-50 border-b border-gray-100 pt-4">
             <View className="px-4 py-2 flex-row items-center">

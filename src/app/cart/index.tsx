@@ -1,6 +1,8 @@
 import { Text, View ,FlatList} from "react-native";
-import AppHeaderCart from '@/components/CartHeader';
+import PageHeader from '@/components/PageHeader';
+import BottomNav from '@/components/BottomNav'
 import CartItem from '@/components/CartItem';
+import axios from "axios";
 const CART_DATA = [
     {
       id: "1",
@@ -20,10 +22,22 @@ const CART_DATA = [
     },
     // thêm vài item nữa cho dễ test scroll
   ];
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get("http://160.187.246.140:8000/api/orders/");
+      console.log(res.data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 export default function Index() {
     return (
         <View className = 'bg-white h-full'>
-            <AppHeaderCart title = 'Giỏ Hàng'/>
+            <PageHeader title = 'Giỏ Hàng'/>
+            <Text className = 'font-medium text-[18px] mt-2 ml-2'>
+              Đang xử lý ({CART_DATA.length})
+            </Text>
             <FlatList
             data={CART_DATA}
             
@@ -41,6 +55,7 @@ export default function Index() {
             ItemSeparatorComponent={() => <View className="h-3" />}
             showsVerticalScrollIndicator={false}
       />
+      <BottomNav/>
 
         </View>
     );
