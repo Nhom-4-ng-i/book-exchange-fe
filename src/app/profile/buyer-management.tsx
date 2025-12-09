@@ -24,7 +24,7 @@ export default function BuyerManagementScreen() {
           <ArrowLeft size={22} />
         </Pressable>
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
-          Quản lý Wishlist
+          Quản lý người mua
         </Text>
         <View className="w-8" />
       </View>

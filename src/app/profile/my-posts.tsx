@@ -13,14 +13,14 @@ const sellingPosts = [
     category: "Ngoại ngữ",
     condition: "Chưa đọc",
     price: "120.000đ",
-    status: "Chưa đọc",
+    status: "Đang bán",
   },
   {
     title: "Giải tích 2",
     category: "Ngoại ngữ",
     condition: "Chưa đọc",
     price: "120.000đ",
-    status: "Chưa đọc",
+    status: "Đang bán",
   },
 ];
 
@@ -28,7 +28,7 @@ const soldPosts = [
   {
     title: "Giải tích 2",
     category: "Ngoại ngữ",
-    condition: "Chưa đọc",
+    condition: "Đã đọc",
     price: "120.000đ",
     status: "Đã bán",
   },
@@ -51,7 +51,7 @@ export default function MyPostsScreen() {
           <ArrowLeft size={22} />
         </Pressable>
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
-          Quản lý Wishlist
+          Bài đăng của tôi
         </Text>
         <View className="w-8" />
       </View>
@@ -61,7 +61,7 @@ export default function MyPostsScreen() {
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         <View className="px-6">
-          <Text className="mb-3 text-heading5 font-bold text-textPrimary900">
+          <Text className="mb-3 text-heading5 font-semibold text-textPrimary900">
             Đang bán ({sellingPosts.length})
           </Text>
           {sellingPosts.map((item, index) => (
@@ -70,7 +70,7 @@ export default function MyPostsScreen() {
         </View>
 
         <View className="px-6">
-          <Text className="mb-3 mt-2 text-heading5 font-bold text-textPrimary900">
+          <Text className="mb-4 mt-2 text-heading5 font-semibold text-textPrimary900">
             Đã bán ({soldPosts.length})
           </Text>
           {soldPosts.map((item, index) => (

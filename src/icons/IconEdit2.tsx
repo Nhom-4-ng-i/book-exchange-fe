@@ -7,13 +7,9 @@ interface IconEditProps {
   color?: string;
 }
 
-const IconEdit2 = ({
-  width = 12,
-  height = 14,
-  color = "#000",
-}: IconEditProps) => {
+const IconEdit2 = ({ color = "#000" }: IconEditProps) => {
   return (
-    <Svg width={width} height={height} fill="none">
+    <Svg width={12} height={14} fill="none">
       <Path fill="url(#a)" d="M0 0h12v14H0z" />
       <Defs>
         <Pattern
