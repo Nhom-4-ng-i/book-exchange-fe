@@ -1,31 +1,35 @@
-import IconPhone from '@/icons/IconPhone';
-import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import IconPhone from "@/icons/IconPhone";
+import { useRouter } from "expo-router";
+import React, { useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
   Text,
   TextInput,
-  View
-} from 'react-native';
-import Header from '../../../components/Header';
+  View,
+} from "react-native";
+import Header from "../../../components/Header";
 
 export default function PhoneNumberScreen() {
   const router = useRouter();
-  const [digits, setDigits] = useState<string>('');
+  const [digits, setDigits] = useState<string>("");
 
-  const countryCode = '(+965)';
+  const handleSkip = () => {
+    router.replace("/home");
+  };
+
+  const countryCode = "(+965)";
 
   const formatted = useMemo(() => {
-    const s = digits.replace(/\D/g, '');
+    const s = digits.replace(/\D/g, "");
     const parts: string[] = [];
     for (let i = 0; i < s.length; i += 3) parts.push(s.slice(i, i + 3));
-    return parts.join(' ');
+    return parts.join(" ");
   }, [digits]);
 
   const onTextChange = (text: string) => {
-    const newDigits = text.replace(/\D/g, '');
+    const newDigits = text.replace(/\D/g, "");
     if (newDigits.length <= 15) {
       setDigits(newDigits);
     }
@@ -36,15 +40,18 @@ export default function PhoneNumberScreen() {
   return (
     <View className="flex-1 bg-white h-full">
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <Header showBackButton showSkipButton/>
-        
+        <Header showBackButton showSkipButton onSkipPress={handleSkip} />
+
         <View className="flex-1 px-6 mb-6">
-          <Text className="text-2xl font-bold text-center mt-4">Số điện thoại</Text>
+          <Text className="text-2xl font-bold text-center mt-4">
+            Số điện thoại
+          </Text>
           <Text className="text-[#A6A6A6] text-center mt-2 mb-6 font-normal">
-            Vui lòng nhập số điện thoại của bạn để chúng tôi có thể giao hàng dễ dàng hơn
+            Vui lòng nhập số điện thoại của bạn để chúng tôi có thể giao hàng dễ
+            dàng hơn
           </Text>
 
           <View className="mt-2">
@@ -56,12 +63,12 @@ export default function PhoneNumberScreen() {
                   {countryCode}
                 </Text>
               </View>
-              
+
               <TextInput
                 style={{
                   paddingTop: 0,
                   paddingBottom: 0,
-                  lineHeight: 20
+                  lineHeight: 20,
                 }}
                 className="flex-1 text-[16px] text-gray-900"
                 value={formatted}
@@ -75,16 +82,15 @@ export default function PhoneNumberScreen() {
           </View>
 
           <View className="h-20" />
-          
+
           <Pressable
             disabled={!canContinue}
-            onPress={() => router.push('/success')}
+            onPress={() => router.push("/success")}
             className="bg-textPrimary500 h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
           >
             <Text className="text-white font-bold text-base">Tiếp tục</Text>
           </Pressable>
         </View>
-
       </KeyboardAvoidingView>
     </View>
   );
