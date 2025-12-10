@@ -181,8 +181,8 @@ export default function LoginScreen() {
 
   const handleDebugLogin = async () => {
     try {
-      const email = "man.ngotrieuman27@hcmut.edu.vn";
-      const name = "Trieu Man";
+      const email = "ttqthinh2004@gmail.com";
+      const name = "Thinh";
 
       const res = await signInOrSignUp(email, name);
 

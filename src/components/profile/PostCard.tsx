@@ -10,6 +10,7 @@ interface PostCardProps {
   condition: string;
   price: string;
   status: string;
+  thumbnailUrl?: string;
 }
 
 export function PostCard({
@@ -18,6 +19,7 @@ export function PostCard({
   condition,
   price,
   status,
+  thumbnailUrl,
 }: PostCardProps) {
   return (
     <View
@@ -28,7 +30,9 @@ export function PostCard({
     >
       <Image
         source={{
-          uri: "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
+          uri:
+            thumbnailUrl ??
+            "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
         }}
         style={{ width: 60, height: 92, borderRadius: 6 }}
         contentFit="cover"
@@ -38,14 +42,16 @@ export function PostCard({
           <Text className="text-heading5 font-bold text-textPrimary900">
             {title}
           </Text>
-          <View className="flex-row gap-2">
-            <Pressable>
-              <IconEdit2 />
-            </Pressable>
-            <Pressable>
-              <IconDelete />
-            </Pressable>
-          </View>
+          {status !== "Đã bán" && (
+            <View className="flex-row gap-2">
+              <Pressable>
+                <IconEdit2 />
+              </Pressable>
+              <Pressable>
+                <IconDelete />
+              </Pressable>
+            </View>
+          )}
         </View>
         <Text className="mb-2 text-bodyMedium text-textGray600">
           {category}

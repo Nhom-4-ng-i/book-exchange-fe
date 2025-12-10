@@ -4,5 +4,6 @@
 /* eslint-disable */
 export type InsertOrderRequest = {
     post_id: number;
+    buyer_note?: (string | null);
 };
 

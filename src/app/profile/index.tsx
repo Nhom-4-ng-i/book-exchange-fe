@@ -115,7 +115,7 @@ export default function ProfileScreen() {
       >
         <ProfileHeader
           name={profile?.name ?? "Người dùng"}
-          phone={profile?.phone ?? "Chưa có số điện thoại"}
+          phone={profile?.phone ?? "087656534"}
           onLogout={handleLogout}
         />
 
