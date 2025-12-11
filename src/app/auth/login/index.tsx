@@ -7,7 +7,7 @@ import { Alert, Pressable, Text, View } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { ApiError, AuthService, OpenAPI } from "@/api";
+import { ApiError, AuthService, OpenAPI, UserService } from "@/api";
 import IconFacebook from "../../../icons/IconFacebook";
 import IconGoogle from "../../../icons/IconGoogle";
 
@@ -66,10 +66,23 @@ export default function LoginScreen() {
       try {
         const token = await AsyncStorage.getItem("access_token");
         if (token) {
-          router.replace("/home");
+          try {
+            // Try to validate the token by making an authenticated request
+            await UserService.getMyProfileRouteApiUserMeGet();
+            // If successful, token is valid, redirect to home
+            router.replace("/home");
+          } catch (error) {
+            // If token is invalid, clear it and stay on login
+            console.log("Token validation failed:", error);
+            await AsyncStorage.removeItem("access_token");
+            await AsyncStorage.removeItem("user");
+          }
         }
       } catch (e) {
-        console.log("Error reading token:", e);
+        console.log("Error checking login status:", e);
+        // Clear any invalid data on error
+        await AsyncStorage.removeItem("access_token");
+        await AsyncStorage.removeItem("user");
       }
     };
 
