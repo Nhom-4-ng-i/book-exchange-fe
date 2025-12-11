@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 
-export type RequestStatus = "pending" | "accepted" | "rejected";
+export type RequestStatus = "pending" | "accepted" | "rejected" | "completed";
 
 interface OrderRequestCardProps {
   bookTitle: string;
@@ -44,25 +44,32 @@ export function OrderRequestCard({
 
   const isPending = status === "pending";
   const isAccepted = status === "accepted";
+  const isCompleted = status === "completed";
   const isRejected = status === "rejected";
 
   const bgColor = isAccepted
     ? "bg-[#E8FFE8]"
     : isPending
       ? "bg-[#FFF8E1]"
-      : "bg-[#FFF8E1]";
+      : isRejected
+        ? "bg-[#FFEBEE]"
+        : "bg-[#FFF8E1]";
 
   const borderColor = isAccepted
     ? "border-textGreen"
     : isPending
       ? "border-textYellow"
-      : "border-textRed";
+      : isRejected
+        ? "border-textRed"
+        : "border-textRed";
 
   const statusLabel = isPending
     ? "Chờ xác nhận"
     : isAccepted
       ? "Đã chấp nhận"
-      : "Đã từ chối";
+      : isRejected
+        ? "Đã từ chối"
+        : "Đã hoàn thành";
 
   const statusBgClasses = isPending
     ? "bg-gray-200"
@@ -78,10 +85,15 @@ export function OrderRequestCard({
   else if (isLast) radiusClass = "rounded-b-2xl";
   else radiusClass = "rounded-none";
 
-  if (isRejected) {
+  if (isCompleted) {
+    let completedRadiusClass = "";
+    if (isSingle) completedRadiusClass = "rounded-2xl";
+    else if (isFirst) completedRadiusClass = "rounded-t-2xl";
+    else if (isLast) completedRadiusClass = "rounded-b-2xl";
+    else completedRadiusClass = "rounded-none";
     return (
       <View
-        className={`w-full border border-[#E5E5E5] bg-white px-4 py-4 ${radiusClass}`}
+        className={`w-full border border-[#E5E5E5] bg-white px-4 py-4 ${completedRadiusClass}`}
       >
         <View className="flex-row items-start justify-between">
           <View>

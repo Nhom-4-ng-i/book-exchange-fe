@@ -1,4 +1,4 @@
-import { OpenAPI, PostsService } from "@/api";
+import { CoursesService, OpenAPI, PostsService } from "@/api";
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,19 +15,18 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
-
-// Helper: đảm bảo OpenAPI.TOKEN đã được gán string
 async function ensureAuthToken() {
   const token = await AsyncStorage.getItem("access_token");
   if (token) {
     OpenAPI.BASE = "http://160.187.246.140:8000";
-    OpenAPI.TOKEN = token; // backend của bạn đang đọc header Authorization thế nào thì giữ nguyên như Swagger
+    OpenAPI.TOKEN = token;
   }
 }
 
 export default function Index() {
   const [posts, setPosts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // null = Tất cả
   const [loading, setLoading] = useState(true);
 
   const loadPosts = async () => {
@@ -35,7 +34,7 @@ export default function Index() {
       await ensureAuthToken();
 
       const response = await PostsService.getPostsListRouteApiPostsGet(
-        [], // status
+        ["SELLING"], // status
         null, // bookTitle
         null, // author
         null, // bookStatus
@@ -45,7 +44,7 @@ export default function Index() {
         null, // maxPrice
         null, // sortBy
         0, // offset
-        50 // limit
+        100 // limit
       );
 
       setPosts(response);
@@ -62,9 +61,42 @@ export default function Index() {
     }
   };
 
+  async function loadCourses() {
+    try {
+      await ensureAuthToken();
+
+      const courses = await CoursesService.getCoursesListRouteApiCoursesGet();
+      console.log("CATEGORIES / COURSES:", courses);
+      setCategories(courses);
+    } catch (err: any) {
+      if (err.name === "ApiError") {
+        console.log("API STATUS:", err.status);
+        console.log("API URL:", err.url);
+        console.log("API BODY:", err.body);
+      } else {
+        console.log("Unknown error:", err);
+      }
+      setCategories([]);
+    }
+  }
+
   useEffect(() => {
+    loadCourses();
     loadPosts();
   }, []);
+
+  const filteredPosts = posts
+    .filter((post) => post.status !== null)
+    .filter((post) => {
+      if (!selectedCategory) return true;
+
+      const courseNameFromPost =
+        post.course_name || post.course || post.courseName || "";
+
+      // console.log("courseNameFromPost:", courseNameFromPost);
+      // console.log("selectedCategory:", selectedCategory);
+      return courseNameFromPost === selectedCategory;
+    });
 
   if (loading) {
     return (
@@ -119,14 +151,26 @@ export default function Index() {
             showsHorizontalScrollIndicator={false}
             contentContainerClassName="px-4 flex-row gap-2"
           >
-            {categories.map((category, index) => (
+            <Pressable
+              className={`px-2 py-1 rounded-lg ${
+                !selectedCategory ? "bg-gray-500/20" : "border border-[#E5E5E5]"
+              }`}
+              onPress={() => setSelectedCategory(null)}
+            >
+              <Text className="text-sm text-gray-800">Tất cả</Text>
+            </Pressable>
+
+            {categories.map((c: any, index: number) => (
               <Pressable
                 key={index}
-                className={`px-2 py-1 rounded-lg whitespace-nowrap ${
-                  index === 0 ? "bg-gray-500/20" : "border border-[#E5E5E5]"
+                className={`px-2 py-1 rounded-lg ${
+                  selectedCategory === c.name
+                    ? "bg-gray-500/20"
+                    : "border border-[#E5E5E5]"
                 }`}
+                onPress={() => setSelectedCategory(c.name)}
               >
-                <Text className="text-sm text-gray-800">{category}</Text>
+                <Text className="text-sm text-gray-800">{c.name}</Text>
               </Pressable>
             ))}
           </ScrollView>
@@ -140,12 +184,12 @@ export default function Index() {
 
         <View className="px-4">
           <View className="flex-row flex-wrap justify-between">
-            {posts.length === 0 ? (
-              <Text className="text-center text-gray-500 mt-10">
+            {filteredPosts.length === 0 ? (
+              <Text className="text-center text-gray-500 w-full">
                 Không có bài đăng.
               </Text>
             ) : (
-              posts.map((post) => (
+              filteredPosts.map((post) => (
                 <Pressable key={post.id} className="w-[48%] mb-8">
                   <View className="flex-col">
                     <View className="relative mb-2">
@@ -188,6 +232,7 @@ export default function Index() {
           </View>
         </View>
       </ScrollView>
+
       <BottomNav />
     </SafeAreaView>
   );
