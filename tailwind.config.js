@@ -36,6 +36,7 @@ module.exports = {
         textOrange: "#FF8C39",
         textRed: "#EF5A56",
         textBlue: "#3784FB",
+        textGreen: "#34A853",
       },
       fontSize: {
         heading1: "40px",

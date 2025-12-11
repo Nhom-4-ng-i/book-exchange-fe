@@ -61,20 +61,15 @@ export class PostsService {
     /**
      * Insert Post Route
      * @param requestBody
-     * @param authorization
      * @returns any Successful Response
      * @throws ApiError
      */
     public static insertPostRouteApiPostsPost(
         requestBody: InsertPostRequest,
-        authorization?: (string | null),
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/posts/',
-            headers: {
-                'authorization': authorization,
-            },
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -106,23 +101,18 @@ export class PostsService {
      * Update Post Route
      * @param postId
      * @param requestBody
-     * @param authorization
      * @returns any Successful Response
      * @throws ApiError
      */
     public static updatePostRouteApiPostsPostIdPut(
         postId: number,
         requestBody: UpdatePostRequest,
-        authorization?: (string | null),
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/api/posts/{post_id}',
             path: {
                 'post_id': postId,
-            },
-            headers: {
-                'authorization': authorization,
             },
             body: requestBody,
             mediaType: 'application/json',
@@ -132,24 +122,19 @@ export class PostsService {
         });
     }
     /**
-     * Delete Post Route
+     * Cancel Post Route
      * @param postId
-     * @param authorization
      * @returns any Successful Response
      * @throws ApiError
      */
-    public static deletePostRouteApiPostsPostIdDelete(
+    public static cancelPostRouteApiPostsPostIdCancelPost(
         postId: number,
-        authorization?: (string | null),
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
-            method: 'DELETE',
-            url: '/api/posts/{post_id}',
+            method: 'POST',
+            url: '/api/posts/{post_id}/cancel',
             path: {
                 'post_id': postId,
-            },
-            headers: {
-                'authorization': authorization,
             },
             errors: {
                 422: `Validation Error`,
