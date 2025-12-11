@@ -4,10 +4,10 @@
 /* eslint-disable */
 export type UpdatePostRequest = {
     book_title?: (string | null);
-    status?: (string | null);
+    status_id?: (number | null);
     author?: (string | null);
     course_id?: (number | null);
-    book_status?: (string | null);
+    book_status_id?: (number | null);
     price?: (number | null);
     location_id?: (number | null);
     original_price?: (number | null);

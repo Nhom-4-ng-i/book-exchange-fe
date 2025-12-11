@@ -1,41 +1,86 @@
 import { useRouter } from "expo-router";
-import React from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
-import { PostCard } from "@/components/profile/PostCard";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const sellingPosts = [
-  {
-    title: "Giải tích 2",
-    category: "Ngoại ngữ",
-    condition: "Chưa đọc",
-    price: "120.000đ",
-    status: "Chưa đọc",
-  },
-  {
-    title: "Giải tích 2",
-    category: "Ngoại ngữ",
-    condition: "Chưa đọc",
-    price: "120.000đ",
-    status: "Chưa đọc",
-  },
-];
+import { UserService } from "@/api";
+import { PostCard } from "@/components/profile/PostCard";
 
-const soldPosts = [
-  {
-    title: "Giải tích 2",
-    category: "Ngoại ngữ",
-    condition: "Chưa đọc",
-    price: "120.000đ",
-    status: "Đã bán",
-  },
-];
+type MyPost = {
+  id: string;
+  book_title: string;
+  course: string;
+  book_status: string;
+  price: number | string;
+  status: string;
+  thumbnail_url?: string;
+};
 
 export default function MyPostsScreen() {
   const router = useRouter();
+
+  const [loading, setLoading] = useState(true);
+  const [sellingPosts, setSellingPosts] = useState<MyPost[]>([]);
+  const [soldPosts, setSoldPosts] = useState<MyPost[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMyPosts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const data = await UserService.getMyPostsRouteApiUserPostsGet();
+
+        const all: MyPost[] = Array.isArray(data) ? data : [];
+        console.log(data);
+
+        const selling = all.filter(
+          (p) =>
+            p.status === "SELLING" ||
+            p.status === "selling" ||
+            p.status === "Đang bán"
+        );
+        const sold = all.filter(
+          (p) =>
+            p.status === "SOLD" || p.status === "sold" || p.status === "Đã bán"
+        );
+
+        setSellingPosts(selling);
+        setSoldPosts(sold);
+      } catch (e) {
+        console.log("Load my posts error:", e);
+        setError("Không thể tải danh sách bài đăng.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyPosts();
+  }, []);
+
+  const formatPrice = (price: number | string) => {
+    if (typeof price === "number") {
+      return `${price.toLocaleString("vi-VN")}đ`;
+    }
+    return price;
+  };
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#5E3EA1" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView
@@ -51,7 +96,7 @@ export default function MyPostsScreen() {
           <ArrowLeft size={22} />
         </Pressable>
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
-          Quản lý Wishlist
+          Bài đăng của tôi
         </Text>
         <View className="w-8" />
       </View>
@@ -60,22 +105,54 @@ export default function MyPostsScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
       >
-        <View className="px-6">
-          <Text className="mb-3 text-heading5 font-bold text-textPrimary900">
+        {error && (
+          <Text className="px-6 mb-2 text-bodyMedium text-textRed">
+            {error}
+          </Text>
+        )}
+
+        <View className="px-6 mt-2">
+          <Text className="mb-3 text-heading5 font-semibold text-textPrimary900">
             Đang bán ({sellingPosts.length})
           </Text>
-          {sellingPosts.map((item, index) => (
-            <PostCard key={`selling-${index}`} {...item} />
+          {sellingPosts.map((item) => (
+            <PostCard
+              key={item.id}
+              title={item.book_title}
+              category={item.course}
+              condition={item.book_status}
+              price={formatPrice(item.price)}
+              status={item.status}
+              thumbnailUrl={item.thumbnail_url}
+            />
           ))}
+          {sellingPosts.length === 0 && (
+            <Text className="text-bodyMedium text-textGray500">
+              Bạn chưa có bài đăng đang bán.
+            </Text>
+          )}
         </View>
 
         <View className="px-6">
-          <Text className="mb-3 mt-2 text-heading5 font-bold text-textPrimary900">
+          <Text className="mb-4 mt-2 text-heading5 font-semibold text-textPrimary900">
             Đã bán ({soldPosts.length})
           </Text>
-          {soldPosts.map((item, index) => (
-            <PostCard key={`sold-${index}`} {...item} />
+          {soldPosts.map((item) => (
+            <PostCard
+              key={item.id}
+              title={item.book_title}
+              category={item.course}
+              condition={item.book_status}
+              price={formatPrice(item.price)}
+              status={item.status}
+              thumbnailUrl={item.thumbnail_url}
+            />
           ))}
+          {soldPosts.length === 0 && (
+            <Text className="text-bodyMedium text-textGray500">
+              Chưa có cuốn nào được đánh dấu đã bán.
+            </Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

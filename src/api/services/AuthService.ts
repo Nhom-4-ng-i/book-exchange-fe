@@ -47,4 +47,15 @@ export class AuthService {
             },
         });
     }
+    /**
+     * Sign Out Route
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static signOutRouteApiAuthSignOutPost(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/auth/sign-out',
+        });
+    }
 }
