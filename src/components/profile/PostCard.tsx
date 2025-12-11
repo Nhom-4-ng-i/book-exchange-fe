@@ -59,12 +59,12 @@ export function PostCard({
         <View className="mb-2 flex-row items-center gap-2">
           <View
             className={`rounded-full px-4 py-1 ${
-              condition === "Chưa đọc" ? "bg-[#e5e5e5]" : "bg-textGray900"
+              condition === "Mới" ? "bg-textGray900" : "bg-[#e5e5e5]"
             }`}
           >
             <Text
               className={`text-xs font-semibold ${
-                condition === "Chưa đọc" ? "text-textPrimary900" : "text-white"
+                condition === "Mới" ? "text-white" : "text-textPrimary900"
               }`}
             >
               {condition}
