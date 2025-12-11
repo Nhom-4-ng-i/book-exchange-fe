@@ -1,7 +1,9 @@
+import { PostsService } from "@/api";
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
 import * as Sentry from "@sentry/react-native";
 import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -64,8 +66,48 @@ const books = [
 const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
 
 export default function Index() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadPosts = async () => {
+    try {
+      const response = await PostsService.getPostsListRouteApiPostsGet(
+        null, // status
+        null, // bookTitle
+        null, // author
+        null, // bookStatus
+        null, // courseId
+        null, // locationId
+        null, // minPrice
+        null, // maxPrice
+        null, // sortBy
+        0, // offset
+        50 // limit
+      );
+
+      setPosts(response);
+    } catch (err: any) {
+      if (err.name === "ApiError") {
+        console.log("API STATUS:", err.status);
+        console.log("API URL:", err.url);
+        console.log("API BODY:", err.body);
+      } else {
+        console.log("Unknown error:", err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['left', 'right', 'bottom']}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["left", "right", "bottom"]}
+    >
       <StatusBar style="dark" />
 
       <HeaderHome title="Trang chủ" />
@@ -130,39 +172,54 @@ export default function Index() {
 
         <View className="px-4">
           <View className="flex-row flex-wrap justify-between">
-            {books.map((book) => (
-              <Pressable key={book.id} className="w-[48%] mb-8">
-                <View className="flex-col">
-                  <View className="relative mb-2">
-                    <Image
-                      source={{ uri: book.image }}
-                      className="w-full aspect-[164/256] object-cover rounded-lg"
-                      resizeMode="cover"
-                    />
-                    {book.badge && (
+            {loading ? (
+              <Text className="text-center text-gray-500 mt-10">
+                Đang tải...
+              </Text>
+            ) : posts.length === 0 ? (
+              <Text className="text-center text-gray-500 mt-10">
+                Không có bài đăng.
+              </Text>
+            ) : (
+              posts.map((post) => (
+                <Pressable key={post.id} className="w-[48%] mb-8">
+                  <View className="flex-col">
+                    <View className="relative mb-2">
+                      <Image
+                        source={{
+                          uri:
+                            post.avatar_url ||
+                            "https://placehold.co/300x400?text=No+Image",
+                        }}
+                        className="w-full aspect-[164/256] object-cover rounded-lg"
+                        resizeMode="cover"
+                      />
                       <View className="absolute top-2 left-2 px-2 py-0.5 bg-white rounded-lg">
                         <Text className="text-xs text-gray-800">
-                          {book.badge}
+                          {post.book_status || "Không rõ"}
                         </Text>
                       </View>
-                    )}
-                  </View>
-                  <Text className="text-sm text-gray-900 mb-1">
-                    {book.title}
-                  </Text>
-                  <View className="flex-row items-center gap-2">
-                    <Text className="text-xs font-bold text-textPrimary500 tracking-wide">
-                      {book.price}
+                    </View>
+
+                    <Text className="text-sm text-gray-900 mb-1">
+                      {post.title}
                     </Text>
-                    {book.hasDiscount && book.originalPrice && (
-                      <Text className="text-xs text-gray-500 line-through">
-                        {book.originalPrice}
+
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-xs font-bold text-textPrimary500 tracking-wide">
+                        {post.price?.toLocaleString("vi-VN")}đ
                       </Text>
-                    )}
+
+                      {post.original_price > post.price && (
+                        <Text className="text-xs text-gray-500 line-through">
+                          {post.original_price?.toLocaleString("vi-VN")}đ
+                        </Text>
+                      )}
+                    </View>
                   </View>
-                </View>
-              </Pressable>
-            ))}
+                </Pressable>
+              ))
+            )}
           </View>
         </View>
       </ScrollView>
