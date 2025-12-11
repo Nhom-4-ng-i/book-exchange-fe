@@ -1,69 +1,30 @@
-import { PostsService } from "@/api";
+import { OpenAPI, PostsService } from "@/api";
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const HAS_LAUNCHED = "hasLaunched";
-const IS_LOGGED_IN = "isLoggedIn";
-
-const books = [
-  {
-    id: 1,
-    title: "Giải tích",
-    price: "120.000đ",
-    originalPrice: "150.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-    hasDiscount: true,
-  },
-  {
-    id: 2,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-  {
-    id: 3,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-  {
-    id: 4,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-  {
-    id: 5,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-  {
-    id: 6,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-];
-
 const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
+
+// Helper: đảm bảo OpenAPI.TOKEN đã được gán string
+async function ensureAuthToken() {
+  const token = await AsyncStorage.getItem("access_token");
+  if (token) {
+    OpenAPI.BASE = "http://160.187.246.140:8000";
+    OpenAPI.TOKEN = token; // backend của bạn đang đọc header Authorization thế nào thì giữ nguyên như Swagger
+  }
+}
 
 export default function Index() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -71,8 +32,10 @@ export default function Index() {
 
   const loadPosts = async () => {
     try {
+      await ensureAuthToken();
+
       const response = await PostsService.getPostsListRouteApiPostsGet(
-        null, // status
+        [], // status
         null, // bookTitle
         null, // author
         null, // bookStatus
@@ -103,6 +66,14 @@ export default function Index() {
     loadPosts();
   }, []);
 
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#5E3EA1" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView
       className="flex-1 bg-white"
@@ -121,19 +92,16 @@ export default function Index() {
                 "=== TEST SENTRY: Crash tại nút + Đăng sách/tài liệu mới ==="
               );
 
-              // Gửi message
               Sentry.captureMessage(
                 "Test Sentry từ nút + Đăng sách/tài liệu mới – Nhóm 4 test crash"
               );
 
-              // Gửi exception
               Sentry.captureException(
                 new Error(
                   "SENTRY ERROR: Crash test – nút + Đăng sách/tài liệu mới (error + sourcemaps + performance)"
                 )
               );
 
-              // Crash thật
               throw new Error(
                 "CRASHED: Crash test từ màn hình Đăng Sách/Tài Liệu – Sentry test"
               );
@@ -172,11 +140,7 @@ export default function Index() {
 
         <View className="px-4">
           <View className="flex-row flex-wrap justify-between">
-            {loading ? (
-              <Text className="text-center text-gray-500 mt-10">
-                Đang tải...
-              </Text>
-            ) : posts.length === 0 ? (
+            {posts.length === 0 ? (
               <Text className="text-center text-gray-500 mt-10">
                 Không có bài đăng.
               </Text>
@@ -188,8 +152,9 @@ export default function Index() {
                       <Image
                         source={{
                           uri:
-                            post.avatar_url ||
-                            "https://placehold.co/300x400?text=No+Image",
+                            post.avatar_url === "DefaultAvatarURL"
+                              ? "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328"
+                              : post.avatar_url,
                         }}
                         className="w-full aspect-[164/256] object-cover rounded-lg"
                         resizeMode="cover"

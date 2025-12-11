@@ -59,20 +59,20 @@ async function signInOrSignUp(email: string, name?: string) {
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [isExpoGo, setIsExpoGo] = useState(false);
+  const [isExpoGoState, setIsExpoGoState] = useState(false);
 
   useEffect(() => {
     const checkLoggedIn = async () => {
       try {
         const token = await AsyncStorage.getItem("access_token");
         if (token) {
+          OpenAPI.BASE = "http://160.187.246.140:8000";
+          OpenAPI.TOKEN = token;
+
           try {
-            // Try to validate the token by making an authenticated request
             await UserService.getMyProfileRouteApiUserMeGet();
-            // If successful, token is valid, redirect to home
             router.replace("/home");
           } catch (error) {
-            // If token is invalid, clear it and stay on login
             console.log("Token validation failed:", error);
             await AsyncStorage.removeItem("access_token");
             await AsyncStorage.removeItem("user");
@@ -80,7 +80,6 @@ export default function LoginScreen() {
         }
       } catch (e) {
         console.log("Error checking login status:", e);
-        // Clear any invalid data on error
         await AsyncStorage.removeItem("access_token");
         await AsyncStorage.removeItem("user");
       }
@@ -91,11 +90,10 @@ export default function LoginScreen() {
 
   useEffect(() => {
     const checkExpoGo = async () => {
-      const isExpo =
-        !Constants.appOwnership || Constants.appOwnership === "expo";
-      setIsExpoGo(isExpo);
+      const expo = !Constants.appOwnership || Constants.appOwnership === "expo";
+      setIsExpoGoState(expo);
 
-      if (!isExpo && GoogleSignin) {
+      if (!expo && GoogleSignin) {
         GoogleSignin.configure({
           webClientId: Constants.expoConfig?.extra?.googleSignIn?.webClientId,
           iosClientId: Constants.expoConfig?.extra?.googleSignIn?.iosClientId,
@@ -110,9 +108,11 @@ export default function LoginScreen() {
   }, []);
 
   const handleGoogleLogin = async () => {
-    if (isExpoGo) {
+    if (isExpoGoState) {
       const redirectUrl = `${Constants.expoConfig?.scheme}://`;
-      const authUrl = `http://160.187.246.140:8000/api/auth/google/login?redirect_uri=${encodeURIComponent(redirectUrl)}`;
+      const authUrl = `http://160.187.246.140:8000/api/auth/google/login?redirect_uri=${encodeURIComponent(
+        redirectUrl
+      )}`;
 
       try {
         const result = await WebBrowser.openAuthSessionAsync(
@@ -126,6 +126,7 @@ export default function LoginScreen() {
 
           if (token) {
             await AsyncStorage.setItem("access_token", token);
+            OpenAPI.TOKEN = token;
             router.push("/auth/phone");
           }
         }
@@ -175,6 +176,8 @@ export default function LoginScreen() {
           })
         );
 
+        OpenAPI.TOKEN = res.access_token;
+
         router.push("/auth/phone");
       } catch (error: any) {
         console.log("Google Sign-In Error RAW:", error);
@@ -211,6 +214,8 @@ export default function LoginScreen() {
           role: res.role,
         })
       );
+
+      OpenAPI.TOKEN = res.access_token;
 
       router.push("/auth/phone");
     } catch (error: any) {
