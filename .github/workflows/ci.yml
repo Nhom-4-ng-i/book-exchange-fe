@@ -42,7 +42,7 @@ jobs:
 
 
       - name: Upload HTML Test Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-report
           path: coverage/lcov-report/
@@ -50,7 +50,7 @@ jobs:
 
 
       - name: Upload Coverage to Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-lcov
           path: coverage/lcov.info
