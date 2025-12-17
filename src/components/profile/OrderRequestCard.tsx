@@ -1,3 +1,6 @@
+import IconMessenger2 from "@/icons/IconMessenger2";
+import IconPhoneOutline from "@/icons/IconPhoneOutline";
+import IconProfileUser from "@/icons/IconProfileUser";
 import { Image } from "expo-image";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
@@ -157,14 +160,14 @@ export function OrderRequestCard({
 
         <View className="gap-1">
           <View className="flex-row items-center gap-2">
-            <Text className="text-bodySmall">👤</Text>
+            <IconProfileUser />
             <Text className="text-bodySmall text-textGray900 font-medium">
               {buyerName}
             </Text>
           </View>
 
           <View className="mt-1 flex-row items-center gap-2">
-            <Text className="text-bodySmall">📞</Text>
+            <IconPhoneOutline />
             <Text className="text-bodySmall text-textGray900 font-medium">
               {buyerPhone}
             </Text>
@@ -203,10 +206,11 @@ export function OrderRequestCard({
           <>
             <Pressable
               onPress={onChat}
-              className="flex-1 bg-textWhite items-center justify-center rounded-lg border border-[#6A4FC3] py-2"
+              className="flex-row items-center gap-2 flex-1 bg-textWhite items-center justify-center rounded-lg border border-[#6A4FC3] py-2"
             >
+              <IconMessenger2 />
               <Text className="text-bodyMedium font-medium text-[#6A4FC3]">
-                💬 Chat
+                Chat
               </Text>
             </Pressable>
 
