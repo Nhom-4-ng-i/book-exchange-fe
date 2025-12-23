@@ -6,7 +6,7 @@ export type InsertPostRequest = {
     book_title: string;
     author: string;
     course_id: number;
-    book_status: string;
+    book_status_id: number;
     price: number;
     location_id: number;
     original_price?: (number | null);

@@ -1,71 +1,116 @@
+import { CoursesService, OpenAPI, PostsService } from "@/api";
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
 import { StatusBar } from "expo-status-bar";
-import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const HAS_LAUNCHED = "hasLaunched";
-const IS_LOGGED_IN = "isLoggedIn";
-
-const books = [
-  {
-    id: 1,
-    title: "Giải tích",
-    price: "120.000đ",
-    originalPrice: "150.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-    hasDiscount: true,
-  },
-  {
-    id: 2,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-  {
-    id: 3,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-  {
-    id: 4,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-  {
-    id: 5,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-  {
-    id: 6,
-    title: "Giải tích",
-    price: "120.000đ",
-    image:
-      "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-    badge: "Khá",
-  },
-];
-
-const categories = ["Tất cả", "Ngoại ngữ", "Ngoại ngữ", "Ngoại ngữ"];
+async function ensureAuthToken() {
+  const token = await AsyncStorage.getItem("access_token");
+  if (token) {
+    OpenAPI.BASE = "http://160.187.246.140:8000";
+    OpenAPI.TOKEN = token;
+  }
+}
 
 export default function Index() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // null = Tất cả
+  const [loading, setLoading] = useState(true);
+
+  const loadPosts = async () => {
+    try {
+      await ensureAuthToken();
+
+      const response = await PostsService.getPostsListRouteApiPostsGet(
+        ["SELLING"], // status
+        null, // bookTitle
+        null, // author
+        null, // bookStatus
+        null, // courseId
+        null, // locationId
+        null, // minPrice
+        null, // maxPrice
+        null, // sortBy
+        0, // offset
+        100 // limit
+      );
+
+      setPosts(response);
+    } catch (err: any) {
+      if (err.name === "ApiError") {
+        console.log("API STATUS:", err.status);
+        console.log("API URL:", err.url);
+        console.log("API BODY:", err.body);
+      } else {
+        console.log("Unknown error:", err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  async function loadCourses() {
+    try {
+      await ensureAuthToken();
+
+      const courses = await CoursesService.getCoursesListRouteApiCoursesGet();
+      console.log("CATEGORIES / COURSES:", courses);
+      setCategories(courses);
+    } catch (err: any) {
+      if (err.name === "ApiError") {
+        console.log("API STATUS:", err.status);
+        console.log("API URL:", err.url);
+        console.log("API BODY:", err.body);
+      } else {
+        console.log("Unknown error:", err);
+      }
+      setCategories([]);
+    }
+  }
+
+  useEffect(() => {
+    loadCourses();
+    loadPosts();
+  }, []);
+
+  const filteredPosts = posts
+    .filter((post) => post.status !== null)
+    .filter((post) => {
+      if (!selectedCategory) return true;
+
+      const courseNameFromPost =
+        post.course_name || post.course || post.courseName || "";
+
+      // console.log("courseNameFromPost:", courseNameFromPost);
+      // console.log("selectedCategory:", selectedCategory);
+      return courseNameFromPost === selectedCategory;
+    });
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#5E3EA1" />
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["left", "right", "bottom"]}
+    >
       <StatusBar style="dark" />
 
       <HeaderHome title="Trang chủ" />
@@ -79,19 +124,16 @@ export default function Index() {
                 "=== TEST SENTRY: Crash tại nút + Đăng sách/tài liệu mới ==="
               );
 
-              // Gửi message
               Sentry.captureMessage(
                 "Test Sentry từ nút + Đăng sách/tài liệu mới – Nhóm 4 test crash"
               );
 
-              // Gửi exception
               Sentry.captureException(
                 new Error(
                   "SENTRY ERROR: Crash test – nút + Đăng sách/tài liệu mới (error + sourcemaps + performance)"
                 )
               );
 
-              // Crash thật
               throw new Error(
                 "CRASHED: Crash test từ màn hình Đăng Sách/Tài Liệu – Sentry test"
               );
@@ -109,14 +151,26 @@ export default function Index() {
             showsHorizontalScrollIndicator={false}
             contentContainerClassName="px-4 flex-row gap-2"
           >
-            {categories.map((category, index) => (
+            <Pressable
+              className={`px-2 py-1 rounded-lg ${
+                !selectedCategory ? "bg-gray-500/20" : "border border-[#E5E5E5]"
+              }`}
+              onPress={() => setSelectedCategory(null)}
+            >
+              <Text className="text-sm text-gray-800">Tất cả</Text>
+            </Pressable>
+
+            {categories.map((c: any, index: number) => (
               <Pressable
                 key={index}
-                className={`px-2 py-1 rounded-lg whitespace-nowrap ${
-                  index === 0 ? "bg-gray-500/20" : "border border-[#E5E5E5]"
+                className={`px-2 py-1 rounded-lg ${
+                  selectedCategory === c.name
+                    ? "bg-gray-500/20"
+                    : "border border-[#E5E5E5]"
                 }`}
+                onPress={() => setSelectedCategory(c.name)}
               >
-                <Text className="text-sm text-gray-800">{category}</Text>
+                <Text className="text-sm text-gray-800">{c.name}</Text>
               </Pressable>
             ))}
           </ScrollView>
@@ -130,42 +184,55 @@ export default function Index() {
 
         <View className="px-4">
           <View className="flex-row flex-wrap justify-between">
-            {books.map((book) => (
-              <Pressable key={book.id} className="w-[48%] mb-8">
-                <View className="flex-col">
-                  <View className="relative mb-2">
-                    <Image
-                      source={{ uri: book.image }}
-                      className="w-full aspect-[164/256] object-cover rounded-lg"
-                      resizeMode="cover"
-                    />
-                    {book.badge && (
+            {filteredPosts.length === 0 ? (
+              <Text className="text-center text-gray-500 w-full">
+                Không có bài đăng.
+              </Text>
+            ) : (
+              filteredPosts.map((post) => (
+                <Pressable key={post.id} className="w-[48%] mb-8">
+                  <View className="flex-col">
+                    <View className="relative mb-2">
+                      <Image
+                        source={{
+                          uri:
+                            post.avatar_url === "DefaultAvatarURL"
+                              ? "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328"
+                              : post.avatar_url,
+                        }}
+                        className="w-full aspect-[164/256] object-cover rounded-lg"
+                        resizeMode="cover"
+                      />
                       <View className="absolute top-2 left-2 px-2 py-0.5 bg-white rounded-lg">
                         <Text className="text-xs text-gray-800">
-                          {book.badge}
+                          {post.book_status || "Không rõ"}
                         </Text>
                       </View>
-                    )}
-                  </View>
-                  <Text className="text-sm text-gray-900 mb-1">
-                    {book.title}
-                  </Text>
-                  <View className="flex-row items-center gap-2">
-                    <Text className="text-xs font-bold text-textPrimary500 tracking-wide">
-                      {book.price}
+                    </View>
+
+                    <Text className="text-sm text-gray-900 mb-1">
+                      {post.title}
                     </Text>
-                    {book.hasDiscount && book.originalPrice && (
-                      <Text className="text-xs text-gray-500 line-through">
-                        {book.originalPrice}
+
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-xs font-bold text-textPrimary500 tracking-wide">
+                        {post.price?.toLocaleString("vi-VN")}đ
                       </Text>
-                    )}
+
+                      {post.original_price > post.price && (
+                        <Text className="text-xs text-gray-500 line-through">
+                          {post.original_price?.toLocaleString("vi-VN")}đ
+                        </Text>
+                      )}
+                    </View>
                   </View>
-                </View>
-              </Pressable>
-            ))}
+                </Pressable>
+              ))
+            )}
           </View>
         </View>
       </ScrollView>
+
       <BottomNav />
     </SafeAreaView>
   );
