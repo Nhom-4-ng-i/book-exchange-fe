@@ -71,6 +71,11 @@ function RootLayout() {
         options={{ headerShown: false }}
       />
 
+      <Stack.Screen
+        name="notification/index"
+        options={{ headerShown: false }}
+      />
+
       <Stack.Screen name="success" options={{ headerShown: false }} />
       <Stack.Screen name="onboarding/index" options={{ headerShown: false }} />
     </Stack>
