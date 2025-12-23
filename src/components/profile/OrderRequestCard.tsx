@@ -206,7 +206,7 @@ export function OrderRequestCard({
           <>
             <Pressable
               onPress={onChat}
-              className="flex-row items-center gap-2 flex-1 bg-textWhite items-center justify-center rounded-lg border border-[#6A4FC3] py-2"
+              className="flex-row gap-2 flex-1 bg-textWhite items-center justify-center rounded-lg border border-[#6A4FC3] py-2"
             >
               <IconMessenger2 />
               <Text className="text-bodyMedium font-medium text-[#6A4FC3]">

@@ -5,21 +5,29 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 
 interface PostCardProps {
+  id: number;
+
   title: string;
   category: string;
   condition: string;
   price: string;
   status: string;
   thumbnailUrl?: string;
+
+  onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
 }
 
 export function PostCard({
+  id,
   title,
   category,
   condition,
   price,
   status,
   thumbnailUrl,
+  onEdit,
+  onDelete,
 }: PostCardProps) {
   return (
     <View
@@ -44,10 +52,11 @@ export function PostCard({
           </Text>
           {status !== "Đã bán" && (
             <View className="flex-row gap-2">
-              <Pressable>
+              <Pressable onPress={() => onEdit?.(id)} hitSlop={8}>
                 <IconEdit2 />
               </Pressable>
-              <Pressable>
+
+              <Pressable onPress={() => onDelete?.(id)} hitSlop={8}>
                 <IconDelete />
               </Pressable>
             </View>

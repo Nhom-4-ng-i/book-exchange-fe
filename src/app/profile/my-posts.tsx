@@ -1,21 +1,23 @@
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   Text,
   View,
 } from "react-native";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { UserService } from "@/api";
+import { PostsService, UserService } from "@/api";
 import { PostCard } from "@/components/profile/PostCard";
 
 type MyPost = {
-  id: string;
+  id: number;
   book_title: string;
   course: string;
   book_status: string;
@@ -31,39 +33,9 @@ export default function MyPostsScreen() {
   const [sellingPosts, setSellingPosts] = useState<MyPost[]>([]);
   const [soldPosts, setSoldPosts] = useState<MyPost[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    const fetchMyPosts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const data = await UserService.getMyPostsRouteApiUserPostsGet();
-
-        const all: MyPost[] = Array.isArray(data) ? data : [];
-        console.log(data);
-
-        const selling = all.filter(
-          (p) =>
-            p.status === "SELLING" ||
-            p.status === "selling" ||
-            p.status === "Đang bán"
-        );
-        const sold = all.filter(
-          (p) =>
-            p.status === "SOLD" || p.status === "sold" || p.status === "Đã bán"
-        );
-
-        setSellingPosts(selling);
-        setSoldPosts(sold);
-      } catch (e) {
-        console.log("Load my posts error:", e);
-        setError("Không thể tải danh sách bài đăng.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMyPosts();
   }, []);
 
@@ -73,6 +45,103 @@ export default function MyPostsScreen() {
     }
     return price;
   };
+
+  const fetchMyPosts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await UserService.getMyPostsRouteApiUserPostsGet();
+
+      const all: MyPost[] = Array.isArray(data) ? data : [];
+      console.log(data);
+
+      const selling = all.filter(
+        (p) =>
+          p.status === "SELLING" ||
+          p.status === "selling" ||
+          p.status === "Đang bán"
+      );
+      const sold = all.filter(
+        (p) =>
+          p.status === "SOLD" || p.status === "sold" || p.status === "Đã bán"
+      );
+
+      setSellingPosts(selling);
+      setSoldPosts(sold);
+    } catch (e) {
+      console.log("Load my posts error:", e);
+      setError("Không thể tải danh sách bài đăng.");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleDelete = useCallback(async (postId: number) => {
+    console.log(`Bắt đầu xóa bài đăng có ID: ${postId}`);
+    try {
+      Alert.alert("Xác nhận", "Bạn có chắc chắn muốn xóa bài đăng này?", [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xóa",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              console.log(`Đang gửi yêu cầu xóa bài đăng ID: ${postId}`);
+
+              // Log the exact URL being called
+              const apiUrl = `/api/posts/${postId}/cancel`;
+              console.log("Gọi API:", apiUrl);
+
+              const response =
+                await PostsService.cancelPostRouteApiPostsPostIdCancelPost(
+                  postId
+                ).catch((err) => {
+                  console.error("Lỗi chi tiết từ API:", {
+                    message: err.message,
+                    status: err.status,
+                    response: err.body,
+                    url: err.url,
+                    method: err.method,
+                  });
+                  throw err;
+                });
+
+              console.log("Phản hồi từ server khi xóa:", response);
+
+              console.log("Làm mới danh sách bài đăng...");
+              await fetchMyPosts();
+
+              Alert.alert("Thành công", "Đã xóa bài đăng thành công!");
+            } catch (error) {
+              console.error("Lỗi khi xóa bài đăng:", {
+                error: error,
+              });
+
+              let errorMessage =
+                "Không thể xóa bài đăng. Vui lòng thử lại sau.";
+              if ((error as any).status === 401) {
+                errorMessage =
+                  "Bạn cần đăng nhập lại để thực hiện thao tác này.";
+              } else if ((error as any).status === 404) {
+                errorMessage = "Không tìm thấy bài đăng này.";
+              } else if ((error as any).status === 403) {
+                errorMessage = "Bạn không có quyền xóa bài đăng này.";
+              }
+
+              Alert.alert("Lỗi", errorMessage);
+            }
+          },
+        },
+      ]);
+    } catch (error) {
+      console.error("Lỗi khi hiển thị xác nhận xóa:", error);
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -118,12 +187,14 @@ export default function MyPostsScreen() {
           {sellingPosts.map((item) => (
             <PostCard
               key={item.id}
+              id={item.id}
               title={item.book_title}
               category={item.course}
               condition={item.book_status}
               price={formatPrice(item.price)}
               status={item.status}
               thumbnailUrl={item.thumbnail_url}
+              onDelete={handleDelete}
             />
           ))}
           {sellingPosts.length === 0 && (
@@ -140,12 +211,15 @@ export default function MyPostsScreen() {
           {soldPosts.map((item) => (
             <PostCard
               key={item.id}
+              id={item.id}
               title={item.book_title}
               category={item.course}
               condition={item.book_status}
               price={formatPrice(item.price)}
               status={item.status}
               thumbnailUrl={item.thumbnail_url}
+              onEdit={(id) => {}}
+              onDelete={handleDelete}
             />
           ))}
           {soldPosts.length === 0 && (
