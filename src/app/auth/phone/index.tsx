@@ -1,7 +1,8 @@
 import IconPhone from "@/icons/IconPhone";
 import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,13 +12,43 @@ import {
 } from "react-native";
 import Header from "../../../components/Header";
 
+import { AuthService, UserService } from "@/api";
+
+type UserProfile = {
+  user_id: string;
+  email: string;
+  name: string;
+  role: string;
+  phone: string | null;
+};
+
 export default function PhoneNumberScreen() {
   const router = useRouter();
-  const [digits, setDigits] = useState<string>("");
 
-  const handleSkip = () => {
-    router.replace("/home");
-  };
+  const [checking, setChecking] = useState(true);
+  const [digits, setDigits] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkPhone = async () => {
+      try {
+        const response = await UserService.getMyProfileRouteApiUserMeGet();
+        const me = response as UserProfile;
+
+        if (me.phone) {
+          router.replace("/home");
+          return;
+        }
+      } catch (e) {
+        console.log("Check user phone error:", e);
+      } finally {
+        setChecking(false);
+      }
+    };
+
+    checkPhone();
+  }, []);
 
   const countryCode = "(+965)";
 
@@ -30,15 +61,44 @@ export default function PhoneNumberScreen() {
 
   const onTextChange = (text: string) => {
     const newDigits = text.replace(/\D/g, "");
-    if (newDigits.length <= 15) {
-      setDigits(newDigits);
+    if (newDigits.length <= 15) setDigits(newDigits);
+  };
+
+  const handleSkip = () => {
+    router.replace("/home");
+  };
+
+  const canContinue = digits.length >= 6 && !submitting;
+  const submitPhone = async () => {
+    if (!canContinue) return;
+
+    try {
+      setSubmitting(true);
+      setError(null);
+
+      await AuthService.updatePhoneRouteApiAuthPhonePut({
+        phone: digits,
+      });
+
+      router.replace("/success");
+    } catch (e) {
+      console.log("Update phone error:", e);
+      setError("Không thể cập nhật số điện thoại.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const canContinue = digits.length >= 6;
+  if (checking) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#5E3EA1" />
+      </View>
+    );
+  }
 
   return (
-    <View className="flex-1 bg-white h-full">
+    <View className="flex-1 bg-white">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -49,34 +109,27 @@ export default function PhoneNumberScreen() {
           <Text className="text-2xl font-bold text-center mt-4">
             Số điện thoại
           </Text>
-          <Text className="text-[#A6A6A6] text-center mt-2 mb-6 font-normal">
-            Vui lòng nhập số điện thoại của bạn để chúng tôi có thể giao hàng dễ
-            dàng hơn
+          <Text className="text-[#A6A6A6] text-center mt-2 mb-6">
+            Vui lòng nhập số điện thoại của bạn
           </Text>
 
-          <View className="mt-2">
+          {error && <Text className="mb-3 text-sm text-red-500">{error}</Text>}
+
+          <View>
             <Text className="font-medium mb-2 text-sm">Số điện thoại</Text>
-            <View className="flex-row justify-center items-center bg-gray-50 rounded-lg h-14 px-3">
-              <View className="flex-row items-center mr-1">
+            <View className="flex-row items-center bg-gray-50 rounded-lg h-14 px-3">
+              <View className="flex-row items-center mr-2">
                 <IconPhone />
-                <Text className="ml-1 text-[16px] text-gray-900 font-semibold">
-                  {countryCode}
-                </Text>
+                <Text className="ml-1 font-semibold">{countryCode}</Text>
               </View>
 
               <TextInput
-                style={{
-                  paddingTop: 0,
-                  paddingBottom: 0,
-                  lineHeight: 20,
-                }}
-                className="flex-1 text-[16px] text-gray-900"
+                className="flex-1 text-[16px]"
                 value={formatted}
                 onChangeText={onTextChange}
-                placeholder="123 435 7565"
-                placeholderTextColor="#9CA3AF"
                 keyboardType="phone-pad"
-                maxLength={15 + 4}
+                placeholder="123 456 789"
+                editable={!submitting}
               />
             </View>
           </View>
@@ -85,10 +138,14 @@ export default function PhoneNumberScreen() {
 
           <Pressable
             disabled={!canContinue}
-            onPress={() => router.push("/success")}
-            className="bg-textPrimary500 h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
+            onPress={submitPhone}
+            className="bg-textPrimary500 h-14 rounded-[28px] items-center justify-center disabled:bg-violet-300"
           >
-            <Text className="text-white font-bold text-base">Tiếp tục</Text>
+            {submitting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-white font-bold">Tiếp tục</Text>
+            )}
           </Pressable>
         </View>
       </KeyboardAvoidingView>
