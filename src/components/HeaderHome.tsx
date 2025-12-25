@@ -1,8 +1,9 @@
-import IconMessenger from '@/icons/IconMessenger';
-import IconNotification from '@/icons/IconNotification';
-import IconSearch from '@/icons/IconSearch';
-import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import IconMessenger from "@/icons/IconMessenger";
+import IconNotification from "@/icons/IconNotification";
+import IconSearch from "@/icons/IconSearch";
+import { router } from "expo-router";
+import React from "react";
+import { Pressable, Text, View } from "react-native";
 
 interface AppHeaderProps {
   title: string;
@@ -18,11 +19,19 @@ export default function AppHeader({
   title,
   onSearchPress = () => {},
   onChatPress = () => {},
-  onBellPress = () => {},
+  onBellPress,
   showSearch = true,
   showChat = true,
   showNotification = true,
 }: AppHeaderProps) {
+  const handleBellPress = () => {
+    if (onBellPress) {
+      onBellPress();
+    } else {
+      router.push("/notification");
+    }
+  };
+
   return (
     <View className="bg-white z-50 border-b border-gray-100 pt-4">
       <View className="px-4 py-2 flex-row items-center">
@@ -52,7 +61,7 @@ export default function AppHeader({
           )}
           {showNotification && (
             <Pressable
-              onPress={onBellPress}
+              onPress={handleBellPress}
               className="w-10 h-10 flex items-center justify-center relative"
             >
               <IconNotification />
@@ -64,4 +73,3 @@ export default function AppHeader({
     </View>
   );
 }
-
