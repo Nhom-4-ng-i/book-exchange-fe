@@ -110,7 +110,8 @@ export default function PhoneNumberScreen() {
             Số điện thoại
           </Text>
           <Text className="text-[#A6A6A6] text-center mt-2 mb-6">
-            Vui lòng nhập số điện thoại của bạn
+            Vui lòng nhập số điện thoại của bạn để chúng tôi có thể giao hàng dễ
+            dàng hơn
           </Text>
 
           {error && <Text className="mb-3 text-sm text-red-500">{error}</Text>}
