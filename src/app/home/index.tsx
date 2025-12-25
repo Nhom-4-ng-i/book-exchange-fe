@@ -1,7 +1,9 @@
 import { CoursesService, OpenAPI, PostsService } from "@/api";
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
+import IconSearch from '@/icons/IconSearch';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Header } from "@react-navigation/elements";
 import * as Sentry from "@sentry/react-native";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
@@ -12,11 +14,14 @@ import {
   ScrollView,
   Text,
   View,
+  TextInput,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 async function ensureAuthToken() {
   const token = await AsyncStorage.getItem("access_token");
+  
   if (token) {
     OpenAPI.BASE = "http://160.187.246.140:8000";
     OpenAPI.TOKEN = token;
@@ -28,6 +33,15 @@ export default function Index() {
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // null = Tất cả
   const [loading, setLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCourseName, setSelectedCourseName] = useState("Môn học");
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  
+  const [searchType, setSearchType] = useState<'bookTitle' | 'author' | 'courseId'>('bookTitle');
+
+  const [searchLabel, setSearchLabel] = useState("Tên sách");
 
   const loadPosts = async () => {
     try {
@@ -35,10 +49,10 @@ export default function Index() {
 
       const response = await PostsService.getPostsListRouteApiPostsGet(
         ["SELLING"], // status
-        null, // bookTitle
-        null, // author
+        searchType === 'bookTitle' ? searchQuery : null, // bookTitle
+        searchType === 'author' ? searchQuery : null, // author
         null, // bookStatus
-        null, // courseId
+        searchType === 'courseId' ? Number(searchQuery) : null, // courseId
         null, // locationId
         null, // minPrice
         null, // maxPrice
@@ -113,7 +127,63 @@ export default function Index() {
     >
       <StatusBar style="dark" />
 
-      <HeaderHome title="Trang chủ" />
+      {/* ################################### */}
+      {isSearching ? (
+  <View className="px-4 py-2 bg-white">
+    <View className="flex-row items-center bg-[#F2E7E7] rounded-full px-4 h-12 border border-gray-100">
+      <View className="flex-1 flex-row items-center">
+        <IconSearch />
+        <TextInput
+          className="flex-1 ml-2 text-base text-gray-700"
+          placeholder={`Tìm theo ${searchLabel.toLowerCase()}...`}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={loadPosts}
+        />
+      </View>
+
+      <View className="w-[1px] h-6 bg-gray-300 mx-2" />
+
+      {/* Nút chọn tiêu chí */}
+      <Pressable 
+        className="flex-row items-center pr-2"
+        onPress={() => setIsDropdownVisible(true)}
+      >
+        <Text className="text-gray-500 mr-1">{searchLabel}</Text>
+        <Text className="text-[10px]">▼</Text>
+      </Pressable>
+    </View>
+    
+    <Pressable onPress={() => setIsSearching(false)} className="mt-2">
+      <Text className="text-center text-purple-600">Hủy</Text>
+    </Pressable>
+  </View>
+) : <HeaderHome title = 'Trang chủ'  onSearchPress={() => setIsSearching(true)}/>}
+
+{/* Modal chọn tiêu chí (Dropdown) */}
+<Modal visible={isDropdownVisible} transparent>
+  <Pressable className="flex-1 bg-black/20 justify-center items-center" onPress={() => setIsDropdownVisible(false)}>
+    <View className="bg-white w-[70%] rounded-xl p-4">
+      <Text className="font-bold mb-4">Tìm kiếm theo:</Text>
+      
+      <Pressable className="py-3 border-b border-gray-100" 
+        onPress={() => { setSearchType('bookTitle'); setSearchLabel('Tên sách'); setIsDropdownVisible(false); }}>
+        <Text>Tên sách</Text>
+      </Pressable>
+
+      <Pressable className="py-3 border-b border-gray-100" 
+        onPress={() => { setSearchType('author'); setSearchLabel('Tác giả'); setIsDropdownVisible(false); }}>
+        <Text>Tác giả</Text>
+      </Pressable>
+
+      <Pressable className="py-3" 
+        onPress={() => { setSearchType('courseId'); setSearchLabel('Mã môn'); setIsDropdownVisible(false); }}>
+        <Text>Mã môn học</Text>
+      </Pressable>
+    </View>
+  </Pressable>
+</Modal>
+      {/* ##################################### */}
 
       <ScrollView className="flex-1" contentContainerClassName="pb-24">
         <View className="px-4 mb-4 mt-4">

@@ -65,9 +65,11 @@ export default function LoginScreen() {
     const checkLoggedIn = async () => {
       try {
         const token = await AsyncStorage.getItem("access_token");
+        console.log(token) ; 
         if (token) {
           OpenAPI.BASE = "http://160.187.246.140:8000";
           OpenAPI.TOKEN = token;
+          console.log(token)
 
           try {
             await UserService.getMyProfileRouteApiUserMeGet();

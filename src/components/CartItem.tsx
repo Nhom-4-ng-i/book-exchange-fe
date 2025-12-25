@@ -1,21 +1,27 @@
 import React from "react";
-import { Pressable, Text, View, Image } from "react-native";
+import { Pressable, Text, View, Image ,Alert} from "react-native";
 import TrashIcon from '@/icons/IconTrash'
-
 interface CartItemProps {
+  orderId: number | null;
   bookName: string;
   seller: string;
   status: string;
-  price: string;
-  image: string; // URL
+  price: number;
+  image: string;
+  ondelete : (id: number|null) => void; 
 }
 
+const formatVND = (price: number) => {
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
 export default function CartItem({
+  orderId,
   bookName,
   seller,
   status,
   price,
   image,
+  ondelete,
 }: CartItemProps) {
   return (
     <View className="w-full flex-row bg-white ">
@@ -43,14 +49,14 @@ export default function CartItem({
             </Text>
           </View>
 
-          <Text className="text-gray-900 text-[14px]">{price}</Text>
+          <Text className="text-gray-900 text-[14px]">{formatVND(price)}đ</Text>
         </View>
         <Pressable
           className="absolute top-2 right-2 p-1"
           
           hitSlop={10} 
         >
-          <TrashIcon width={16} height={16} />
+          <TrashIcon width={16} height={16} onClick = {ondelete(orderId)}/>
         </Pressable>
       </Pressable>
 

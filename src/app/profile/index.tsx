@@ -54,6 +54,7 @@ export default function ProfileScreen() {
       const token = await AsyncStorage.getItem("access_token");
       if (token) {
         OpenAPI.TOKEN = token;
+        console.log(token) ; 
         OpenAPI.BASE = "http://160.187.246.140:8000";
       }
     };
