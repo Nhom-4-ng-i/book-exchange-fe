@@ -8,7 +8,7 @@ import { useFocusEffect } from "expo-router"; // Thêm cái này
 import PageHeader from '@/components/PageHeader';
 import BottomNav from '@/components/BottomNav'
 import CartItem from '@/components/CartItem';
-
+import AppHeader from "@/components/HeaderHome";
 export default function Index() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +32,7 @@ export default function Index() {
     }
   };
 
-  // Tự động load lại mỗi khi user nhấn vào Tab Giỏ Hàng
+  
   useFocusEffect(
     useCallback(() => {
       fetchOrders();
@@ -68,7 +68,10 @@ export default function Index() {
 
   return (
     <View className='bg-white h-full'>
-      <PageHeader title='Giỏ Hàng' />
+      <AppHeader 
+          title="Giỏ Hàng" 
+          showSearch={false} // Thêm dòng này để ẩn icon tìm kiếm
+        />
       
       {loading ? (
         <ActivityIndicator size="large" color="#54408C" className="mt-10" />
@@ -84,7 +87,7 @@ export default function Index() {
             renderItem={({ item }) => (
               <CartItem
                 orderId={item.order_id}
-                bookName={item.title} // Chỉnh lại cho đúng title sách
+                bookName={item.title} 
                 seller={item.seller_name}
                 status={item.order_status}
                 price={item.price}

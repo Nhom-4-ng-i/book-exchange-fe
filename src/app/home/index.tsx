@@ -2,8 +2,10 @@ import { CoursesService, OpenAPI, PostsService,OrdersService } from "@/api";
 import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
 import IconSearch from '@/icons/IconSearch';
+import IconPhone from '@/icons/PhoneIcon'
 import IconArrowDown from "@/icons/IconArrowDown";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import IconLocation from '@/icons/IconLocation'
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StatusBar } from "expo-status-bar";
@@ -31,6 +33,32 @@ OpenAPI.TOKEN = token;
 const formatVND = (price: number) => {
 return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
+const getStatusColor = (code: string) => {
+  switch (code) {
+    case "COMPLETED": return "bg-green-100 text-green-700";
+    case "PENDING": return "bg-yellow-100 text-yellow-700";
+    case "CANCELLED": return "bg-red-100 text-red-700";
+    default: return "bg-gray-100 text-gray-700";
+  }
+};
+interface OrderItem {
+  order_id: number;
+  title: string;
+  author: string;
+  price: number;
+  book_status: string;
+  course: string;
+  location: string;
+  seller_name: string;
+  seller_phone: string | null;
+  buyer_name: string;
+  buyer_phone: string;
+  order_status: string;
+  order_status_code: 'COMPLETED' | 'PENDING' | 'CANCELLED'; // Thêm các code khác nếu có
+  order_time: string;
+  post_status: string;
+  avatar_url: string;
+}
 export default function Index() {
 const [posts, setPosts] = useState<any[]>([]);
 const [categories, setCategories] = useState<any[]>([]);
@@ -82,38 +110,43 @@ setSelectedPost(post);
 setIsDetailModalVisible(true);
 };
 const loadPosts = async () => {
-try {
-await ensureAuthToken();
-const query = searchQuery.trim();
-const response = await PostsService.getPostsListRouteApiPostsGet(
-// 1. bookTitle
-searchType === 'title' && query ? query : null,
-// 2. author
-searchType === 'author' && query ? query : null,
-// 3. bookStatus (Đưa SELLING vào đây nếu nó là tình trạng sách)
-"SELLING",
-searchType === 'course' && query ? Number(query) : null,
-null, // 5. locationId
-null, // 6. minPrice
-null, // 7. maxPrice
-null, // 8. sortBy
-0, // 9. offset
-100 // 10. limit
-);
-console.log(response) ;
+  try {
+    setLoading(true);
+    await ensureAuthToken();
 
-setPosts(response);
-} catch (err: any) {
-if (err.name === "ApiError") {
-console.log("API STATUS:", err.status);
-console.log("API URL:", err.url);
-console.log("API BODY:", err.body);
-} else {
-console.log("Unknown error:", err);
-}
-} finally {
-setLoading(false);
-}
+    // 1. Chuẩn bị các tham số từ state hiện có của bạn
+    const query = searchQuery.trim();
+    
+    // Logic xác định truyền tham số nào dựa trên searchType
+    const titleParam = searchType === 'title' && query ? query : null;
+    const authorParam = searchType === 'author' && query ? query : null;
+    const courseIdParam = searchType === 'course' && query && !isNaN(Number(query)) 
+                          ? Number(query) 
+                          : null;
+    const statusParam = "SELLING"; // Mặc định hoặc lấy từ state nếu bạn có bộ lọc riêng
+
+    // 2. Gọi API với các tham số tương ứng
+    const response = await PostsService.getPostsListRouteApiPostsGet(
+      titleParam,    // tham số 1: bookTitle
+      authorParam,   // tham số 2: author
+      statusParam,   // tham số 3: bookStatus
+      courseIdParam, // tham số 4: courseId
+      null,          // locationId
+      null,          // minPrice
+      null,          // maxPrice
+      null,          // sortBy
+      0,             // offset
+      100            // limit
+    );
+
+    
+    setPosts(response);
+    
+  } catch (err: any) {
+    console.error("Lỗi khi tải danh sách bài đăng:", err);
+  } finally {
+    setLoading(false);
+  }
 };
 
 async function loadCourses() {
@@ -139,10 +172,22 @@ loadCourses();
 loadPosts();
 }, []);
 const filteredPosts = posts.filter((post) => {
+  const matchesCategory = !selectedCategory || (post.course_name || post.course) === selectedCategory;
+  const query = searchQuery.toLowerCase().trim();
+  if (!isSearching || query === "") {
+    return matchesCategory;
+  }
+  let matchesSearch = false;
+  if (searchType === 'title') {
+    matchesSearch = post.title?.toLowerCase().includes(query);
+  } else if (searchType === 'author') {
+    matchesSearch = post.author?.toLowerCase().includes(query);
+  } else if (searchType === 'course') {
+    const courseInfo = (post.course || post.course_name || "").toLowerCase();
+    matchesSearch = courseInfo.includes(query);
+  }
 
-if (!selectedCategory) return true;
-const courseNameFromPost = post.course_name || post.course || "";
-return courseNameFromPost === selectedCategory;
+  return matchesCategory && matchesSearch;
 });
 if (loading) {
 return (
@@ -252,7 +297,7 @@ onPress={() => setSelectedCategory(null)}
 key={index}
 className={`px-2 py-1 rounded-lg ${
 selectedCategory === c.name
-? "bg-gray-500/20"
+? "bg-gray-500"
 : "border border-[#E5E5E5]"
 }`}
 onPress={() => setSelectedCategory(c.name)}
@@ -341,14 +386,17 @@ onPress={() => setIsDetailModalVisible(false)}
 {selectedPost && (
 <>
 <Image
-source={{ uri: selectedPost.avatar_url }}
+source={{ uri:
+  selectedPost.avatar_url === "DefaultAvatarURL"
+  ? "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328"
+  : selectedPost.avatar_url }}
 className="w-full aspect-square rounded-4xl"
 resizeMode="contain"
 />
-<Text className="text-[20px] font-bold mt-4">{selectedPost.title}</Text>
+<Text className="text-heading4 font-bold mt-4">{selectedPost.title}</Text>
 <View className = 'flex-row gap-4 mt-2'>
-<Text className = 'text-gray-700 text-[14px]'>Tác giả : {selectedPost.author}</Text>
-<Text className = 'text-gray-700 text-[14px]'>Tên môn : {selectedPost.course}</Text>
+<Text className = 'text-gray-700 text-bodyMedium'>Tác giả : {selectedPost.author}</Text>
+<Text className = 'text-gray-700 text-bodyMedium'>Tên môn : {selectedPost.course}</Text>
 </View>
 <View className="flex-row items-baseline gap-2 mt-2">
 <Text className="text-[#54408C] font-bold text-[24px]">
@@ -361,39 +409,39 @@ resizeMode="contain"
 </Text>
 </View>
 {selectedPost.original_price > selectedPost.price && (
-<View className=" px-2 py-1 rounded-md self-start ">
-<Text className="text-green-400 text-[14px] ">
+<View className="  py-2 rounded-md self-start ">
+<Text className="text-green-400 text-bodyMedium ">
 Tiết kiệm {Math.round(((selectedPost.original_price - selectedPost.price) / selectedPost.original_price) * 100)}%
 </Text>
 </View>
 )}
-<Text className="text-[14px] text-gray-700">Mô tả : </Text>
-<View className = 'text-gray-500 text-[12px]'>{selectedPost.description}</View>
+<Text className="text-bodyMedium text-gray-700">Mô tả : </Text>
+<View className = 'text-gray-500 text-[12px] mt-2'>{selectedPost.description}</View>
 <View className="h-[1px] bg-gray-200 w-full my-4" />
 <View>
-<Text className="text-gray-900 font-bold text-lg mb-4">Thông tin giao dịch</Text>
-<View className="flex-row items-center mb-4">
+<Text className="text-bodyMedium text-gray-700">Thông tin giao dịch</Text>
+<View className="flex-row items-center mb-4 mt-4">
 <View className="w-8">
-<Ionicons name="location-sharp" size={20} color="#9CA3AF" />
+<IconLocation size = {15}/>
 </View>
 <Text className="text-gray-600 flex-1">{selectedPost.location || "Khu A - ĐHBK"}</Text>
 </View>
 
 <View className="flex-row items-center">
 <View className="w-8">
-<Ionicons name="call" size={20} color="#9CA3AF" />
+<IconPhone size = {15}/>
 </View>
 <Text className="text-gray-600 flex-1">{selectedPost.seller_phone || "09074350"}</Text>
 </View>
 </View>
 <View className="h-[1px] bg-gray-200 w-full my-4" />
 <View className="mb-10">
-<Text className="text-gray-900 font-bold text-lg mb-4">Người bán</Text>
+<Text className="text-bodyMedium text-gray-700  mb-4">Người bán</Text>
 <View className="flex-row items-center">
 <View className="w-12 h-12 bg-purple-100 rounded-full items-center justify-center">
 <Ionicons name="person" size={24} color="#54408C" />
 </View>
-<View className="ml-3">
+<View className="ml-3 gap-2">
 <Text className="font-bold text-gray-900">{selectedPost.seller_name || "Nguyễn Văn A"}</Text>
 <Text className="text-gray-400 text-xs">Đăng {selectedPost.order_time || "10/01/2025"}</Text>
 </View>
@@ -408,7 +456,8 @@ Tiết kiệm {Math.round(((selectedPost.original_price - selectedPost.price) / 
 <View className="p-4 border-t border-gray-50 bg-white gap-y-3">
 <Pressable
 className="w-full bg-[#54408C] h-[54px] rounded-full items-center justify-center shadow-sm"
-onPress={() => {/* Xử lý đặt mua */}}
+onPress={handleCreateOrder}
+disabled={orderLoading}
 >
 <Text className="text-white font-bold text-lg">Đặt mua</Text>
 </Pressable>

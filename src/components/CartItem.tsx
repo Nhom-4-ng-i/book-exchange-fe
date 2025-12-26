@@ -1,6 +1,7 @@
 import React from "react";
 import { Pressable, Text, View, Image ,Alert} from "react-native";
 import TrashIcon from '@/icons/IconTrash'
+
 interface CartItemProps {
   orderId: number | null;
   bookName: string;
@@ -32,7 +33,12 @@ export default function CartItem({
         {/* ẢNH */}
         <Image
           className="w-[70px] h-[110px] rounded-[8px]"
-          source={{ uri: image }}
+          source={{
+            uri:
+            image === "DefaultAvatarURL"
+            ? "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328"
+            : image,
+            }}
           resizeMode="cover"
         />
 
