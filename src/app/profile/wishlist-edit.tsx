@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, ChevronDown } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -11,7 +11,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CoursesService, WishlistsService } from "@/api";
@@ -22,59 +21,71 @@ type Course = {
   name: string;
 };
 
-export default function WishlistCreateScreen() {
+const WishlistEditScreen: React.FC = () => {
   const router = useRouter();
+  const params = useLocalSearchParams();
 
-  const [title, setTitle] = useState("");
+  const wishlistId = useMemo(() => {
+    const raw = params?.id;
+    if (!raw) return null;
+    const s = Array.isArray(raw) ? raw[0] : String(raw);
+    const n = parseInt(s, 10);
+    return Number.isFinite(n) ? n : null;
+  }, [params]);
+
+  // ✅ lấy dữ liệu item truyền qua params (từ list screen)
+  const initialTitle = useMemo(() => {
+    const raw = params?.title;
+    return Array.isArray(raw) ? String(raw[0] ?? "") : raw ? String(raw) : "";
+  }, [params]);
+
+  const initialCourseId = useMemo(() => {
+    const raw = params?.course_id;
+    const s = Array.isArray(raw)
+      ? String(raw[0] ?? "")
+      : raw
+        ? String(raw)
+        : "";
+    const n = s ? parseInt(s, 10) : NaN;
+    return Number.isFinite(n) ? n : null;
+  }, [params]);
+
+  const initialMaxPrice = useMemo(() => {
+    const raw = params?.max_price;
+    const s = Array.isArray(raw)
+      ? String(raw[0] ?? "")
+      : raw
+        ? String(raw)
+        : "";
+    const n = s ? parseInt(s, 10) : NaN;
+    return Number.isFinite(n) ? n : null;
+  }, [params]);
+
+  // form state
+  const [title, setTitle] = useState(initialTitle);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [maxPriceText, setMaxPriceText] = useState("");
+  const [maxPriceText, setMaxPriceText] = useState(
+    initialMaxPrice != null ? String(initialMaxPrice) : ""
+  );
 
-  const [coursesLoading, setCoursesLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
   const [coursesError, setCoursesError] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // modal
   const [courseModalOpen, setCourseModalOpen] = useState(false);
   const [courseSearch, setCourseSearch] = useState("");
 
   const filteredCourses = useMemo(() => {
     const q = courseSearch.trim().toLowerCase();
     if (!q) return courses;
-    return courses.filter((c) => c.name?.toLowerCase().includes(q));
+    return courses.filter((c) => (c.name || "").toLowerCase().includes(q));
   }, [courses, courseSearch]);
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        setCoursesLoading(true);
-        setCoursesError(null);
-
-        const data = await CoursesService.getCoursesListRouteApiCoursesGet();
-        const arr: Course[] = Array.isArray(data) ? data : [];
-
-        arr.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-
-        setCourses(arr);
-      } catch (e) {
-        console.log("Load courses error:", e);
-        setCoursesError("Không thể tải danh sách môn học.");
-        setCourses([]);
-      } finally {
-        setCoursesLoading(false);
-      }
-    };
-
-    fetchCourses();
-  }, []);
-
-  const canSubmit = useMemo(() => {
-    if (submitting) return false;
-    if (title.trim().length === 0) return false;
-    return true;
-  }, [title, submitting]);
-
+  // parse max price
   const parsedMaxPrice = useMemo(() => {
     const cleaned = maxPriceText.replace(/[^\d]/g, "");
     if (!cleaned) return null;
@@ -82,48 +93,95 @@ export default function WishlistCreateScreen() {
     return Number.isFinite(n) ? n : null;
   }, [maxPriceText]);
 
-  const selectedCourseLabel = useMemo(() => {
-    if (selectedCourse) return selectedCourse.name;
-    if (coursesLoading) return "Đang tải...";
-    if (coursesError) return "Không tải được môn học";
-    return "Chọn môn học";
-  }, [selectedCourse, coursesLoading, coursesError]);
+  const canSubmit = useMemo(() => {
+    if (loading || submitting) return false;
+    if (title.trim().length === 0) return false;
+    return true;
+  }, [loading, submitting, title]);
 
-  const cycleCourse = () => {
-    if (coursesLoading || courses.length === 0) return;
-
-    if (!selectedCourse) {
-      setSelectedCourse(courses[0]);
+  useEffect(() => {
+    if (!wishlistId) {
+      router.back();
       return;
     }
-    const idx = courses.findIndex((c) => c.id === selectedCourse.id);
-    const next = courses[(idx + 1) % courses.length];
-    setSelectedCourse(next);
-  };
 
+    const fetchCoursesAndHydrate = async () => {
+      try {
+        setLoading(true);
+        setCoursesError(null);
+        setSubmitError(null);
+
+        // 1) load courses
+        const coursesData =
+          await CoursesService.getCoursesListRouteApiCoursesGet();
+        const coursesArr: Course[] = Array.isArray(coursesData)
+          ? coursesData
+          : [];
+        coursesArr.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        setCourses(coursesArr);
+
+        // 2) hydrate form from params (không gọi GET detail)
+        setTitle(initialTitle);
+        setMaxPriceText(initialMaxPrice != null ? String(initialMaxPrice) : "");
+
+        if (initialCourseId != null) {
+          const found =
+            coursesArr.find((c) => c.id === initialCourseId) ?? null;
+          setSelectedCourse(found);
+        } else {
+          setSelectedCourse(null);
+        }
+      } catch (e) {
+        console.log("Load courses error:", e);
+        setCoursesError("Không thể tải danh sách môn học.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCoursesAndHydrate();
+  }, [wishlistId, initialTitle, initialCourseId, initialMaxPrice, router]);
+
+  useEffect(() => {
+    console.log("Params:", params);
+    console.log("Initial title:", initialTitle);
+    console.log("Initial course ID:", initialCourseId);
+    console.log("Initial max price:", initialMaxPrice);
+  }, [params]);
   const submitWishlist = async () => {
-    if (!canSubmit) return;
+    if (!wishlistId || !canSubmit) return;
 
     try {
       setSubmitting(true);
       setSubmitError(null);
 
-      const payload: any = {
+      const payload = {
         title: title.trim(),
-        course_id: selectedCourse ? selectedCourse.id : 0,
-        max_price: parsedMaxPrice ?? 0,
+        course_id: selectedCourse?.id ?? null,
+        max_price: parsedMaxPrice ?? null,
       };
 
-      await WishlistsService.insertWishlistRouteApiWishlistsPost(payload);
+      await WishlistsService.updateWishlistRouteApiWishlistsWishlistIdPut(
+        wishlistId,
+        payload as any
+      );
 
       router.back();
     } catch (e) {
-      console.log("Create wishlist error:", e);
-      setSubmitError("Không thể tạo wishlist. Vui lòng thử lại.");
+      console.log("Update wishlist error:", e);
+      setSubmitError("Không thể cập nhật wishlist. Vui lòng thử lại.");
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#5E3EA1" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView
@@ -138,7 +196,7 @@ export default function WishlistCreateScreen() {
           <ArrowLeft size={22} />
         </Pressable>
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
-          Tạo Wishlist
+          Chỉnh sửa Wishlist
         </Text>
         <View className="w-8" />
       </View>
@@ -148,7 +206,7 @@ export default function WishlistCreateScreen() {
         contentContainerStyle={{ paddingBottom: 24 }}
       >
         <View className="px-6 mt-6">
-          <InfoBanner message="💡 Tạo danh sách sách bạn đang cần. Khi có người đăng bán sách khớp, bạn sẽ nhận thông báo!" />
+          <InfoBanner message="💡 Cập nhật thông tin wishlist của bạn. Khi có sách phù hợp, bạn sẽ nhận được thông báo!" />
 
           {submitError && (
             <Text className="mt-3 text-sm text-red-500">{submitError}</Text>
@@ -185,19 +243,12 @@ export default function WishlistCreateScreen() {
                   paddingBottom: 10,
                 }}
                 onPress={() => setCourseModalOpen(true)}
-                disabled={coursesLoading || !!coursesError}
+                disabled={!!coursesError}
               >
-                <Text
-                  className={`text-bodyMedium ${selectedCourse ? "text-textPrimary900" : "text-textGray600"}`}
-                >
-                  {selectedCourseLabel}
+                <Text className="text-bodyMedium text-textPrimary900">
+                  {selectedCourse?.name || "Chọn môn học"}
                 </Text>
-
-                {coursesLoading ? (
-                  <ActivityIndicator />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
+                <ChevronDown size={18} />
               </Pressable>
 
               {coursesError && (
@@ -223,6 +274,8 @@ export default function WishlistCreateScreen() {
                 Giá tối đa (không bắt buộc)
               </Text>
               <TextInput
+                value={maxPriceText}
+                onChangeText={setMaxPriceText}
                 placeholder="VD: 120000"
                 placeholderTextColor="#7A7A7A"
                 keyboardType="numeric"
@@ -231,27 +284,8 @@ export default function WishlistCreateScreen() {
                   paddingTop: 8,
                   paddingBottom: 10,
                 }}
-                className="rounded-lg px-2 text-bodyMedium"
+                className="rounded-lg px-2 text-bodyMedium text-textPrimary900"
               />
-            </View>
-
-            <View
-              className="rounded-2xl bg-textGray100 p-4"
-              style={{ backgroundColor: "#F5F5F5" }}
-            >
-              <Text className="text-xs font-semibold text-textGray700">
-                Ví dụ Wishlist:
-              </Text>
-              <Text className="text-xs text-textGray600">
-                - &quot;Giải Tích 2&quot; - Toán - Giá tối đa 50.000đ
-              </Text>
-              <Text className="text-xs text-textGray600">
-                - &quot;Vật Lý&quot; - Lý - Không giới hạn giá
-              </Text>
-              <Text className="text-xs text-textGray600">
-                - &quot;Giáo Trình CTDL&quot; - Trí tuệ nhân tạo - Giá tối đa
-                100,000đ
-              </Text>
             </View>
           </View>
         </View>
@@ -259,10 +293,10 @@ export default function WishlistCreateScreen() {
 
       <View
         className="absolute bottom-0 left-0 right-0 px-6 bg-textGray50"
-        style={{ paddingTop: 20 }}
+        style={{ paddingTop: 20, paddingBottom: 20 }}
       >
         <Pressable
-          className="items-center rounded-lg bg-textPrimary500 py-3"
+          className="items-center rounded-lg bg-textPrimary500 py-3 disabled:opacity-60"
           onPress={submitWishlist}
           disabled={!canSubmit}
         >
@@ -270,7 +304,7 @@ export default function WishlistCreateScreen() {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text className="text-heading6 font-bold text-white">
-              + Thêm Wishlist mới
+              Cập nhật Wishlist
             </Text>
           )}
         </Pressable>
@@ -308,7 +342,9 @@ export default function WishlistCreateScreen() {
           </View>
 
           <View className="flex-row items-center justify-between">
-            <Text className="text-lg font-bold text-textPrimary900">
+            <Text
+              className={`text-bodyMedium ${selectedCourse ? "text-textPrimary900" : "text-textGray600"}`}
+            >
               Chọn môn học
             </Text>
 
@@ -359,11 +395,7 @@ export default function WishlistCreateScreen() {
           </View>
 
           <View className="mt-3" style={{ flex: 1, minHeight: 0 }}>
-            {coursesLoading ? (
-              <View className="py-6 items-center">
-                <ActivityIndicator />
-              </View>
-            ) : coursesError ? (
+            {coursesError ? (
               <Text className="text-sm text-red-500">{coursesError}</Text>
             ) : (
               <FlatList
@@ -386,7 +418,11 @@ export default function WishlistCreateScreen() {
                       }}
                     >
                       <Text
-                        className={`text-base ${active ? "text-textPrimary500 font-bold" : "text-textPrimary900"}`}
+                        className={`text-base ${
+                          active
+                            ? "text-textPrimary500 font-bold"
+                            : "text-textPrimary900"
+                        }`}
                       >
                         {item.name}
                       </Text>
@@ -409,4 +445,6 @@ export default function WishlistCreateScreen() {
       </Modal>
     </SafeAreaView>
   );
-}
+};
+
+export default WishlistEditScreen;

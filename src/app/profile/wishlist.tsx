@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { UserService } from "@/api";
+import { CoursesService, UserService } from "@/api";
 import { InfoBanner } from "@/components/profile/InfoBanner";
 import { WishlistCard } from "@/components/profile/WishlistCard";
 
@@ -20,14 +20,19 @@ type ApiWishlist = {
   title: string;
   course_id: number | null;
   max_price: number | null;
-  created_at: string; // ISO
+  created_at: string;
+};
+
+type Course = {
+  id: number;
+  name: string;
 };
 
 type UiWishlist = {
   title: string;
-  subject: string; // bạn đang hiển thị subject string
-  price: string; // "≤ 60.000đ"
-  createdAt: string; // "DD/MM/YYYY"
+  subject: string;
+  price: string;
+  createdAt: string;
 };
 
 function formatDateDDMMYYYY(iso: string) {
@@ -47,44 +52,69 @@ export default function WishlistScreen() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [wishlistItems, setWishlistItems] = useState<UiWishlist[]>([]);
+
+  const [wishlists, setWishlists] = useState<ApiWishlist[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    const fetchWishlists = async () => {
+    const fetchAll = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const data = await UserService.getMyWishlistsRouteApiUserWishlistsGet();
-        const arr: ApiWishlist[] = Array.isArray(data) ? data : [];
+        const [wlRes, courseRes] = await Promise.all([
+          UserService.getMyWishlistsRouteApiUserWishlistsGet(),
+          CoursesService.getCoursesListRouteApiCoursesGet(),
+        ]);
 
-        arr.sort(
+        const wlArr: ApiWishlist[] = Array.isArray(wlRes) ? wlRes : [];
+        wlArr.sort(
           (a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
 
-        const mapped: UiWishlist[] = arr.map((w) => ({
-          title: w.title ?? "",
-          subject: "Không chọn môn",
-          price:
-            w.max_price && w.max_price > 0
-              ? `≤ ${formatVnd(w.max_price)}`
-              : "Không giới hạn",
-          createdAt: w.created_at ? formatDateDDMMYYYY(w.created_at) : "",
-        }));
-
-        setWishlistItems(mapped);
+        const cArr: Course[] = Array.isArray(courseRes) ? courseRes : [];
+        setCourses(cArr);
+        setWishlists(wlArr);
       } catch (e) {
-        console.log("Load wishlists error:", e);
+        console.log("Load wishlists/courses error:", e);
         setError("Không thể tải danh sách wishlist.");
-        setWishlistItems([]);
+        setCourses([]);
+        setWishlists([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchWishlists();
+    fetchAll();
   }, []);
+
+  const courseNameById = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const c of courses) map.set(c.id, c.name);
+    return map;
+  }, [courses]);
+
+  const wishlistItems: UiWishlist[] = useMemo(() => {
+    return wishlists.map((w) => {
+      const subject =
+        w.course_id != null
+          ? (courseNameById.get(w.course_id) ?? "Môn không tồn tại")
+          : "Không chọn môn";
+
+      const price =
+        w.max_price && w.max_price > 0
+          ? `≤ ${formatVnd(w.max_price)}`
+          : "Không giới hạn";
+
+      return {
+        title: w.title ?? "",
+        subject,
+        price,
+        createdAt: w.created_at ? formatDateDDMMYYYY(w.created_at) : "",
+      };
+    });
+  }, [wishlists, courseNameById]);
 
   if (loading) {
     return (
@@ -121,9 +151,27 @@ export default function WishlistScreen() {
 
           {error && <Text className="mt-4 text-sm text-red-500">{error}</Text>}
 
-          {wishlistItems.map((item, index) => (
-            <WishlistCard key={`wishlist-${index}`} {...item} />
-          ))}
+          {wishlistItems.map((item, index) => {
+            const wishlist = wishlists[index];
+            return (
+              <Pressable
+                key={`wishlist-${index}`}
+                onPress={() =>
+                  router.push({
+                    pathname: "/profile/wishlist-edit",
+                    params: {
+                      id: wishlist.id.toString(),
+                      title: wishlist.title,
+                      course_id: wishlist.course_id?.toString() || "",
+                      max_price: wishlist.max_price?.toString() || "",
+                    },
+                  })
+                }
+              >
+                <WishlistCard {...item} />
+              </Pressable>
+            );
+          })}
 
           {!error && wishlistItems.length === 0 && (
             <Text className="mt-6 text-bodyMedium text-textGray500">
