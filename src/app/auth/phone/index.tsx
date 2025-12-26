@@ -50,7 +50,7 @@ export default function PhoneNumberScreen() {
     checkPhone();
   }, []);
 
-  const countryCode = "(+965)";
+  const countryCode = "(+84)";
 
   const formatted = useMemo(() => {
     const s = digits.replace(/\D/g, "");
@@ -79,7 +79,6 @@ export default function PhoneNumberScreen() {
       await AuthService.updatePhoneRouteApiAuthPhonePut({
         phone: digits,
       });
-
       router.replace("/success");
     } catch (e) {
       console.log("Update phone error:", e);
