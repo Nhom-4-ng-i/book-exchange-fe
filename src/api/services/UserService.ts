@@ -40,6 +40,17 @@ export class UserService {
         });
     }
     /**
+     * Get My Sales Route
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static getMySalesRouteApiUserSalesGet(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/user/sales',
+        });
+    }
+    /**
      * Get My Wishlists Route
      * @returns any Successful Response
      * @throws ApiError

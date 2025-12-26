@@ -27,12 +27,13 @@ type Profile = {
   count_posts?: number;
   count_orders?: number;
   count_sold_orders?: number;
+  count_completed_orders?: number;
 };
 
 type ProfileCounters = {
   totalPosts: number;
-  soldOrders: number;
-  boughtOrders: number;
+  count_sold_orders: number;
+  count_completed_orders: number;
   sellingPosts: number;
   newBuyerRequests: number;
 };
@@ -42,8 +43,8 @@ export default function ProfileScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [counters, setCounters] = useState<ProfileCounters>({
     totalPosts: 0,
-    soldOrders: 0,
-    boughtOrders: 0,
+    count_sold_orders: 0,
+    count_completed_orders: 0,
     sellingPosts: 0,
     newBuyerRequests: 0,
   });
@@ -87,8 +88,8 @@ export default function ProfileScreen() {
       const p = profileRes as Profile;
 
       const totalPosts = p.count_posts ?? 0;
-      const soldOrders = p.count_sold_orders ?? 0;
-      const boughtOrders = p.count_orders ?? 0;
+      const count_sold_orders = p.count_sold_orders ?? 0;
+      const count_completed_orders = p.count_completed_orders ?? 0;
 
       const sellingPosts = (myPosts as any[]).filter((p) => {
         return (
@@ -104,8 +105,8 @@ export default function ProfileScreen() {
 
       setCounters({
         totalPosts,
-        soldOrders,
-        boughtOrders,
+        count_sold_orders,
+        count_completed_orders,
         sellingPosts,
         newBuyerRequests,
       });
@@ -174,8 +175,11 @@ export default function ProfileScreen() {
         <View className="mx-6 mb-4 mt-4 rounded-2xl ">
           <View className="flex-row justify-between gap-3">
             <ProfileStat label="Đã đăng" value={counters.totalPosts} />
-            <ProfileStat label="Đã bán" value={counters.soldOrders} />
-            <ProfileStat label="Đã mua" value={counters.boughtOrders} />
+            <ProfileStat label="Đã bán" value={counters.count_sold_orders} />
+            <ProfileStat
+              label="Đã mua"
+              value={counters.count_completed_orders}
+            />
           </View>
         </View>
 

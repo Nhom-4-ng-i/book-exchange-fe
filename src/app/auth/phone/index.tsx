@@ -76,8 +76,10 @@ export default function PhoneNumberScreen() {
       setSubmitting(true);
       setError(null);
 
+      const phoneNumberWithCountryCode = `+84${digits}`;
+
       await AuthService.updatePhoneRouteApiAuthPhonePut({
-        phone: digits,
+        phone: phoneNumberWithCountryCode,
       });
       router.replace("/success");
     } catch (e) {

@@ -21,7 +21,6 @@ export type { UpdateProfileRequest } from './models/UpdateProfileRequest';
 export type { UpdateWishlistRequest } from './models/UpdateWishlistRequest';
 export type { ValidationError } from './models/ValidationError';
 export type { VerifyPhoneOtpRequest } from './models/VerifyPhoneOtpRequest';
-export type { WishlistResponse } from './models/WishlistResponse';
 
 export { AuthService } from './services/AuthService';
 export { CoursesService } from './services/CoursesService';
