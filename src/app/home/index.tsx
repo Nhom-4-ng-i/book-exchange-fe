@@ -197,7 +197,7 @@ onPress={() => setIsDropdownVisible(true)}
 <View className="bg-white w-[70%] rounded-xl p-4">
 <Text className="font-bold mb-4">Tìm kiếm theo:</Text>
 <Pressable className="py-3 border-b border-gray-100"
-onPress={() => { setSearchType('bookTitle'); setSearchLabel('Tên sách'); setIsDropdownVisible(false); }}>
+onPress={() => { setSearchType('title'); setSearchLabel('Tên sách'); setIsDropdownVisible(false); }}>
 <Text>Tên sách</Text>
 </Pressable>
 
@@ -207,7 +207,7 @@ onPress={() => { setSearchType('author'); setSearchLabel('Tác giả'); setIsDro
 </Pressable>
 
 <Pressable className="py-3"
-onPress={() => { setSearchType('courseId'); setSearchLabel('Mã môn'); setIsDropdownVisible(false); }}>
+onPress={() => { setSearchType('course'); setSearchLabel('Mã môn'); setIsDropdownVisible(false); }}>
 <Text>Mã môn học</Text>
 </Pressable>
 </View>
