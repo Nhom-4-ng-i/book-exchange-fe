@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -61,71 +61,64 @@ export default function ProfileScreen() {
     initApiConfig();
   }, []);
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const userJson = await AsyncStorage.getItem("user");
-        if (!userJson) {
-          router.replace("/auth/login");
-          return;
-        }
-
-        const user = JSON.parse(userJson) as {
-          id: string;
-          name?: string;
-          email?: string;
-        };
-
-        const token = await AsyncStorage.getItem("access_token");
-        if (token) {
-          OpenAPI.TOKEN = token;
-          OpenAPI.BASE = "http://160.187.246.140:8000";
-        }
-
-        const [profileRes, myPosts, myOrders] = await Promise.all([
-          UserService.getMyProfileRouteApiUserMeGet(),
-          UserService.getMyPostsRouteApiUserPostsGet(),
-          UserService.getMyOrdersRouteApiUserOrdersGet(),
-        ]);
-
-        setProfile(profileRes as Profile);
-
-        console.log("PROFILE:", profileRes);
-
-        const p = profileRes as Profile;
-
-        const totalPosts = p.count_posts ?? 0;
-        const soldOrders = p.count_sold_orders ?? 0;
-        const boughtOrders = p.count_orders ?? 0;
-
-        const sellingPosts = (myPosts as any[]).filter((p) => {
-          return (
-            p.post_status === "Đang bán" ||
-            p.status === "Đang bán" ||
-            p.status_text === "Đang bán"
-          );
-        }).length;
-
-        const newBuyerRequests = (myOrders as any[]).filter(
-          (o) => o.order_status === "Chờ xác nhận"
-        ).length;
-
-        setCounters({
-          totalPosts,
-          soldOrders,
-          boughtOrders,
-          sellingPosts,
-          newBuyerRequests,
-        });
-      } catch (err) {
-        console.log("Fetch profile / stats error:", err);
-      } finally {
-        setLoading(false);
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const userJson = await AsyncStorage.getItem("user");
+      if (!userJson) {
+        router.replace("/auth/login");
+        return;
       }
-    };
 
-    fetchAll();
+      const token = await AsyncStorage.getItem("access_token");
+      if (token) {
+        OpenAPI.TOKEN = token;
+        OpenAPI.BASE = "http://160.187.246.140:8000";
+      }
+
+      const [profileRes, myPosts, myOrders] = await Promise.all([
+        UserService.getMyProfileRouteApiUserMeGet(),
+        UserService.getMyPostsRouteApiUserPostsGet(),
+        UserService.getMyOrdersRouteApiUserOrdersGet(),
+      ]);
+
+      setProfile(profileRes as Profile);
+
+      const p = profileRes as Profile;
+
+      const totalPosts = p.count_posts ?? 0;
+      const soldOrders = p.count_sold_orders ?? 0;
+      const boughtOrders = p.count_orders ?? 0;
+
+      const sellingPosts = (myPosts as any[]).filter((p) => {
+        return (
+          p.post_status === "Đang bán" ||
+          p.status === "Đang bán" ||
+          p.status_text === "Đang bán"
+        );
+      }).length;
+
+      const newBuyerRequests = (myOrders as any[]).filter(
+        (o) => o.order_status === "Chờ xác nhận"
+      ).length;
+
+      setCounters({
+        totalPosts,
+        soldOrders,
+        boughtOrders,
+        sellingPosts,
+        newBuyerRequests,
+      });
+    } catch (err) {
+      console.log("Fetch profile / stats error:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [router]);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("access_token");
@@ -160,8 +153,22 @@ export default function ProfileScreen() {
       >
         <ProfileHeader
           name={profile?.name ?? "Người dùng"}
-          phone={profile?.phone ?? "Chưa có số điện thoại"}
+          phone={
+            profile?.phone
+              ? profile.phone.startsWith("0")
+                ? profile.phone
+                : `0${profile.phone}`
+              : "Chưa có số điện thoại"
+          }
           onLogout={handleLogout}
+          onPhoneUpdated={(newPhone) => {
+            const formattedPhone = newPhone.startsWith("0")
+              ? newPhone
+              : `0${newPhone}`;
+            setProfile((prev) =>
+              prev ? { ...prev, phone: formattedPhone } : prev
+            );
+          }}
         />
 
         <View className="mx-6 mb-4 mt-4 rounded-2xl ">
