@@ -1,5 +1,5 @@
 import IconEdit2 from "@/icons/IconEdit2";
-import { Trash2 } from "lucide-react-native";
+import IconTrash from "@/icons/IconTrash";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 
@@ -37,7 +37,7 @@ export function WishlistCard({
             <IconEdit2 />
           </Pressable>
           <Pressable>
-            <Trash2 size={16} color="#EF5A56" />
+            <IconTrash size={14} />
           </Pressable>
         </View>
       </View>

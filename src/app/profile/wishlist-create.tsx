@@ -163,6 +163,7 @@ export default function WishlistCreateScreen() {
                 value={title}
                 onChangeText={setTitle}
                 placeholder="VD: Giải tích 2"
+                placeholderTextColor="#7A7A7A"
                 style={{
                   backgroundColor: "#E8E8E8",
                   paddingTop: 8,
@@ -222,6 +223,7 @@ export default function WishlistCreateScreen() {
               </Text>
               <TextInput
                 placeholder="VD: 120000"
+                placeholderTextColor="#7A7A7A"
                 keyboardType="numeric"
                 style={{
                   backgroundColor: "#E8E8E8",
@@ -291,7 +293,7 @@ export default function WishlistCreateScreen() {
           style={{
             borderTopLeftRadius: 18,
             borderTopRightRadius: 18,
-            maxHeight: "75%",
+            height: "75%", // Changed from maxHeight to fixed height
           }}
         >
           <View className="items-center mb-3">
@@ -356,7 +358,7 @@ export default function WishlistCreateScreen() {
             </Pressable>
           </View>
 
-          <View className="mt-3" style={{ flex: 1 }}>
+          <View className="mt-3" style={{ flex: 1, minHeight: 0 }}>
             {coursesLoading ? (
               <View className="py-6 items-center">
                 <ActivityIndicator />
@@ -368,6 +370,8 @@ export default function WishlistCreateScreen() {
                 data={filteredCourses}
                 keyExtractor={(item) => String(item.id)}
                 keyboardShouldPersistTaps="handled"
+                style={{ flex: 1 }}
+                contentContainerStyle={{ paddingBottom: 20 }}
                 ItemSeparatorComponent={() => (
                   <View style={{ height: 1, backgroundColor: "#EFEFEF" }} />
                 )}
