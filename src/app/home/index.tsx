@@ -3,8 +3,9 @@ import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
+import { useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -28,6 +29,7 @@ export default function Index() {
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // null = Tất cả
   const [loading, setLoading] = useState(true);
+  const [bellTick, setBellTick] = useState(0);
 
   const loadPosts = async () => {
     try {
@@ -85,6 +87,12 @@ export default function Index() {
     loadPosts();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      setBellTick((t) => t + 1);
+    }, [])
+  );
+
   const filteredPosts = posts
     .filter((post) => post.status !== null)
     .filter((post) => {
@@ -113,7 +121,7 @@ export default function Index() {
     >
       <StatusBar style="dark" />
 
-      <HeaderHome title="Trang chủ" />
+      <HeaderHome title="Trang chủ" bellTick={bellTick} />
 
       <ScrollView className="flex-1" contentContainerClassName="pb-24">
         <View className="px-4 mb-4 mt-4">

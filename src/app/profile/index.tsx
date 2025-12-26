@@ -77,10 +77,10 @@ export default function ProfileScreen() {
         OpenAPI.BASE = "http://160.187.246.140:8000";
       }
 
-      const [profileRes, myPosts, myOrders] = await Promise.all([
+      const [profileRes, myPosts, salesData] = await Promise.all([
         UserService.getMyProfileRouteApiUserMeGet(),
         UserService.getMyPostsRouteApiUserPostsGet(),
-        UserService.getMyOrdersRouteApiUserOrdersGet(),
+        UserService.getMySalesRouteApiUserSalesGet(),
       ]);
 
       setProfile(profileRes as Profile);
@@ -99,9 +99,8 @@ export default function ProfileScreen() {
         );
       }).length;
 
-      const newBuyerRequests = (myOrders as any[]).filter(
-        (o) => o.order_status === "Chờ xác nhận"
-      ).length;
+      // Count pending requests from sales data
+      const newBuyerRequests = salesData?.pending?.length || 0;
 
       setCounters({
         totalPosts,

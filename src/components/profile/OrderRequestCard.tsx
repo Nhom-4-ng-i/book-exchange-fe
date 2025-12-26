@@ -125,9 +125,7 @@ export function OrderRequestCard({
       <View className="flex-row items-start gap-4">
         <View className="rounded-md bg-gray-200">
           <Image
-            source={{
-              uri: "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-            }}
+            source={{ uri: imageUri }}
             style={{ width: 60, height: 92, borderRadius: 6 }}
             contentFit="cover"
           />

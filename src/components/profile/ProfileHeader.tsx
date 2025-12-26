@@ -155,6 +155,9 @@ export function ProfileHeader({
               <TextInput
                 value={digits.replace(/(\d{3})(?=\d)/g, "$1 ")}
                 onChangeText={onTextChange}
+                style={{
+                  lineHeight: 18,
+                }}
                 keyboardType="phone-pad"
                 placeholder="VD: 0907 608 170"
                 placeholderTextColor="#9CA3AF"
