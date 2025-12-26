@@ -51,13 +51,22 @@ export default function CartItem({
 
           <Text className="text-gray-900 text-[14px]">{formatVND(price)}đ</Text>
         </View>
-        <Pressable
-          className="absolute top-2 right-2 p-1"
-          
-          hitSlop={10} 
-        >
-          <TrashIcon width={16} height={16} onClick = {ondelete(orderId)}/>
-        </Pressable>
+
+          <Pressable
+            className="absolute top-2 right-2 p-3" 
+            style={{ 
+              zIndex: 999,      
+              elevation: 5,     
+            }}
+            onPress={(e) => {
+              e.stopPropagation(); 
+              console.log("👉 Đang gọi hàm xóa ID:", orderId);
+              ondelete(orderId);
+            }}
+            hitSlop={25}
+          >
+            <TrashIcon width={20} height={20} />
+          </Pressable>
       </Pressable>
 
       <View className="w-[10px]" />

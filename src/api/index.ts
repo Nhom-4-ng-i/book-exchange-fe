@@ -11,6 +11,7 @@ export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { InsertOrderRequest } from './models/InsertOrderRequest';
 export type { InsertPostRequest } from './models/InsertPostRequest';
 export type { InsertWishlistRequest } from './models/InsertWishlistRequest';
+export type { SendPhoneOtpRequest } from './models/SendPhoneOtpRequest';
 export type { SignInRequest } from './models/SignInRequest';
 export type { SignInResponse } from './models/SignInResponse';
 export type { SignUpRequest } from './models/SignUpRequest';

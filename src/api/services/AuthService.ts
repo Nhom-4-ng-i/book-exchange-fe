@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { SendPhoneOtpRequest } from '../models/SendPhoneOtpRequest';
 import type { SignInRequest } from '../models/SignInRequest';
 import type { SignInResponse } from '../models/SignInResponse';
 import type { SignUpRequest } from '../models/SignUpRequest';
@@ -72,6 +73,25 @@ export class AuthService {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/api/auth/phone',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+    /**
+     * Send Phone Otp Route
+     * @param requestBody
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static sendPhoneOtpRouteApiAuthSendPhoneOtpPost(
+        requestBody: SendPhoneOtpRequest,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/auth/send-phone-otp',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
