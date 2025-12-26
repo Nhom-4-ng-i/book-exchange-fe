@@ -11,6 +11,7 @@ export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { InsertOrderRequest } from './models/InsertOrderRequest';
 export type { InsertPostRequest } from './models/InsertPostRequest';
 export type { InsertWishlistRequest } from './models/InsertWishlistRequest';
+export type { SendPhoneOtpRequest } from './models/SendPhoneOtpRequest';
 export type { SignInRequest } from './models/SignInRequest';
 export type { SignInResponse } from './models/SignInResponse';
 export type { SignUpRequest } from './models/SignUpRequest';
@@ -20,6 +21,7 @@ export type { UpdateProfileRequest } from './models/UpdateProfileRequest';
 export type { UpdateWishlistRequest } from './models/UpdateWishlistRequest';
 export type { ValidationError } from './models/ValidationError';
 export type { VerifyPhoneOtpRequest } from './models/VerifyPhoneOtpRequest';
+export type { WishlistResponse } from './models/WishlistResponse';
 
 export { AuthService } from './services/AuthService';
 export { CoursesService } from './services/CoursesService';

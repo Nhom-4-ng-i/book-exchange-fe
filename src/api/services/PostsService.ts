@@ -10,7 +10,6 @@ import { request as __request } from '../core/request';
 export class PostsService {
     /**
      * Get Posts List Route
-     * @param status
      * @param bookTitle
      * @param author
      * @param bookStatus
@@ -25,7 +24,6 @@ export class PostsService {
      * @throws ApiError
      */
     public static getPostsListRouteApiPostsGet(
-        status?: (Array<string> | null),
         bookTitle?: (string | null),
         author?: (string | null),
         bookStatus?: (string | null),
@@ -41,7 +39,6 @@ export class PostsService {
             method: 'GET',
             url: '/api/posts/',
             query: {
-                'status': status,
                 'book_title': bookTitle,
                 'author': author,
                 'book_status': bookStatus,

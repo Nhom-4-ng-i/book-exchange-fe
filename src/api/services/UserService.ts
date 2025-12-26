@@ -39,4 +39,15 @@ export class UserService {
             url: '/api/user/orders',
         });
     }
+    /**
+     * Get My Wishlists Route
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static getMyWishlistsRouteApiUserWishlistsGet(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/user/wishlists',
+        });
+    }
 }

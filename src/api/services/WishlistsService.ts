@@ -4,10 +4,22 @@
 /* eslint-disable */
 import type { InsertWishlistRequest } from '../models/InsertWishlistRequest';
 import type { UpdateWishlistRequest } from '../models/UpdateWishlistRequest';
+import type { WishlistResponse } from '../models/WishlistResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class WishlistsService {
+    /**
+     * Get My Wishlists
+     * @returns WishlistResponse Successful Response
+     * @throws ApiError
+     */
+    public static getMyWishlistsApiWishlistsGet(): CancelablePromise<Array<WishlistResponse>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/wishlists/',
+        });
+    }
     /**
      * Insert Wishlist Route
      * @param requestBody
