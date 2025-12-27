@@ -39,8 +39,9 @@ export function PostCard({
       <Image
         source={{
           uri:
-            thumbnailUrl ??
-            "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
+            thumbnailUrl === "DefaultAvatarURL"
+              ? "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328"
+              : thumbnailUrl,
         }}
         style={{ width: 60, height: 92, borderRadius: 6 }}
         contentFit="cover"

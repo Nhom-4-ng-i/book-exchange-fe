@@ -23,7 +23,7 @@ type MyPost = {
   book_status: string;
   price: number | string;
   status: string;
-  thumbnail_url?: string;
+  avatar_url?: string;
 };
 
 export default function MyPostsScreen() {
@@ -193,7 +193,7 @@ export default function MyPostsScreen() {
               condition={item.book_status}
               price={formatPrice(item.price)}
               status={item.status}
-              thumbnailUrl={item.thumbnail_url}
+              thumbnailUrl={item.avatar_url}
               onDelete={handleDelete}
             />
           ))}
@@ -217,7 +217,7 @@ export default function MyPostsScreen() {
               condition={item.book_status}
               price={formatPrice(item.price)}
               status={item.status}
-              thumbnailUrl={item.thumbnail_url}
+              thumbnailUrl={item.avatar_url}
               onEdit={(id) => {}}
               onDelete={handleDelete}
             />
