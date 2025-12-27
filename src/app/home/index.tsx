@@ -3,6 +3,7 @@ import BottomNav from "@/components/BottomNav";
 import HeaderHome from "@/components/HeaderHome";
 import IconSearch from '@/icons/IconSearch';
 import IconPhone from '@/icons/PhoneIcon'
+import IconBack from '@/icons/IconBack'
 import IconArrowDown from "@/icons/IconArrowDown";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import IconLocation from '@/icons/IconLocation'
@@ -54,7 +55,7 @@ interface OrderItem {
   buyer_name: string;
   buyer_phone: string;
   order_status: string;
-  order_status_code: 'COMPLETED' | 'PENDING' | 'CANCELLED'; // Thêm các code khác nếu có
+  order_status_code: 'COMPLETED' | 'PENDING' | 'CANCELLED'; 
   order_time: string;
   post_status: string;
   avatar_url: string;
@@ -67,7 +68,7 @@ const [loading, setLoading] = useState(true);
 const [isSearching, setIsSearching] = useState(false);
 const [searchQuery, setSearchQuery] = useState("");
 const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-const [searchType, setSearchType] = useState<'title' | 'author' | 'course'>('title');
+const [searchType, setSearchType] = useState<'title' | 'author' | 'course'| 'location'|'min_price'|'max_price'|'sort_by'|'offset'>('title');
 const [searchLabel, setSearchLabel] = useState("Tên sách");
 const [selectedPost, setSelectedPost] = useState<any>(null);
 const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -113,23 +114,17 @@ const loadPosts = async () => {
   try {
     setLoading(true);
     await ensureAuthToken();
-
-    // 1. Chuẩn bị các tham số từ state hiện có của bạn
     const query = searchQuery.trim();
-    
-    // Logic xác định truyền tham số nào dựa trên searchType
     const titleParam = searchType === 'title' && query ? query : null;
     const authorParam = searchType === 'author' && query ? query : null;
     const courseIdParam = searchType === 'course' && query && !isNaN(Number(query)) 
                           ? Number(query) 
                           : null;
-    const statusParam = "SELLING"; // Mặc định hoặc lấy từ state nếu bạn có bộ lọc riêng
-
-    // 2. Gọi API với các tham số tương ứng
+    const statusParam = "SELLING"; 
     const response = await PostsService.getPostsListRouteApiPostsGet(
       titleParam,    // tham số 1: bookTitle
       authorParam,   // tham số 2: author
-      statusParam,   // tham số 3: bookStatus
+      null,   // tham số 3: bookStatus
       courseIdParam, // tham số 4: courseId
       null,          // locationId
       null,          // minPrice
@@ -138,7 +133,7 @@ const loadPosts = async () => {
       0,             // offset
       100            // limit
     );
-
+    console.log(response)
     
     setPosts(response);
     
@@ -206,13 +201,19 @@ edges={["left", "right", "bottom"]}
 
 {/* ################################### */}
 {isSearching ? (
-<View className="px-4 py-2 bg-white">
-<View className="flex-row items-center bg-[#F2E7E7] rounded-full px-4 h-12 border border-gray-100">
+<View className="px-4 py-2 bg-white flex-row">
+<Pressable onPress={() => {
+    setIsSearching(false);
+    setSearchQuery("");
+  }} className="mt-2 mr-3">
+<IconBack/>
+</Pressable>
+<View className="flex-row items-center bg-[#F2E7E7] rounded-[10px] px-4 h-10 border border-gray-100">
 <View className="flex-1 flex-row items-center">
 <IconSearch />
 <TextInput
 className="flex-1 ml-2 text-base text-gray-700"
-placeholder={`Tìm theo ${searchLabel.toLowerCase()}...`}
+placeholder={`Tìm kiếm`}
 value={searchQuery}
 onChangeText={setSearchQuery}
 onSubmitEditing={loadPosts}
@@ -230,9 +231,7 @@ onPress={() => setIsDropdownVisible(true)}
 <IconArrowDown size ={20}/>
 </Pressable>
 </View>
-<Pressable onPress={() => setIsSearching(false)} className="mt-2">
-<Text className="text-center text-purple-600">Hủy</Text>
-</Pressable>
+
 </View>
 ) : <HeaderHome title = 'Trang chủ' onSearchPress={() => setIsSearching(true)}/>}
 
@@ -252,8 +251,8 @@ onPress={() => { setSearchType('author'); setSearchLabel('Tác giả'); setIsDro
 </Pressable>
 
 <Pressable className="py-3"
-onPress={() => { setSearchType('course'); setSearchLabel('Mã môn'); setIsDropdownVisible(false); }}>
-<Text>Mã môn học</Text>
+onPress={() => { setSearchType('course'); setSearchLabel('Môn học'); setIsDropdownVisible(false); }}>
+<Text> Môn học</Text>
 </Pressable>
 </View>
 </Pressable>
@@ -283,16 +282,17 @@ horizontal
 showsHorizontalScrollIndicator={false}
 contentContainerClassName="px-4 flex-row gap-2"
 >
-<Pressable
+  {!isSearching && <Pressable
 className={`px-2 py-1 rounded-lg ${
 !selectedCategory ? "bg-gray-500/20" : "border border-[#E5E5E5]"
 }`}
 onPress={() => setSelectedCategory(null)}
 >
 <Text className="text-sm text-gray-800">Tất cả</Text>
-</Pressable>
+</Pressable>}
 
-{categories.map((c: any, index: number) => (
+
+{!isSearching &&categories.map((c: any, index: number) => (
 <Pressable
 key={index}
 className={`px-2 py-1 rounded-lg ${
@@ -307,12 +307,13 @@ onPress={() => setSelectedCategory(c.name)}
 ))}
 </ScrollView>
 </View>
-
-<View className="px-4 mb-6">
+{!isSearching &&
+  <View className="px-4 mb-6">
 <Text className="text-lg font-bold tracking-tight text-gray-900">
 Danh sách
 </Text>
-</View>
+</View>}
+
 
 <View className="px-4">
 <View className="flex-row flex-wrap justify-between">
@@ -337,7 +338,7 @@ resizeMode="cover"
 />
 <View className="absolute top-2 left-2 px-2 py-0.5 bg-white rounded-lg">
 <Text className="text-xs text-gray-800">
-{post.book_status || "Không rõ"}
+{post.book_status}
 </Text>
 </View>
 </View>
@@ -416,7 +417,7 @@ Tiết kiệm {Math.round(((selectedPost.original_price - selectedPost.price) / 
 </View>
 )}
 <Text className="text-bodyMedium text-gray-700">Mô tả : </Text>
-<View className = 'text-gray-500 text-[12px] mt-2'>{selectedPost.description}</View>
+<Text className = 'text-gray-500 text-[12px] mt-2'>{selectedPost.description}</Text>
 <View className="h-[1px] bg-gray-200 w-full my-4" />
 <View>
 <Text className="text-bodyMedium text-gray-700">Thông tin giao dịch</Text>
@@ -459,7 +460,11 @@ className="w-full bg-[#54408C] h-[54px] rounded-full items-center justify-center
 onPress={handleCreateOrder}
 disabled={orderLoading}
 >
-<Text className="text-white font-bold text-lg">Đặt mua</Text>
+{orderLoading ? (
+    <ActivityIndicator color="white" />
+  ) : (
+    <Text className="text-white font-bold text-lg">Đặt mua</Text>
+  )}
 </Pressable>
 
 <Pressable

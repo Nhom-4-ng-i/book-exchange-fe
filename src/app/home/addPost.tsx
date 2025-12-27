@@ -67,6 +67,8 @@ interface InsertPostRequest {
     const [locationDescribe , setLocationDescribe] = useState("");
     const [loading , setLoading] = useState(false) ; 
     const router = useRouter() ; 
+
+   
     const pickImage = async () => {
      
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -101,52 +103,93 @@ interface InsertPostRequest {
         }
       };
       
-      const handlePost = async () => {
+      // const handlePost = async () => {
         
-        if (!title || !selectedCourse || !selectedStatus || !price || !selectedLocation || !image) {
-          Alert.alert("Lỗi", "Vui lòng điền đầy đủ các thông tin có dấu (*)");
-          return;
-        }
+      //   if (!title || !selectedCourse || !selectedStatus || !price || !selectedLocation || !image) {
+      //     Alert.alert("Lỗi", "Vui lòng điền đầy đủ các thông tin có dấu (*)");
+      //     return;
+      //   }
       
-        try {
-          setLoading(true);
-          await ensureAuthToken(); 
+      //   try {
+      //     setLoading(true);
+      //     await ensureAuthToken(); 
       
-          // 2. Tạo Request Body đúng cấu trúc InsertPostRequest
-          const requestBody: InsertPostRequest = {
-            book_title: title,
-            author: author || "Không rõ",
-            course_id: Number(selectedCourse?.id),     // Phải là number
-            book_status_id: Number(selectedStatus?.id), // Phải là number
-            location_id: Number(selectedLocation?.id),  // Phải là number
-            price: Number(price) || 0,                 // Phải là number
-            original_price: Number(originalPrice) || 0, // Phải là number
-            description: statusDescribe || "Chưa có mô tả",
-            location_detail: locationDescribe || "Chưa có chi tiết địa điểm",
-            avatar_url: image || "https://via.placeholder.com/150", 
-          };
-          console.log("DỮ LIỆU GỬI ĐI:", JSON.stringify(requestBody, null, 2));
+      //     // 2. Tạo Request Body đúng cấu trúc InsertPostRequest
+      //     const requestBody: InsertPostRequest = {
+      //       book_title: title,
+      //       author: author || "Không rõ",
+      //       course_id: Number(selectedCourse?.id),     // Phải là number
+      //       book_status_id: Number(selectedStatus?.id), 
+      //       price: Number(price) || 0, // Phải là number
+      //       location_id: Number(selectedLocation?.id),  // Phải là number
+      //       original_price: Number(originalPrice) || 0, // Phải là number
+      //       description: statusDescribe || "Chưa có mô tả",
+      //       location_detail: locationDescribe || "Chưa có chi tiết địa điểm",
+      //       avatar_url: image || "https://via.placeholder.com/150", 
+      //     };
+      //     console.log("DỮ LIỆU GỬI ĐI:", JSON.stringify(requestBody, null, 2));
       
           
-          const result = await PostsService.insertPostRouteApiPostsPost(requestBody);
+      //     const result = await PostsService.insertPostRouteApiPostsPost(requestBody);
       
-          if (result) {
-            Alert.alert("Thành công", "Bài đăng của bạn đã được khởi tạo!", [
-              { text: "Về trang chủ", onPress: () => {router.replace('/home');} }
-            ]);
-          }
-        } catch (err: any) {
-          console.error("Post Error:", err);
-          if (err.status === 422) {
-            Alert.alert("Lỗi dữ liệu", "Vui lòng kiểm tra lại các trường thông tin (Error 422)");
-          } else {
-            Alert.alert("Lỗi hệ thống", "Không thể kết nối đến máy chủ.");
-          }
-        } finally {
-          setLoading(false);
+      //     if (result) {
+      //       Alert.alert("Thành công", "Bài đăng của bạn đã được khởi tạo!", [
+      //         { text: "Về trang chủ", onPress: () => {router.replace('/home');} }
+      //       ]);
+      //     }
+      //   } catch (err: any) {
+      //     console.error("Post Error:", err);
+      //     if (err.status === 422) {
+      //       Alert.alert("Lỗi dữ liệu", "Vui lòng kiểm tra lại các trường thông tin (Error 422)");
+      //     } else {
+      //       Alert.alert("Lỗi hệ thống", "Không thể kết nối đến máy chủ.");
+      //     }
+      //   } finally {
+      //     setLoading(false);
+      //   }
+      // };
+      const handlePost = async () => {
+        if (!title || !selectedCourse || !selectedStatus || !price || !selectedLocation || !image) {
+            Alert.alert("Lỗi", "Vui lòng điền đầy đủ các thông tin có dấu (*)");
+            return;
         }
-      };
 
+        try {
+            setLoading(true);
+            await ensureAuthToken();
+
+           
+            let finalImageUrl = ''; 
+            
+
+            const requestBody: InsertPostRequest = {
+                book_title: title,
+                author: author || "Không rõ",
+                course_id: Number(selectedCourse?.id),
+                book_status_id: Number(selectedStatus?.id),
+                price: Number(price) || 0,
+                location_id: Number(selectedLocation?.id),
+                original_price: Number(originalPrice) || 0,
+                description: statusDescribe || "Chưa có mô tả",
+                location_detail: locationDescribe || "Chưa có chi tiết địa điểm",
+                avatar_url: finalImageUrl,
+            };
+            console.log("DỮ LIỆU GỬI ĐI:", JSON.stringify(requestBody, null, 2)); 
+
+            const result = await PostsService.insertPostRouteApiPostsPost(requestBody);
+
+            if (result) {
+                Alert.alert("Thành công", "Bài đăng của bạn đã được khởi tạo!", [
+                    { text: "Về trang chủ", onPress: () => router.replace('/home') }
+                ]);
+            }
+        } catch (err: any) {
+            console.error("Post Error detail:", err.response?.data); 
+            Alert.alert("Lỗi", "Validation Error (422): Vui lòng kiểm tra định dạng dữ liệu.");
+        } finally {
+            setLoading(false);
+        }
+    };
       useEffect(() => {
         loadCourses();
         loadLocations();
@@ -160,166 +203,197 @@ interface InsertPostRequest {
           console.error("Lỗi lấy địa điểm:", error);
         }
       };
-      
     
-  
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-       
-        <View className="flex-row items-center justify-center relative h-14 w-full bg-white border-b border-gray-100">
-          <Pressable className="absolute left-4 z-10" onPress={() => {
-            router.replace('/home');
-          }}>
-            <IconBack />
+return (
+  <SafeAreaView className="flex-1 bg-white">
+      {/* Header - Padding 14px */}
+      <View className="flex-row items-center justify-center relative h-14 w-full bg-white border-b border-gray-100 px-[14px]">
+          <Pressable className="absolute left-[14px] z-10" onPress={() => router.replace('/home')}>
+              <IconBack />
           </Pressable>
           <Text className="font-bold text-[18px]">Đăng sách/tài liệu mới</Text>
-        </View>
-  
-        <ScrollView 
+      </View>
+
+      <ScrollView 
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
           className="flex-1"
-        >
-          {/* Phần chọn ảnh */}
-          <View className="p-4 items-center">
-            <Text className="self-start font-semibold text-gray-800 mb-4">
-              Hình ảnh sách/tài liệu *
-            </Text>
-  
-            <Pressable 
-              onPress={pickImage}
-              
-              className="w-[327px] h-[327px] bg-gray-50 rounded-2xl overflow-hidden items-center justify-center"
-            >
-              {image ? (
-                <Image source={{ uri: image }} className="w-full h-full" />
-              ) : (
-                <View className="items-center">
-                  <Ionicons name="camera-outline" size={48} color="#9CA3AF" />
-                  <Text className="text-gray-400 mt-2 font-medium">Thêm ảnh</Text>
-                </View>
-              )}
-            </Pressable>
+      >
+          {/* 1. Phần chọn ảnh */}
+          <View className="px-[14px] mt-4 items-center">
+              <View className="flex-row w-full mb-2">
+                  <Text className="text-gray-700 font-semibold">Hình ảnh sách tài liệu</Text>
+                  <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
+              </View>
+              <Pressable 
+                  onPress={pickImage}
+                  className="w-full aspect-square bg-gray-50 rounded-2xl overflow-hidden items-center justify-center border-gray-300"
+              >
+                  {image ? (
+                      <Image source={{ uri: image }} className="w-full h-full" />
+                  ) : (
+                      <View className="items-center">
+                          <Ionicons name="camera-outline" size={48} color="#9CA3AF" />
+                          <Text className="text-gray-400 mt-2 font-medium">Thêm ảnh</Text>
+                      </View>
+                  )}
+              </Pressable>
           </View>
-  
-          {/*TextInput tên sách, giá */}
 
-          <Text className="mb-2 font-semibold pl-4">Tên sách/tài liệu *</Text>
-            <TextInput
-            className=" h-12 bg-gray-200 rounded-xl rounded-xl px-4  pl-4 pr-4 mx-4"
-            placeholder="Nhập tên sách"
-            value={title}
-            onChangeText={(text) => setTitle(text)} 
-            />
+          {/* 2. Tên sách */}
+          <View className="px-[14px] mt-4">
+              <View className="flex-row mb-2">
+                  <Text className="text-gray-700 font-semibold">Tên sách tài liệu</Text>
+                  <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
+              </View>
+              <TextInput
+                  className="h-12 bg-gray-100 rounded-xl px-4 text-gray-700"
+                  placeholder="VD: Giải tích 2"
+                  value={title}
+                  onChangeText={setTitle} 
+              />
+          </View>
 
-            <Text className="mb-2 font-semibold pl-4 mt-4">Tác giả*</Text>
-            <TextInput
-            className=" h-12 bg-gray-200 rounded-xl rounded-xl px-4  pl-4 pr-4 mx-4"
-            placeholder="Nhập tên tác giả"
-            value={author}
-            onChangeText={(author) => setAuthor(author)} 
-            />
-            <View className="px-4 mb-4">
-            <Text className="text-gray-700 font-semibold mb-2 mt-4">Môn học *</Text>
-            <Pressable 
-                onPress={() => setIsModalVisible(true)}
-                className="w-full bg-gray-200 border border-gray-200 rounded-2xl p-4 flex-row justify-between items-center"
-            >
-                <Text className={selectedCourse ? "text-gray-800" : "text-gray-400"}>
-                {selectedCourse ? selectedCourse.name : "Chọn môn học"}
-                </Text>
-                
-                <IconArrowDown size={20} color="#9CA3AF" />
-            </Pressable>
-            </View>
+          {/* 3. Tác giả */}
+          <View className="px-[14px] mt-4">
+              <View className="flex-row mb-2">
+                  <Text className="text-gray-700 font-semibold">Tác giả</Text>
+                  <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
+              </View>
+              <TextInput
+                  className="h-12 bg-gray-100 rounded-xl px-4 text-gray-700"
+                  placeholder="VD: Nguyễn Đình Trí"
+                  value={author}
+                  onChangeText={setAuthor} 
+              />
+          </View>
 
-            <View className="px-4 mb-4 mt-4">
-            <Text className="text-gray-700 font-semibold mb-2">Tình trạng sách *</Text>
-            <Pressable 
-                onPress={() => setIsStatusModalVisible(true)}
-                className="w-full bg-gray-200 border border-gray-200 rounded-2xl p-4 flex-row justify-between items-center"
-            >
-                <Text className={selectedStatus ? "text-gray-800" : "text-gray-400"}>
-                {selectedStatus ? selectedStatus.name : "Chọn tình trạng sách"}
-                </Text>
-                <IconArrowDown size={20} color="#9CA3AF" />
-            </Pressable>
-            </View>
-            <View className="flex-row px-4 gap-4 mb-4 mt-4">
-                    {/* Ô bên trái: Giá bán */}
-                    <View className="flex-1">
-                        <View className="flex-row">
-                        <Text className="font-bold text-[16px] text-gray-900">Giá bán</Text>
-                        <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
-                        </View>
-                        <TextInput
-                        className="mt-2 h-12 bg-gray-200 border border-gray-200 rounded-xl px-4 text-gray-700 font-semibold"
-                        placeholder="Ví dụ: 120000"
-                        placeholderTextColor="#A1A1A1"
-                        keyboardType="numeric"
-                        value={price}
-                        onChangeText={setPrice}
-                        />
-                    </View>
+          {/* 4. Môn học */}
+          <View className="px-[14px] mt-4">
+              <View className="flex-row mb-2">
+                  <Text className="text-gray-700 font-semibold">Môn học</Text>
+                  <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
+              </View>
+              <Pressable 
+                  onPress={() => setIsModalVisible(true)}
+                  className="h-12 bg-gray-100 rounded-xl px-4 flex-row justify-between items-center"
+              >
+                  <Text className={selectedCourse ? "text-gray-800" : "text-gray-400"}>
+                      {selectedCourse ? selectedCourse.name : "Chọn môn học"}
+                  </Text>
+                  <IconArrowDown size={20} color="#9CA3AF" />
+              </Pressable>
+          </View>
 
-                    {/* Ô bên phải: Giá gốc */}
-                    <View className="flex-1">
-                        <Text className="font-bold text-[16px] text-gray-900">Giá gốc</Text>
-                        <TextInput
-                        className="mt-2 h-12 bg-gray-200 border border-gray-200 rounded-xl px-4 text-gray-700 font-semibold"
-                        placeholder="Ví dụ: 150000"
-                        placeholderTextColor="#A1A1A1"
-                        keyboardType="numeric"
-                        value={originalPrice}
-                        onChangeText={setOriginalPrice}
-                        />
-                    </View>
-                    </View>
-        <Text className="mb-2 font-semibold pl-4 mt-4">Mô tả tình trạng*</Text>
-            <TextInput
-            className=" h-36 bg-gray-200 rounded-xl rounded-xl px-4  pl-4 pr-4 mx-4"
-            placeholder="Mô tả tình trạng sách/tài liệu , ghi chú..."
-            value={statusDescribe}
-            onChangeText={(statusDescribe) => setStatusDescribe(statusDescribe)} 
-            />
-            <View className="px-4 mb-4 mt-4">
-            <Text className="text-gray-700 font-semibold mb-2">Địa điểm giao dịch *</Text>
-            <Pressable 
-                onPress={() => setIsLocationModalVisible(true)}
-                className="w-full bg-gray-200 border border-gray-200 rounded-2xl p-4 flex-row justify-between items-center"
-            >
-                <Text className={selectedLocation ? "text-gray-800" : "text-gray-400"}>
-                {selectedLocation ? selectedLocation.name : "Chọn địa điểm giao dịch"}
-                </Text>
-                
-                <IconArrowDown size = {20}/>
-            </Pressable>
-        </View>
-            <Text className="mb-2 font-semibold pl-4 mt-4">Mô tả địa điểm giao dịch*</Text>
-            <TextInput
-            className=" h-36 bg-gray-200 rounded-xl rounded-xl px-4  pl-4 pr-4 mx-4"
-            placeholder="Mô tả địa điểm giao dịch"
-            value={locationDescribe}
-            onChangeText={(locationDescribe) => setLocationDescribe(locationDescribe)} 
-            />
-        
-        <Pressable 
-  className="px-4 mt-6" 
-  onPress={handlePost}
-  disabled={loading} 
->
-  <View 
-    className={`h-[50px] rounded-[48px] items-center justify-center ${loading ? 'bg-gray-400' : 'bg-[#6750A4]'}`}
-  >
-    {loading ? (
-      <ActivityIndicator color="white" />
-    ) : (
-      <Text className="text-white font-bold text-lg"> Đăng Lên</Text>
-    )}
-  </View>
-</Pressable>
+          {/* 5. Tình trạng */}
+          <View className="px-[14px] mt-4">
+              <View className="flex-row mb-2">
+                  <Text className="text-gray-700 font-semibold">Tình trạng sách</Text>
+                  <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
+              </View>
+              <Pressable 
+                  onPress={() => setIsStatusModalVisible(true)}
+                  className="h-12 bg-gray-100 rounded-xl px-4 flex-row justify-between items-center"
+              >
+                  <Text className={selectedStatus ? "text-gray-800" : "text-gray-400"}>
+                      {selectedStatus ? selectedStatus.name : "Chọn tình trạng sách"}
+                  </Text>
+                  <IconArrowDown size={20} color="#9CA3AF" />
+              </Pressable>
+          </View>
 
-        </ScrollView>
-        <Modal 
+          {/* 6. Giá bán & Giá gốc */}
+          <View className="flex-row px-[14px] gap-x-4 mt-4">
+              <View className="flex-1">
+                  <View className="flex-row mb-2">
+                      <Text className="font-bold text-gray-900">Giá bán</Text>
+                      <Text className="font-bold text-red-500 ml-1">*</Text>
+                  </View>
+                  <TextInput
+                      className="h-12 bg-gray-100 rounded-xl px-4 text-gray-700 font-semibold"
+                      placeholder="Ví dụ: 120000"
+                      keyboardType="numeric"
+                      value={price}
+                      onChangeText={setPrice}
+                  />
+              </View>
+              <View className="flex-1">
+                  <Text className="font-bold text-gray-900 mb-2">Giá gốc</Text>
+                  <TextInput
+                      className="h-12 bg-gray-100 rounded-xl px-4 text-gray-700 font-semibold"
+                      placeholder="Ví dụ: 150000"
+                      keyboardType="numeric"
+                      value={originalPrice}
+                      onChangeText={setOriginalPrice}
+                  />
+              </View>
+          </View>
+
+          {/* 7. Mô tả tình trạng */}
+          <View className="px-[14px] mt-4">
+              <View className="flex-row mb-2">
+                  <Text className="text-gray-700 font-semibold">Mô tả tình trạng</Text>
+                  <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
+              </View>
+              <TextInput
+                  className="h-32 bg-gray-100 rounded-xl px-4 py-3 text-gray-700"
+                  placeholder="Mô tả chi tiết tình trạng sách/tài liệu, ghi chú..."
+                  multiline={true}
+                  textAlignVertical="top"
+                  value={statusDescribe}
+                  onChangeText={setStatusDescribe} 
+              />
+          </View>
+
+          {/* 8. Địa điểm */}
+          <View className="px-[14px] mt-4">
+              <View className="flex-row mb-2">
+                  <Text className="text-gray-700 font-semibold">Địa điểm giao dịch</Text>
+                  <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
+              </View>
+              <Pressable 
+                  onPress={() => setIsLocationModalVisible(true)}
+                  className="h-12 bg-gray-100 rounded-xl px-4 flex-row justify-between items-center"
+              >
+                  <Text className={selectedLocation ? "text-gray-800" : "text-gray-400"}>
+                      {selectedLocation ? selectedLocation.name : "Chọn địa điểm"}
+                  </Text>
+                  <IconArrowDown size={20} />
+              </Pressable>
+          </View>
+
+          {/* 9. Mô tả điểm giao dịch */}
+          <View className="px-[14px] mt-4">
+              <View className="flex-row mb-2">
+                  <Text className="text-gray-700 font-semibold">Mô tả điểm giao dịch</Text>
+                  <Text className="font-bold text-[16px] text-red-500 ml-1">*</Text>
+              </View>
+              <TextInput
+                  className="h-32 bg-gray-100 rounded-xl px-4 py-3 text-gray-700"
+                  placeholder="Mô tả chi địa điểm nhận sách/tài liệu, ghi chú...."
+                  multiline={true}
+                  textAlignVertical="top"
+                  value={locationDescribe}
+                  onChangeText={setLocationDescribe} 
+              />
+          </View>
+
+          
+          <View className="px-[14px] mt-8">
+              <Pressable 
+                  onPress={handlePost}
+                  disabled={loading}
+              >
+                  <View className={`h-[52px] rounded-full items-center justify-center ${loading ? 'bg-gray-400' : 'bg-[#6750A4]'}`}>
+                      {loading ? (
+                          <ActivityIndicator color="white" />
+                      ) : (
+                          <Text className="text-white font-bold text-lg">Đăng Lên</Text>
+                      )}
+                  </View>
+              </Pressable>
+          </View>
+      </ScrollView>
+      <Modal 
           visible={isModalVisible} 
           transparent={true} 
           animationType="slide"
@@ -426,6 +500,7 @@ interface InsertPostRequest {
                 </View>
             </View>
             </Modal>
-      </SafeAreaView>
-    );
+      
+  </SafeAreaView>
+);
   }

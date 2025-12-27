@@ -27,7 +27,7 @@ export default function CartItem({
   return (
     <View className="w-full flex-row bg-white ">
       {/* khoảng cách hai bên */}
-      <View className="w-[10px]" />
+     
 
       <Pressable className="bg-white flex-row flex-1 relative rounded-[15px] p-4 gap-6 border border-[#EAEAEA]">
         {/* ẢNH */}
@@ -75,7 +75,7 @@ export default function CartItem({
           </Pressable>
       </Pressable>
 
-      <View className="w-[10px]" />
+     
     </View>
   );
 }
