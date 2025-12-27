@@ -253,6 +253,7 @@ export default function BuyerManagementScreen() {
                 <OrderRequestCard
                   key={item.id}
                   {...item}
+                  isSingle={acceptedOrders.length === 1}
                   isFirst={index === 0}
                   isLast={index === acceptedOrders.length - 1}
                   onChat={() => handleChat(item.buyerPhone)}
