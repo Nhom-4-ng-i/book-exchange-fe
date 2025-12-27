@@ -3,7 +3,7 @@ import IconPhoneOutline from "@/icons/IconPhoneOutline";
 import IconProfileUser from "@/icons/IconProfileUser";
 import { Image } from "expo-image";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Linking, Pressable, Text, View } from "react-native";
 
 export type RequestStatus = "pending" | "accepted" | "rejected" | "completed";
 
@@ -44,6 +44,11 @@ export function OrderRequestCard({
 }: OrderRequestCardProps) {
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("vi-VN").format(value) + "đ";
+
+  const formatPhoneNumber = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, "");
+    return cleaned.startsWith("0") ? cleaned : `0${cleaned}`;
+  };
 
   const isPending = status === "pending";
   const isAccepted = status === "accepted";
@@ -167,7 +172,7 @@ export function OrderRequestCard({
           <View className="mt-1 flex-row items-center gap-2">
             <IconPhoneOutline />
             <Text className="text-bodySmall text-textGray900 font-medium">
-              {buyerPhone}
+              {formatPhoneNumber(buyerPhone)}
             </Text>
           </View>
 
@@ -203,7 +208,10 @@ export function OrderRequestCard({
         {isAccepted && (
           <>
             <Pressable
-              onPress={onChat}
+              onPress={() => {
+                const phoneNumber = `tel:${formatPhoneNumber(buyerPhone)}`;
+                Linking.openURL(phoneNumber);
+              }}
               className="flex-row gap-2 flex-1 bg-textWhite items-center justify-center rounded-lg border border-[#6A4FC3] py-2"
             >
               <IconMessenger2 />

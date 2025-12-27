@@ -11,8 +11,10 @@ import { ArrowLeft } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Linking,
   Pressable,
+  RefreshControl,
   ScrollView,
   Text,
   View,
@@ -31,31 +33,56 @@ export default function BuyerManagementScreen() {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [screenKey, setScreenKey] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const loadOrders = useCallback(async () => {
+  const loadOrders = useCallback(async (opts?: { silent?: boolean }) => {
+    const silent = opts?.silent ?? false;
+
     try {
+      if (!silent) setLoading(true);
+      setError(null);
       await ensureAuthToken();
-      const res = await UserService.getMySalesRouteApiUserSalesGet();
+
+      let res;
+      try {
+        res = await UserService.getMySalesRouteApiUserSalesGet();
+        if (!res) {
+          res = { pending: [], accepted: [], completed: [], rejected: [] };
+        }
+      } catch (err) {
+        console.error("Error fetching sales:", err);
+        throw new Error(
+          "Không thể tải danh sách yêu cầu. Vui lòng thử lại sau."
+        );
+      }
 
       const allOrders = [
-        ...(res.pending || []).map((item: any) => ({
+        ...(Array.isArray(res.pending) ? res.pending : []).map((item: any) => ({
           ...item,
           status: "pending" as RequestStatus,
         })),
-        ...(res.accepted || []).map((item: any) => ({
-          ...item,
-          status: "accepted" as RequestStatus,
-        })),
-        ...(res.completed || []).map((item: any) => ({
-          ...item,
-          status: "completed" as RequestStatus,
-        })),
-        ...(res.rejected || []).map((item: any) => ({
-          ...item,
-          status: "rejected" as RequestStatus,
-        })),
+        ...(Array.isArray(res.accepted) ? res.accepted : []).map(
+          (item: any) => ({
+            ...item,
+            status: "accepted" as RequestStatus,
+          })
+        ),
+        ...(Array.isArray(res.completed) ? res.completed : []).map(
+          (item: any) => ({
+            ...item,
+            status: "completed" as RequestStatus,
+          })
+        ),
+        ...(Array.isArray(res.rejected) ? res.rejected : []).map(
+          (item: any) => ({
+            ...item,
+            status: "rejected" as RequestStatus,
+          })
+        ),
       ];
 
       const normalized = allOrders.map((item: any) => ({
@@ -77,8 +104,13 @@ export default function BuyerManagementScreen() {
       setOrders(normalized);
       return normalized;
     } catch (err) {
-      console.log("Failed to load orders:", err);
-      throw err;
+      console.error("Failed to load orders:", err);
+      setError(
+        err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải dữ liệu"
+      );
+    } finally {
+      if (!silent) setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -87,19 +119,30 @@ export default function BuyerManagementScreen() {
   }, []);
 
   const withReload = useCallback(
-    async (apiCall: () => Promise<any>) => {
+    async (apiCall: () => Promise<any>, message?: string) => {
       try {
-        setActionLoading(true);
+        setIsSubmitting(true);
         await ensureAuthToken();
         await apiCall();
-        hardReload();
+
+        if (message) {
+          setSuccessMessage(message);
+          setTimeout(() => setSuccessMessage(null), 3000);
+        }
+
+        await loadOrders({ silent: true });
       } catch (err) {
-        console.log("Order action error:", err);
+        console.error("Order action error:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Đã xảy ra lỗi khi thực hiện thao tác"
+        );
       } finally {
-        setActionLoading(false);
+        setIsSubmitting(false);
       }
     },
-    [hardReload]
+    [loadOrders]
   );
 
   const handleChat = useCallback(async (phone: string) => {
@@ -114,46 +157,85 @@ export default function BuyerManagementScreen() {
 
   const handleAccept = useCallback(
     async (orderId: number) => {
-      await withReload(() =>
-        OrdersService.acceptOrderRouteApiOrdersOrderIdAcceptPost(orderId)
-      );
+      Alert.alert("Xác nhận", "Bạn có chắc chắn muốn chấp nhận yêu cầu này?", [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Chấp nhận",
+          style: "default",
+          onPress: async () => {
+            await withReload(
+              () =>
+                OrdersService.acceptOrderRouteApiOrdersOrderIdAcceptPost(
+                  orderId
+                ),
+              "Đã chấp nhận yêu cầu mua hàng thành công!"
+            );
+          },
+        },
+      ]);
     },
     [withReload]
   );
 
   const handleReject = useCallback(
     async (orderId: number) => {
-      await withReload(() =>
-        OrdersService.rejectOrderRouteApiOrdersOrderIdRejectPost(orderId)
-      );
+      Alert.alert("Xác nhận", "Bạn có chắc chắn muốn từ chối yêu cầu này?", [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Từ chối",
+          style: "destructive",
+          onPress: async () => {
+            await withReload(
+              () =>
+                OrdersService.rejectOrderRouteApiOrdersOrderIdRejectPost(
+                  orderId
+                ),
+              "Đã từ chối yêu cầu mua hàng!"
+            );
+          },
+        },
+      ]);
     },
     [withReload]
   );
 
   const handleComplete = useCallback(
     async (orderId: number) => {
-      await withReload(() =>
-        OrdersService.completeOrderRouteApiOrdersOrderIdCompletePost(orderId)
-      );
+      Alert.alert("Xác nhận", "Bạn có chắc chắn đã bán sách này?", [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xác nhận",
+          onPress: async () => {
+            await withReload(
+              () =>
+                OrdersService.completeOrderRouteApiOrdersOrderIdCompletePost(
+                  orderId
+                ),
+              "Đã xác nhận bán sách thành công!"
+            );
+          },
+        },
+      ]);
     },
     [withReload]
   );
 
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadOrders({ silent: true }).catch(console.error);
+  }, [loadOrders]);
+
   useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      setLoading(true);
-      try {
-        await loadOrders();
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
+    loadOrders().catch(console.error);
   }, [loadOrders]);
 
   const { newOrders, acceptedOrders, completedOrders, rejectedOrders } =
@@ -196,16 +278,33 @@ export default function BuyerManagementScreen() {
           <View className="w-8" />
         </View>
 
-        {actionLoading && (
-          <View className="absolute top-0 left-0 right-0 z-10 items-center justify-center py-2 bg-black/5">
-            <ActivityIndicator size="small" color="#5E3EA1" />
+        {successMessage && (
+          <View className="px-6 py-2">
+            <View className="bg-green-100 border border-green-400 rounded-lg p-3">
+              <Text className="text-green-700 text-center">
+                {successMessage}
+              </Text>
+            </View>
           </View>
         )}
 
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ paddingBottom: 40 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={["#5E3EA1"]}
+              tintColor="#5E3EA1"
+            />
+          }
         >
+          {error && (
+            <View className="px-6 py-2 bg-red-50">
+              <Text className="text-red-600 text-center">{error}</Text>
+            </View>
+          )}
           {/* YÊU CẦU MỚI */}
           <View className="px-6 mt-2">
             <Text className="mb-4 text-heading5 font-semibold text-textPrimary900">
