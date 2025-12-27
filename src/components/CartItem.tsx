@@ -74,6 +74,7 @@ export default function CartItem({
             <TrashIcon width={20} height={20} />
           </Pressable>
       </Pressable>
+      
 
      
     </View>

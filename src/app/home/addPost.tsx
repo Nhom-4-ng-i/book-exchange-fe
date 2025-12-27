@@ -148,7 +148,6 @@ interface InsertPostRequest {
       //   }
       // };
       const handlePost = async () => {
-        // 1. Kiểm tra đầu vào
         if (!title || !selectedCourse || !selectedStatus || !price || !selectedLocation || !image) {
             Alert.alert("Lỗi", "Vui lòng điền đầy đủ các thông tin có dấu (*)");
             return;
@@ -156,11 +155,11 @@ interface InsertPostRequest {
     
         try {
             setLoading(true);
-            await ensureAuthToken();
+            const token = await AsyncStorage.getItem("access_token");
             
             const formData = new FormData();         
             
-            // CÁC TRƯỜNG TEXT - Ép kiểu về String để FormData xử lý chuẩn
+            // 1. Thêm các trường Text (ép kiểu String)
             formData.append('book_title', title);
             formData.append('author', author || "Không rõ");
             formData.append('course_id', String(selectedCourse?.id));
@@ -168,36 +167,50 @@ interface InsertPostRequest {
             formData.append('price', String(price));
             formData.append('location_id', String(selectedLocation?.id));
             formData.append('original_price', String(originalPrice || 0));
-            formData.append('description', statusDescribe || "sách mới");
+            formData.append('description', statusDescribe || "Sách còn tốt");
             formData.append('location_detail', locationDescribe || "");
     
-            // 2. XỬ LÝ FILE ẢNH (Phần quan trọng nhất)
-            const filename = image.split('/').pop() || 'upload.png';
-            const match = /\.(\w+)$/.exec(filename);
-            const type = match ? `image/${match[1]}` : `image/png`;
+            // 2. XỬ LÝ FILE ẢNH (Quan trọng: Xử lý cả Web và Native)
+            if (image.startsWith('blob:')) {
+                // Trường hợp chạy trên WEB/Localhost
+                const responseBlob = await fetch(image);
+                const blob = await responseBlob.blob();
+                formData.append('image', blob);
+            } else {
+                // Trường hợp chạy trên Điện thoại (Native)
+                const filename = image.split('/').pop() || 'upload.jpg';
+                const match = /\.(\w+)$/.exec(filename);
+                const type = match ? `image/${match[1]}` : `image/jpeg`;
     
-            // Tạo object đại diện cho file
-            const imageFile = {
-                uri: image,    // Đường dẫn local trên máy
-                name: filename, // Tên file
-                type: type,     // Định dạng file
-            };
+                formData.append('image', {
+                    uri: image,
+                    name: filename,
+                    type: type,
+                } as any);
+            }
     
-            formData.append('image', imageFile as any);
+            // 3. Gửi Request
+            const response = await fetch('http://160.187.246.140:8000/api/posts/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                },
+                body: formData,
+            });
     
-            
-            const response = await PostsService.insertPostRouteApiPostsPost(formData as any);
-            
-            
-            console.log(">>> Kết quả từ Server:", response);
+            const responseData = await response.json();
     
-            Alert.alert("Thành công", "Đã đăng bài thành công!", [
-                { text: "OK", onPress: () => router.replace('/home') }
-            ]);
+            if (response.ok) {
+                
+            } else {
+                console.error("Lỗi server:", responseData);
+                Alert.alert("Thất bại", responseData?.detail?.[0]?.msg || "Dữ liệu không hợp lệ.");
+            }
     
-        } catch (err: any) {
-            console.error("Lỗi chi tiết:", err.response?.data || err);
-            Alert.alert("Lỗi", "Không thể đăng bài. Vui lòng kiểm tra lại dữ liệu.");
+        } catch (err) {
+            console.error("Lỗi kết nối:", err);
+            Alert.alert("Lỗi", "Không thể kết nối đến máy chủ.");
         } finally {
             setLoading(false);
         }

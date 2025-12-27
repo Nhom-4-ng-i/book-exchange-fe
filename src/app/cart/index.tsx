@@ -155,7 +155,12 @@ export default function Index() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
+  const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const openDetail = (order: OrderItem) => {
+    setSelectedOrder(order);
+    setIsDetailModalVisible(true);
+  };
   const fetchOrders = async () => {
     try {
       const token = await AsyncStorage.getItem("access_token");
@@ -268,6 +273,7 @@ export default function Index() {
         </>
       )}
       <BottomNav />
+      
     </View>
   );
 }
