@@ -378,7 +378,7 @@ className="flex-1"
 onPress={() => setIsDetailModalVisible(false)}
 />
 
-<View className="bg-white h-[95%] rounded-t-[32px] overflow-hidden">
+<View className="bg-white h-[85%] rounded-t-[32px] overflow-hidden">
 <View className="items-center py-3">
 <View className="w-12 h-1.5 bg-gray-300 rounded-full" />
 </View>
