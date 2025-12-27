@@ -19,7 +19,7 @@ import {
   import IconBack from '@/icons/IconBack';
   import IconArrowDown from '@/icons/IconArrowDown'
   import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Icon } from "lucide-react-native";
+
   async function ensureAuthToken() {
     const token = await AsyncStorage.getItem("access_token");
     
@@ -70,23 +70,22 @@ interface InsertPostRequest {
 
    
     const pickImage = async () => {
-     
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
       if (status !== 'granted') {
         Alert.alert('Thông báo', 'Chúng tôi cần quyền truy cập thư viện ảnh!');
         return;
       }
-  
-     
+    
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'], 
         allowsEditing: true, 
         aspect: [1, 1],
         quality: 1,
       });
-  
+      
+    
       if (!result.canceled) {
+        console.log(result.assets[0].uri) ;
         setImage(result.assets[0].uri);
       }
     };
@@ -149,47 +148,61 @@ interface InsertPostRequest {
       //   }
       // };
       const handlePost = async () => {
+        // 1. Kiểm tra đầu vào
         if (!title || !selectedCourse || !selectedStatus || !price || !selectedLocation || !image) {
             Alert.alert("Lỗi", "Vui lòng điền đầy đủ các thông tin có dấu (*)");
             return;
         }
-
+    
         try {
             setLoading(true);
             await ensureAuthToken();
-
-           
-            let finalImageUrl = ''; 
             
-
-            const requestBody: InsertPostRequest = {
-                book_title: title,
-                author: author || "Không rõ",
-                course_id: Number(selectedCourse?.id),
-                book_status_id: Number(selectedStatus?.id),
-                price: Number(price) || 0,
-                location_id: Number(selectedLocation?.id),
-                original_price: Number(originalPrice) || 0,
-                description: statusDescribe || "Chưa có mô tả",
-                location_detail: locationDescribe || "Chưa có chi tiết địa điểm",
-                avatar_url: finalImageUrl,
+            const formData = new FormData();         
+            
+            // CÁC TRƯỜNG TEXT - Ép kiểu về String để FormData xử lý chuẩn
+            formData.append('book_title', title);
+            formData.append('author', author || "Không rõ");
+            formData.append('course_id', String(selectedCourse?.id));
+            formData.append('book_status_id', String(selectedStatus?.id));
+            formData.append('price', String(price));
+            formData.append('location_id', String(selectedLocation?.id));
+            formData.append('original_price', String(originalPrice || 0));
+            formData.append('description', statusDescribe || "sách mới");
+            formData.append('location_detail', locationDescribe || "");
+    
+            // 2. XỬ LÝ FILE ẢNH (Phần quan trọng nhất)
+            const filename = image.split('/').pop() || 'upload.png';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : `image/png`;
+    
+            // Tạo object đại diện cho file
+            const imageFile = {
+                uri: image,    // Đường dẫn local trên máy
+                name: filename, // Tên file
+                type: type,     // Định dạng file
             };
-            console.log("DỮ LIỆU GỬI ĐI:", JSON.stringify(requestBody, null, 2)); 
-
-            const result = await PostsService.insertPostRouteApiPostsPost(requestBody);
-
-            if (result) {
-                Alert.alert("Thành công", "Bài đăng của bạn đã được khởi tạo!", [
-                    { text: "Về trang chủ", onPress: () => router.replace('/home') }
-                ]);
-            }
+    
+            formData.append('image', imageFile as any);
+    
+            
+            const response = await PostsService.insertPostRouteApiPostsPost(formData as any);
+            
+            
+            console.log(">>> Kết quả từ Server:", response);
+    
+            Alert.alert("Thành công", "Đã đăng bài thành công!", [
+                { text: "OK", onPress: () => router.replace('/home') }
+            ]);
+    
         } catch (err: any) {
-            console.error("Post Error detail:", err.response?.data); 
-            Alert.alert("Lỗi", "Validation Error (422): Vui lòng kiểm tra định dạng dữ liệu.");
+            console.error("Lỗi chi tiết:", err.response?.data || err);
+            Alert.alert("Lỗi", "Không thể đăng bài. Vui lòng kiểm tra lại dữ liệu.");
         } finally {
             setLoading(false);
         }
     };
+    
       useEffect(() => {
         loadCourses();
         loadLocations();

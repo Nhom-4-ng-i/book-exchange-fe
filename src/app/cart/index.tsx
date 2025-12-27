@@ -131,6 +131,26 @@ import BottomNav from '@/components/BottomNav'
 import CartItem from '@/components/CartItem';
 import AppHeader from "@/components/HeaderHome";
 
+interface OrderItem {
+  order_id: number;
+  order_time: string; // Định dạng "DD/MM/YYYY HH:mm:ss"
+  order_status: string; // VD: "Chờ xác nhận"
+  order_status_code: string; // VD: "PENDING"
+  title: string;
+  author: string;
+  price: number;
+  avatar_url: string;
+  course: string;
+  location: string;
+  book_status: string;
+  book_status_code: string | null;
+  post_status: string;
+  post_status_code: string | null;
+  seller_name: string;
+  seller_phone: string | null;
+  buyer_name: string;
+  buyer_phone: string | null;
+}
 export default function Index() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,7 +164,15 @@ export default function Index() {
         OpenAPI.TOKEN = token;
       }
       const response = await UserService.getMyOrdersRouteApiUserOrdersGet(); 
-      setOrders(response); 
+      const finalData = response
+      
+      .filter((item : OrderItem)=> item.order_status === "Chờ xác nhận")
+      
+      
+      .sort((a : any, b : any) => b.order_id - a.order_id);
+
+    setOrders(finalData);
+       
     } catch (error) {
       console.error("Lỗi fetch orders:", error);
     } finally {
@@ -197,7 +225,7 @@ export default function Index() {
         <ActivityIndicator size="large" color="#54408C" className="mt-10" />
       ) : (
         <>
-          {/* Thay ml-4 thành px-[14px] để chữ "Đang xử lý" thẳng hàng với lề 14px */}
+        
           <View className="px-[14px] mt-4">
             <Text className='font-bold text-[18px] text-textGray900'>
               Đang xử lý ({orders.length})

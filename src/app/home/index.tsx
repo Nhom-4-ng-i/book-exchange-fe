@@ -74,11 +74,13 @@ const [selectedPost, setSelectedPost] = useState<any>(null);
 const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
 const route = useRouter() ;
 const [orderLoading, setOrderLoading] = useState(false);
+const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
 const handleCreateOrder = async () => {
 if (!selectedPost?.id) return;
 try {
 setOrderLoading(true);
+setIsDetailModalVisible(false);
 await ensureAuthToken();
 
 
@@ -86,17 +88,10 @@ const requestBody = {
 post_id: selectedPost.id,
 buyer_note: ""
 };
-const result = await OrdersService.insertOrderRouteApiOrdersPost(requestBody);
-if (result) {
-Alert.alert("Thành công", "Đã gửi yêu cầu đặt mua sách!", [
-{
-text: "Đóng",
-onPress: () => {
-setIsDetailModalVisible(false);
-}
-}
-]);
-}
+await OrdersService.insertOrderRouteApiOrdersPost(requestBody);
+    setIsDetailModalVisible(false);
+    setIsSuccessModalVisible(true);
+
 } catch (err: any) {
 console.error("Lỗi đặt hàng:", err);
 Alert.alert("Thông báo", "Có lỗi xảy ra khi đặt hàng, vui lòng thử lại.");
@@ -201,39 +196,47 @@ edges={["left", "right", "bottom"]}
 
 {/* ################################### */}
 {isSearching ? (
-<View className="px-4 py-2 bg-white flex-row">
-<Pressable onPress={() => {
-    setIsSearching(false);
-    setSearchQuery("");
-  }} className="mt-2 mr-3">
-<IconBack/>
-</Pressable>
-<View className="flex-row items-center bg-[#F2E7E7] rounded-[10px] px-4 h-10 border border-gray-100">
-<View className="flex-1 flex-row items-center">
-<IconSearch />
-<TextInput
-className="flex-1 ml-2 text-base text-gray-700"
-placeholder={`Tìm kiếm`}
-value={searchQuery}
-onChangeText={setSearchQuery}
-onSubmitEditing={loadPosts}
-/>
-</View>
+  <View className="px-[14px] py-2 bg-white flex-row items-center h-14 border-b border-gray-100">
+    {/* Nút Quay lại - Margin Right 12px để tách biệt */}
+    <Pressable 
+      onPress={() => {
+        setIsSearching(false);
+        setSearchQuery("");
+      }} 
+      className="mr-3 hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}" // Tăng vùng chạm cho iPhone
+    >
+      <IconBack />
+    </Pressable>
 
-<View className="w-[1px] h-6 bg-gray-300 mx-2" />
+    {/* Khung Search */}
+    <View className="flex-1 flex-row items-center bg-[#F2E7E7] rounded-[10px] px-3 h-10">
+      <IconSearch  />
+      <TextInput
+        className="flex-1 ml-2 text-[16px] text-gray-700 h-full" // iPhone nên để text 16px để tránh tự động zoom
+        placeholder="Tìm kiếm..."
+        value={searchQuery}
+        autoFocus={true} // Tự động mở bàn phím khi hiện thanh search
+        onChangeText={setSearchQuery}
+        onSubmitEditing={loadPosts}
+        returnKeyType="search"
+      />
 
-{/* Nút chọn tiêu chí */}
-<Pressable
-className="flex-row items-center pr-2"
-onPress={() => setIsDropdownVisible(true)}
->
-<Text className="text-gray-500 mr-1">{searchLabel}</Text>
-<IconArrowDown size ={20}/>
-</Pressable>
-</View>
+      {/* Đường vạch ngăn cách */}
+      <View className="w-[1px] h-5 bg-gray-300 mx-2" />
 
-</View>
-) : <HeaderHome title = 'Trang chủ' onSearchPress={() => setIsSearching(true)}/>}
+      {/* Nút chọn tiêu chí */}
+      <Pressable
+        className="flex-row items-center py-1"
+        onPress={() => setIsDropdownVisible(true)}
+      >
+        <Text className="text-gray-500 text-[12px] mr-1">{searchLabel}</Text>
+        <IconArrowDown size={16} />
+      </Pressable>
+    </View>
+  </View>
+) : (
+  <HeaderHome title='Trang chủ' onSearchPress={() => setIsSearching(true)} />
+)}
 
 {/* Modal chọn tiêu chí (Dropdown) */}
 <Modal visible={isDropdownVisible} transparent>
@@ -297,7 +300,7 @@ onPress={() => setSelectedCategory(null)}
 key={index}
 className={`px-2 py-1 rounded-lg ${
 selectedCategory === c.name
-? "bg-gray-500"
+? "bg-gray-500/20"
 : "border border-[#E5E5E5]"
 }`}
 onPress={() => setSelectedCategory(c.name)}
@@ -476,6 +479,45 @@ onPress={() => {/* Xử lý liên hệ */}}
 </View>
 </View>
 </View>
+</Modal>
+<Modal
+  visible={isSuccessModalVisible}
+  transparent={true}
+  animationType="fade"
+>
+  <View className="flex-1 bg-black/60 justify-center items-center px-[14px]">
+    <View className="bg-white w-full rounded-[24px] p-6 items-center">
+      {/* Icon Thành Công */}
+      <View className="w-20 h-20 bg-green-100 rounded-full items-center justify-center mb-4">
+        <Ionicons name="checkmark-circle" size={60} color="#10B981" />
+      </View>
+
+      <Text className="text-[20px] font-bold text-gray-900 mb-2">Đặt mua thành công!</Text>
+      <Text className="text-gray-500 text-center mb-8 px-4">
+        Yêu cầu của bạn đã được gửi đến người bán. Bạn có thể theo dõi đơn hàng trong Giỏ hàng.
+      </Text>
+
+      
+      <View className="w-full gap-y-3">
+        <Pressable 
+          className="w-full bg-[#54408C] h-[52px] rounded-full items-center justify-center"
+          onPress={() => {
+            setIsSuccessModalVisible(false);
+            route.push('/cart'); 
+          }}
+        >
+          <Text className="text-white font-bold text-base">Xem đơn hàng</Text>
+        </Pressable>
+
+        <Pressable 
+          className="w-full h-[52px] items-center justify-center"
+          onPress={() => setIsSuccessModalVisible(false)}
+        >
+          <Text className="text-gray-400 font-medium">Tiếp tục mua sắm</Text>
+        </Pressable>
+      </View>
+    </View>
+  </View>
 </Modal>
 
 {!isSearching && <BottomNav />}
