@@ -2,15 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { InsertPostRequest } from '../models/InsertPostRequest';
-import type { UpdatePostRequest } from '../models/UpdatePostRequest';
+import type { Body_insert_post_route_api_posts__post } from '../models/Body_insert_post_route_api_posts__post';
+import type { Body_update_post_route_api_posts__post_id__put } from '../models/Body_update_post_route_api_posts__post_id__put';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class PostsService {
     /**
      * Get Posts List Route
-     * @param status
      * @param bookTitle
      * @param author
      * @param bookStatus
@@ -25,7 +24,6 @@ export class PostsService {
      * @throws ApiError
      */
     public static getPostsListRouteApiPostsGet(
-        status?: (Array<string> | null),
         bookTitle?: (string | null),
         author?: (string | null),
         bookStatus?: (string | null),
@@ -41,7 +39,6 @@ export class PostsService {
             method: 'GET',
             url: '/api/posts/',
             query: {
-                'status': status,
                 'book_title': bookTitle,
                 'author': author,
                 'book_status': bookStatus,
@@ -60,18 +57,18 @@ export class PostsService {
     }
     /**
      * Insert Post Route
-     * @param requestBody
+     * @param formData
      * @returns any Successful Response
      * @throws ApiError
      */
     public static insertPostRouteApiPostsPost(
-        requestBody: InsertPostRequest,
+        formData: Body_insert_post_route_api_posts__post,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/posts/',
-            body: requestBody,
-            mediaType: 'application/json',
+            formData: formData,
+            mediaType: 'multipart/form-data',
             errors: {
                 422: `Validation Error`,
             },
@@ -100,13 +97,13 @@ export class PostsService {
     /**
      * Update Post Route
      * @param postId
-     * @param requestBody
+     * @param formData
      * @returns any Successful Response
      * @throws ApiError
      */
     public static updatePostRouteApiPostsPostIdPut(
         postId: number,
-        requestBody: UpdatePostRequest,
+        formData?: Body_update_post_route_api_posts__post_id__put,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'PUT',
@@ -114,8 +111,8 @@ export class PostsService {
             path: {
                 'post_id': postId,
             },
-            body: requestBody,
-            mediaType: 'application/json',
+            formData: formData,
+            mediaType: 'multipart/form-data',
             errors: {
                 422: `Validation Error`,
             },

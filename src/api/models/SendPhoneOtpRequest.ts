@@ -2,8 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type VerifyPhoneOtpRequest = {
+export type SendPhoneOtpRequest = {
     phone: string;
-    token: string;
 };
 
