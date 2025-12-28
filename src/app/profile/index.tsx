@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -27,12 +27,13 @@ type Profile = {
   count_posts?: number;
   count_orders?: number;
   count_sold_orders?: number;
+  count_completed_orders?: number;
 };
 
 type ProfileCounters = {
   totalPosts: number;
-  soldOrders: number;
-  boughtOrders: number;
+  count_sold_orders: number;
+  count_completed_orders: number;
   sellingPosts: number;
   newBuyerRequests: number;
 };
@@ -42,8 +43,8 @@ export default function ProfileScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [counters, setCounters] = useState<ProfileCounters>({
     totalPosts: 0,
-    soldOrders: 0,
-    boughtOrders: 0,
+    count_sold_orders: 0,
+    count_completed_orders: 0,
     sellingPosts: 0,
     newBuyerRequests: 0,
   });
@@ -61,71 +62,63 @@ export default function ProfileScreen() {
     initApiConfig();
   }, []);
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const userJson = await AsyncStorage.getItem("user");
-        if (!userJson) {
-          router.replace("/auth/login");
-          return;
-        }
-
-        const user = JSON.parse(userJson) as {
-          id: string;
-          name?: string;
-          email?: string;
-        };
-
-        const token = await AsyncStorage.getItem("access_token");
-        if (token) {
-          OpenAPI.TOKEN = token;
-          OpenAPI.BASE = "http://160.187.246.140:8000";
-        }
-
-        const [profileRes, myPosts, myOrders] = await Promise.all([
-          UserService.getMyProfileRouteApiUserMeGet(),
-          UserService.getMyPostsRouteApiUserPostsGet(),
-          UserService.getMyOrdersRouteApiUserOrdersGet(),
-        ]);
-
-        setProfile(profileRes as Profile);
-
-        console.log("PROFILE:", profileRes);
-
-        const p = profileRes as Profile;
-
-        const totalPosts = p.count_posts ?? 0;
-        const soldOrders = p.count_sold_orders ?? 0;
-        const boughtOrders = p.count_orders ?? 0;
-
-        const sellingPosts = (myPosts as any[]).filter((p) => {
-          return (
-            p.post_status === "Đang bán" ||
-            p.status === "Đang bán" ||
-            p.status_text === "Đang bán"
-          );
-        }).length;
-
-        const newBuyerRequests = (myOrders as any[]).filter(
-          (o) => o.order_status === "Chờ xác nhận"
-        ).length;
-
-        setCounters({
-          totalPosts,
-          soldOrders,
-          boughtOrders,
-          sellingPosts,
-          newBuyerRequests,
-        });
-      } catch (err) {
-        console.log("Fetch profile / stats error:", err);
-      } finally {
-        setLoading(false);
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const userJson = await AsyncStorage.getItem("user");
+      if (!userJson) {
+        router.replace("/auth/login");
+        return;
       }
-    };
 
-    fetchAll();
+      const token = await AsyncStorage.getItem("access_token");
+      if (token) {
+        OpenAPI.TOKEN = token;
+        OpenAPI.BASE = "http://160.187.246.140:8000";
+      }
+
+      const [profileRes, myPosts, salesData] = await Promise.all([
+        UserService.getMyProfileRouteApiUserMeGet(),
+        UserService.getMyPostsRouteApiUserPostsGet(),
+        UserService.getMySalesRouteApiUserSalesGet(),
+      ]);
+
+      setProfile(profileRes as Profile);
+
+      const p = profileRes as Profile;
+
+      const totalPosts = p.count_posts ?? 0;
+      const count_sold_orders = p.count_sold_orders ?? 0;
+      const count_completed_orders = p.count_completed_orders ?? 0;
+
+      const sellingPosts = (myPosts as any[]).filter((p) => {
+        return (
+          p.post_status === "Đang bán" ||
+          p.status === "Đang bán" ||
+          p.status_text === "Đang bán"
+        );
+      }).length;
+
+      // Count pending requests from sales data
+      const newBuyerRequests = salesData?.pending?.length || 0;
+
+      setCounters({
+        totalPosts,
+        count_sold_orders,
+        count_completed_orders,
+        sellingPosts,
+        newBuyerRequests,
+      });
+    } catch (err) {
+      console.log("Fetch profile / stats error:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [router]);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("access_token");
@@ -160,15 +153,32 @@ export default function ProfileScreen() {
       >
         <ProfileHeader
           name={profile?.name ?? "Người dùng"}
-          phone={profile?.phone ?? "087656534"}
+          phone={
+            profile?.phone
+              ? profile.phone.startsWith("0")
+                ? profile.phone
+                : `0${profile.phone}`
+              : "Chưa có số điện thoại"
+          }
           onLogout={handleLogout}
+          onPhoneUpdated={(newPhone) => {
+            const formattedPhone = newPhone.startsWith("0")
+              ? newPhone
+              : `0${newPhone}`;
+            setProfile((prev) =>
+              prev ? { ...prev, phone: formattedPhone } : prev
+            );
+          }}
         />
 
         <View className="mx-6 mb-4 mt-4 rounded-2xl ">
           <View className="flex-row justify-between gap-3">
             <ProfileStat label="Đã đăng" value={counters.totalPosts} />
-            <ProfileStat label="Đã bán" value={counters.soldOrders} />
-            <ProfileStat label="Đã mua" value={counters.boughtOrders} />
+            <ProfileStat label="Đã bán" value={counters.count_sold_orders} />
+            <ProfileStat
+              label="Đã mua"
+              value={counters.count_completed_orders}
+            />
           </View>
         </View>
 

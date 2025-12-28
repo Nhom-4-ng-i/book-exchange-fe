@@ -58,6 +58,7 @@ function RootLayout() {
 
       <Stack.Screen name="auth/login/index" options={{ headerShown: false }} />
       <Stack.Screen name="auth/phone/index" options={{ headerShown: false }} />
+      <Stack.Screen name="auth/phone/otp" options={{ headerShown: false }} />
 
       <Stack.Screen name="profile/index" options={{ headerShown: false }} />
       <Stack.Screen name="profile/my-posts" options={{ headerShown: false }} />
@@ -68,6 +69,10 @@ function RootLayout() {
       <Stack.Screen name="profile/wishlist" options={{ headerShown: false }} />
       <Stack.Screen
         name="profile/wishlist-create"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="profile/wishlist-edit"
         options={{ headerShown: false }}
       />
 

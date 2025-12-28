@@ -50,7 +50,7 @@ export default function PhoneNumberScreen() {
     checkPhone();
   }, []);
 
-  const countryCode = "(+965)";
+  const countryCode = "(+84)";
 
   const formatted = useMemo(() => {
     const s = digits.replace(/\D/g, "");
@@ -76,10 +76,11 @@ export default function PhoneNumberScreen() {
       setSubmitting(true);
       setError(null);
 
-      await AuthService.updatePhoneRouteApiAuthPhonePut({
-        phone: digits,
-      });
+      const phoneNumberWithCountryCode = `+84${digits}`;
 
+      await AuthService.updatePhoneRouteApiAuthPhonePut({
+        phone: phoneNumberWithCountryCode,
+      });
       router.replace("/success");
     } catch (e) {
       console.log("Update phone error:", e);
@@ -98,7 +99,7 @@ export default function PhoneNumberScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white h-full">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
@@ -109,26 +110,36 @@ export default function PhoneNumberScreen() {
           <Text className="text-2xl font-bold text-center mt-4">
             Số điện thoại
           </Text>
-          <Text className="text-[#A6A6A6] text-center mt-2 mb-6">
-            Vui lòng nhập số điện thoại của bạn
+          <Text className="text-[#A6A6A6] text-center mt-2 mb-6 font-normal">
+            Vui lòng nhập số điện thoại của bạn để chúng tôi có thể giao hàng dễ
+            dàng hơn
           </Text>
 
           {error && <Text className="mb-3 text-sm text-red-500">{error}</Text>}
 
-          <View>
+          <View className="mt-2">
             <Text className="font-medium mb-2 text-sm">Số điện thoại</Text>
-            <View className="flex-row items-center bg-gray-50 rounded-lg h-14 px-3">
-              <View className="flex-row items-center mr-2">
+            <View className="flex-row justify-center items-center bg-gray-50 rounded-lg h-14 px-3">
+              <View className="flex-row items-center mr-1">
                 <IconPhone />
-                <Text className="ml-1 font-semibold">{countryCode}</Text>
+                <Text className="ml-1 text-[16px] text-gray-900 font-semibold">
+                  {countryCode}
+                </Text>
               </View>
 
               <TextInput
-                className="flex-1 text-[16px]"
+                style={{
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                  lineHeight: 20,
+                }}
+                className="flex-1 text-[16px] text-gray-900"
                 value={formatted}
                 onChangeText={onTextChange}
                 keyboardType="phone-pad"
-                placeholder="123 456 789"
+                placeholder="123 435 7565"
+                placeholderTextColor="#9CA3AF"
+                onPress={submitPhone}
                 editable={!submitting}
               />
             </View>
@@ -139,12 +150,12 @@ export default function PhoneNumberScreen() {
           <Pressable
             disabled={!canContinue}
             onPress={submitPhone}
-            className="bg-textPrimary500 h-14 rounded-[28px] items-center justify-center disabled:bg-violet-300"
+            className="bg-textPrimary500 h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
           >
             {submitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="text-white font-bold">Tiếp tục</Text>
+              <Text className="text-white font-bold text-base">Tiếp tục</Text>
             )}
           </Pressable>
         </View>

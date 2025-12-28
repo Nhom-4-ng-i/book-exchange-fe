@@ -1,6 +1,9 @@
+import IconMessenger2 from "@/icons/IconMessenger2";
+import IconPhoneOutline from "@/icons/IconPhoneOutline";
+import IconProfileUser from "@/icons/IconProfileUser";
 import { Image } from "expo-image";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Linking, Pressable, Text, View } from "react-native";
 
 export type RequestStatus = "pending" | "accepted" | "rejected" | "completed";
 
@@ -41,6 +44,11 @@ export function OrderRequestCard({
 }: OrderRequestCardProps) {
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("vi-VN").format(value) + "đ";
+
+  const formatPhoneNumber = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, "");
+    return cleaned.startsWith("0") ? cleaned : `0${cleaned}`;
+  };
 
   const isPending = status === "pending";
   const isAccepted = status === "accepted";
@@ -122,9 +130,7 @@ export function OrderRequestCard({
       <View className="flex-row items-start gap-4">
         <View className="rounded-md bg-gray-200">
           <Image
-            source={{
-              uri: "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328",
-            }}
+            source={{ uri: imageUri }}
             style={{ width: 60, height: 92, borderRadius: 6 }}
             contentFit="cover"
           />
@@ -157,16 +163,16 @@ export function OrderRequestCard({
 
         <View className="gap-1">
           <View className="flex-row items-center gap-2">
-            <Text className="text-bodySmall">👤</Text>
+            <IconProfileUser />
             <Text className="text-bodySmall text-textGray900 font-medium">
               {buyerName}
             </Text>
           </View>
 
           <View className="mt-1 flex-row items-center gap-2">
-            <Text className="text-bodySmall">📞</Text>
+            <IconPhoneOutline />
             <Text className="text-bodySmall text-textGray900 font-medium">
-              {buyerPhone}
+              {formatPhoneNumber(buyerPhone)}
             </Text>
           </View>
 
@@ -202,11 +208,15 @@ export function OrderRequestCard({
         {isAccepted && (
           <>
             <Pressable
-              onPress={onChat}
-              className="flex-1 bg-textWhite items-center justify-center rounded-lg border border-[#6A4FC3] py-2"
+              onPress={() => {
+                const phoneNumber = `tel:${formatPhoneNumber(buyerPhone)}`;
+                Linking.openURL(phoneNumber);
+              }}
+              className="flex-row gap-2 flex-1 bg-textWhite items-center justify-center rounded-lg border border-[#6A4FC3] py-2"
             >
+              <IconMessenger2 />
               <Text className="text-bodyMedium font-medium text-[#6A4FC3]">
-                💬 Chat
+                Chat
               </Text>
             </Pressable>
 
