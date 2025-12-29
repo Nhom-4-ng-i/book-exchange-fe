@@ -1,8 +1,8 @@
 import { NotificationsService } from "@/api";
 import BottomNav from "@/components/BottomNav";
+import IconBack from "@/icons/IconBack";
 import IconBell from "@/icons/IconBell";
 import { router } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -196,7 +196,7 @@ export default function NotificationScreen() {
           className="rounded-full p-2 active:opacity-70"
           hitSlop={10}
         >
-          <ArrowLeft size={22} />
+          <IconBack />
         </Pressable>
 
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">

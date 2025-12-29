@@ -8,6 +8,8 @@ interface WishlistCardProps {
   subject: string;
   price: string;
   createdAt: string;
+  onDelete: () => void;
+  onEdit: () => void;
 }
 
 export function WishlistCard({
@@ -15,6 +17,8 @@ export function WishlistCard({
   subject,
   price,
   createdAt,
+  onDelete,
+  onEdit,
 }: WishlistCardProps) {
   return (
     <View className="mb-4 rounded-lg border border-[#54408C] bg-[#EEEBF5] p-2">
@@ -33,10 +37,10 @@ export function WishlistCard({
           </View>
         </View>
         <View className="flex-row gap-2">
-          <Pressable>
+          <Pressable onPress={onEdit}>
             <IconEdit2 />
           </Pressable>
-          <Pressable>
+          <Pressable onPress={onDelete}>
             <IconTrash size={14} />
           </Pressable>
         </View>

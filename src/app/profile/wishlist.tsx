@@ -1,6 +1,8 @@
 import { useRouter } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Alert } from "react-native";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import SuccessModal from "@/components/SuccessModal";
 import {
   ActivityIndicator,
   Pressable,
@@ -10,9 +12,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { CoursesService, UserService } from "@/api";
+import { CoursesService, UserService, WishlistsService } from "@/api";
 import { InfoBanner } from "@/components/profile/InfoBanner";
 import { WishlistCard } from "@/components/profile/WishlistCard";
+import IconBack from "@/icons/IconBack";
 
 type ApiWishlist = {
   id: number;
@@ -55,6 +58,10 @@ export default function WishlistScreen() {
 
   const [wishlists, setWishlists] = useState<ApiWishlist[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [selectedWishlist, setSelectedWishlist] = useState<ApiWishlist | null>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -87,6 +94,27 @@ export default function WishlistScreen() {
     };
 
     fetchAll();
+  }, []);
+
+  const handleDeleteWishlist = useCallback(async (id: number) => {
+    try {
+      setDeletingId(id);
+      await WishlistsService.deleteWishlistRouteApiWishlistsWishlistIdDelete(id);
+      setWishlists(prev => prev.filter(w => w.id !== id));
+      setShowDeleteConfirm(false);
+      setShowSuccess(true);
+    } catch (error) {
+      console.error('Delete wishlist error:', error);
+      Alert.alert('Lỗi', 'Không thể xóa wishlist. Vui lòng thử lại.');
+    } finally {
+      setDeletingId(null);
+      setSelectedWishlist(null);
+    }
+  }, []);
+
+  const handleDeletePress = useCallback((wishlist: ApiWishlist) => {
+    setSelectedWishlist(wishlist);
+    setShowDeleteConfirm(true);
   }, []);
 
   const courseNameById = useMemo(() => {
@@ -134,7 +162,7 @@ export default function WishlistScreen() {
           onPress={() => router.back()}
           className="rounded-full p-2 active:opacity-70"
         >
-          <ArrowLeft size={22} />
+          <IconBack />
         </Pressable>
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
           Quản lý Wishlist
@@ -154,22 +182,23 @@ export default function WishlistScreen() {
           {wishlistItems.map((item, index) => {
             const wishlist = wishlists[index];
             return (
-              <Pressable
-                key={`wishlist-${index}`}
-                onPress={() =>
-                  router.push({
-                    pathname: "/profile/wishlist-edit",
-                    params: {
-                      id: wishlist.id.toString(),
-                      title: wishlist.title,
-                      course_id: wishlist.course_id?.toString() || "",
-                      max_price: wishlist.max_price?.toString() || "",
-                    },
-                  })
-                }
-              >
-                <WishlistCard {...item} />
-              </Pressable>
+              <View key={`wishlist-${index}`} className="mb-4">
+                <WishlistCard 
+                  {...item} 
+                  onDelete={() => handleDeletePress(wishlist)}
+                  onEdit={() => {
+                    router.push({
+                      pathname: "/profile/wishlist-edit",
+                      params: {
+                        id: wishlist.id.toString(),
+                        title: wishlist.title,
+                        course_id: wishlist.course_id?.toString() || "",
+                        max_price: wishlist.max_price?.toString() || "",
+                      },
+                    });
+                  }}
+                />
+              </View>
             );
           })}
 
@@ -193,6 +222,31 @@ export default function WishlistScreen() {
           </Text>
         </Pressable>
       </View>
+
+      <ConfirmationModal
+        visible={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setSelectedWishlist(null);
+        }}
+        onConfirm={() => selectedWishlist && handleDeleteWishlist(selectedWishlist.id)}
+        title="Xác nhận xóa"
+        message="Bạn có chắc chắn muốn xóa wishlist này?"
+        confirmText="Xác nhận xóa"
+        cancelText="Hủy"
+        type="delete"
+        isLoading={deletingId !== null}
+      />
+
+      <SuccessModal
+        visible={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        onViewOrder={() => setShowSuccess(false)}
+        title="Đã xóa thành công"
+        message="Wishlist đã được xóa khỏi danh sách của bạn."
+        viewOrderText="Đã hiểu"
+        continueText="Đóng"
+      />
     </SafeAreaView>
   );
 }

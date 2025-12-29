@@ -1,7 +1,7 @@
-import { useRouter } from "expo-router";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import { useFocusEffect, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ArrowLeft } from "lucide-react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +14,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { PostsService, UserService } from "@/api";
+import PostDetailModal from "@/components/posts/PostDetailModal";
 import { PostCard } from "@/components/profile/PostCard";
+import SuccessModal from "@/components/SuccessModal";
+import IconBack from "@/icons/IconBack";
 
 type MyPost = {
   id: number;
@@ -34,10 +37,17 @@ export default function MyPostsScreen() {
   const [soldPosts, setSoldPosts] = useState<MyPost[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
 
-  useEffect(() => {
-    fetchMyPosts();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyPosts();
+    }, [])
+  );
 
   const formatPrice = (price: number | string) => {
     if (typeof price === "number") {
@@ -78,69 +88,61 @@ export default function MyPostsScreen() {
     }
   };
 
-  const handleDelete = useCallback(async (postId: number) => {
-    console.log(`Bắt đầu xóa bài đăng có ID: ${postId}`);
+  const handleDeleteClick = useCallback((postId: number) => {
+    setPostToDelete(postId);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!postToDelete) return;
+
+    console.log(`Bắt đầu xóa bài đăng có ID: ${postToDelete}`);
+    setIsDeleting(true);
+
     try {
-      Alert.alert("Xác nhận", "Bạn có chắc chắn muốn xóa bài đăng này?", [
-        {
-          text: "Hủy",
-          style: "cancel",
-        },
-        {
-          text: "Xóa",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              console.log(`Đang gửi yêu cầu xóa bài đăng ID: ${postId}`);
+      console.log(`Đang gửi yêu cầu xóa bài đăng ID: ${postToDelete}`);
+      const apiUrl = `/api/posts/${postToDelete}/cancel`;
+      console.log("Gọi API:", apiUrl);
 
-              // Log the exact URL being called
-              const apiUrl = `/api/posts/${postId}/cancel`;
-              console.log("Gọi API:", apiUrl);
+      const response =
+        await PostsService.cancelPostRouteApiPostsPostIdCancelPost(
+          postToDelete
+        ).catch((err) => {
+          console.error("Lỗi chi tiết từ API:", {
+            message: err.message,
+            status: err.status,
+            response: err.body,
+            url: err.url,
+            method: err.method,
+          });
+          throw err;
+        });
 
-              const response =
-                await PostsService.cancelPostRouteApiPostsPostIdCancelPost(
-                  postId
-                ).catch((err) => {
-                  console.error("Lỗi chi tiết từ API:", {
-                    message: err.message,
-                    status: err.status,
-                    response: err.body,
-                    url: err.url,
-                    method: err.method,
-                  });
-                  throw err;
-                });
+      console.log("Phản hồi từ server khi xóa:", response);
+      console.log("Làm mới danh sách bài đăng...");
 
-              console.log("Phản hồi từ server khi xóa:", response);
-
-              console.log("Làm mới danh sách bài đăng...");
-              await fetchMyPosts();
-
-              Alert.alert("Thành công", "Đã xóa bài đăng thành công!");
-            } catch (error) {
-              console.error("Lỗi khi xóa bài đăng:", {
-                error: error,
-              });
-
-              let errorMessage =
-                "Không thể xóa bài đăng. Vui lòng thử lại sau.";
-              if ((error as any).status === 401) {
-                errorMessage =
-                  "Bạn cần đăng nhập lại để thực hiện thao tác này.";
-              } else if ((error as any).status === 404) {
-                errorMessage = "Không tìm thấy bài đăng này.";
-              } else if ((error as any).status === 403) {
-                errorMessage = "Bạn không có quyền xóa bài đăng này.";
-              }
-
-              Alert.alert("Lỗi", errorMessage);
-            }
-          },
-        },
-      ]);
+      await fetchMyPosts();
+      setPostToDelete(null);
+      setShowSuccess(true);
     } catch (error) {
-      console.error("Lỗi khi hiển thị xác nhận xóa:", error);
+      console.error("Lỗi khi xóa bài đăng:", { error });
+
+      let errorMessage = "Không thể xóa bài đăng. Vui lòng thử lại sau.";
+      if ((error as any).status === 401) {
+        errorMessage = "Bạn cần đăng nhập lại để thực hiện thao tác này.";
+      } else if ((error as any).status === 404) {
+        errorMessage = "Không tìm thấy bài đăng này.";
+      } else if ((error as any).status === 403) {
+        errorMessage = "Bạn không có quyền xóa bài đăng này.";
+      }
+
+      Alert.alert("Lỗi", errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
+  }, [postToDelete]);
+
+  const handleCancelDelete = useCallback(() => {
+    setPostToDelete(null);
   }, []);
 
   if (loading) {
@@ -162,7 +164,7 @@ export default function MyPostsScreen() {
           onPress={() => router.back()}
           className="rounded-full p-2 active:opacity-70"
         >
-          <ArrowLeft size={22} />
+          <IconBack />
         </Pressable>
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
           Bài đăng của tôi
@@ -185,17 +187,30 @@ export default function MyPostsScreen() {
             Đang bán ({sellingPosts.length})
           </Text>
           {sellingPosts.map((item) => (
-            <PostCard
+            <Pressable
               key={item.id}
-              id={item.id}
-              title={item.book_title}
-              category={item.course}
-              condition={item.book_status}
-              price={formatPrice(item.price)}
-              status={item.status}
-              thumbnailUrl={item.avatar_url}
-              onDelete={handleDelete}
-            />
+              onPress={() => {
+                setSelectedPostId(item.id);
+                setDetailVisible(true);
+              }}
+            >
+              <PostCard
+                id={item.id}
+                title={item.book_title}
+                category={item.course}
+                condition={item.book_status}
+                price={formatPrice(item.price)}
+                status={item.status}
+                thumbnailUrl={item.avatar_url}
+                onDelete={handleDeleteClick}
+                onEdit={() => {
+                  router.push({
+                    pathname: "/profile/edit-post",
+                    params: { id: String(item.id) },
+                  });
+                }}
+              />
+            </Pressable>
           ))}
           {sellingPosts.length === 0 && (
             <Text className="text-bodyMedium text-textGray500">
@@ -219,7 +234,7 @@ export default function MyPostsScreen() {
               status={item.status}
               thumbnailUrl={item.avatar_url}
               onEdit={(id) => {}}
-              onDelete={handleDelete}
+              onDelete={handleDeleteClick}
             />
           ))}
           {soldPosts.length === 0 && (
@@ -229,6 +244,63 @@ export default function MyPostsScreen() {
           )}
         </View>
       </ScrollView>
+
+      <ConfirmationModal
+        visible={!!postToDelete}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa bài đăng"
+        message="Bạn có chắc chắn muốn xóa bài đăng này?"
+        confirmText="Xóa"
+        cancelText="Hủy"
+        type="delete"
+        isLoading={isDeleting}
+      />
+
+      <SuccessModal
+        visible={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        onViewOrder={() => setShowSuccess(false)}
+        title="Xóa bài đăng thành công!"
+        message="Bài đăng đã được xóa khỏi danh sách của bạn."
+        viewOrderText="Đã hiểu"
+        continueText="Đóng"
+      />
+      <PostDetailModal
+        visible={detailVisible}
+        postId={selectedPostId} // quan trọng: dùng GET /api/posts/{post_id}
+        onClose={() => {
+          setDetailVisible(false);
+          setSelectedPostId(null);
+        }}
+        renderActions={(post) => (
+          <>
+            <Pressable
+              className="w-full bg-white border border-[#54408C] h-[54px] rounded-full items-center justify-center"
+              onPress={() => {
+                router.push({
+                  pathname: "/profile/edit-post",
+                  params: { id: String(post.id) },
+                });
+              }}
+            >
+              <Text className="text-[#54408C] font-bold text-lg">
+                Chỉnh sửa
+              </Text>
+            </Pressable>
+
+            <Pressable
+              className="w-full bg-[#54408C] h-[54px] rounded-full items-center justify-center"
+              onPress={() => {
+                setDetailVisible(false);
+                setSelectedPostId(null);
+              }}
+            >
+              <Text className="text-white font-bold text-lg">Hủy bỏ</Text>
+            </Pressable>
+          </>
+        )}
+      />
     </SafeAreaView>
   );
 }

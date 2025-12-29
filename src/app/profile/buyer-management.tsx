@@ -3,15 +3,15 @@ import {
   OrderRequestCard,
   type RequestStatus,
 } from "@/components/profile/OrderRequestCard";
+import IconBack from "@/icons/IconBack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
+import ConfirmationModal from "@/components/ConfirmationModal";
 import { StatusBar } from "expo-status-bar";
-import { ArrowLeft } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Linking,
   Pressable,
   RefreshControl,
@@ -37,7 +37,12 @@ export default function BuyerManagementScreen() {
   const [screenKey, setScreenKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: "accept" | "reject" | "complete";
+    orderId: number;
+    message: string;
+  } | null>(null);
 
   const loadOrders = useCallback(async (opts?: { silent?: boolean }) => {
     const silent = opts?.silent ?? false;
@@ -114,21 +119,12 @@ export default function BuyerManagementScreen() {
     }
   }, []);
 
-  const hardReload = useCallback(() => {
-    setScreenKey((k) => k + 1);
-  }, []);
-
   const withReload = useCallback(
     async (apiCall: () => Promise<any>, message?: string) => {
       try {
         setIsSubmitting(true);
         await ensureAuthToken();
         await apiCall();
-
-        if (message) {
-          setSuccessMessage(message);
-          setTimeout(() => setSuccessMessage(null), 3000);
-        }
 
         await loadOrders({ silent: true });
       } catch (err) {
@@ -155,79 +151,68 @@ export default function BuyerManagementScreen() {
     }
   }, []);
 
-  const handleAccept = useCallback(
-    async (orderId: number) => {
-      Alert.alert("Xác nhận", "Bạn có chắc chắn muốn chấp nhận yêu cầu này?", [
-        {
-          text: "Hủy",
-          style: "cancel",
-        },
-        {
-          text: "Chấp nhận",
-          style: "default",
-          onPress: async () => {
-            await withReload(
-              () =>
-                OrdersService.acceptOrderRouteApiOrdersOrderIdAcceptPost(
-                  orderId
-                ),
-              "Đã chấp nhận yêu cầu mua hàng thành công!"
-            );
-          },
-        },
-      ]);
-    },
-    [withReload]
-  );
+  const handleAccept = useCallback((orderId: number) => {
+    setConfirmAction({
+      type: "accept",
+      orderId,
+      message: "Bạn có chắc chắn muốn chấp nhận yêu cầu này?",
+    });
+    setShowConfirm(true);
+  }, []);
 
-  const handleReject = useCallback(
-    async (orderId: number) => {
-      Alert.alert("Xác nhận", "Bạn có chắc chắn muốn từ chối yêu cầu này?", [
-        {
-          text: "Hủy",
-          style: "cancel",
-        },
-        {
-          text: "Từ chối",
-          style: "destructive",
-          onPress: async () => {
-            await withReload(
-              () =>
-                OrdersService.rejectOrderRouteApiOrdersOrderIdRejectPost(
-                  orderId
-                ),
-              "Đã từ chối yêu cầu mua hàng!"
-            );
-          },
-        },
-      ]);
-    },
-    [withReload]
-  );
+  const handleReject = useCallback((orderId: number) => {
+    setConfirmAction({
+      type: "reject",
+      orderId,
+      message: "Bạn có chắc chắn muốn từ chối yêu cầu này?",
+    });
+    setShowConfirm(true);
+  }, []);
 
-  const handleComplete = useCallback(
-    async (orderId: number) => {
-      Alert.alert("Xác nhận", "Bạn có chắc chắn đã bán sách này?", [
-        {
-          text: "Hủy",
-          style: "cancel",
-        },
-        {
-          text: "Xác nhận",
-          onPress: async () => {
-            await withReload(
-              () =>
-                OrdersService.completeOrderRouteApiOrdersOrderIdCompletePost(
-                  orderId
-                ),
-              "Đã xác nhận bán sách thành công!"
-            );
-          },
-        },
-      ]);
-    },
-    [withReload]
-  );
+  const handleComplete = useCallback((orderId: number) => {
+    setConfirmAction({
+      type: "complete",
+      orderId,
+      message: "Bạn có chắc chắn đã bán sách này?",
+    });
+    setShowConfirm(true);
+  }, []);
+
+  const handleConfirmAction = useCallback(async () => {
+    if (!confirmAction) return;
+
+    const { type, orderId } = confirmAction;
+    let apiCall;
+    let successMessage = "";
+
+    switch (type) {
+      case "accept":
+        apiCall = () =>
+          OrdersService.acceptOrderRouteApiOrdersOrderIdAcceptPost(orderId);
+        successMessage = "Đã chấp nhận yêu cầu mua hàng thành công!";
+        break;
+      case "reject":
+        apiCall = () =>
+          OrdersService.rejectOrderRouteApiOrdersOrderIdRejectPost(orderId);
+        successMessage = "Đã từ chối yêu cầu mua hàng!";
+        break;
+      case "complete":
+        apiCall = () =>
+          OrdersService.completeOrderRouteApiOrdersOrderIdCompletePost(orderId);
+        successMessage = "Đã xác nhận bán sách thành công!";
+        break;
+      default:
+        return;
+    }
+
+    try {
+      await withReload(apiCall, successMessage);
+      setShowConfirm(false);
+      setConfirmAction(null);
+    } catch (error) {
+      console.error("Action failed:", error);
+    }
+  }, [confirmAction, withReload]);
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
@@ -270,23 +255,13 @@ export default function BuyerManagementScreen() {
             onPress={() => router.back()}
             className="rounded-full p-2 active:opacity-70"
           >
-            <ArrowLeft size={22} />
+            <IconBack />
           </Pressable>
           <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
             Quản lý người mua
           </Text>
           <View className="w-8" />
         </View>
-
-        {successMessage && (
-          <View className="px-6 py-2">
-            <View className="bg-green-100 border border-green-400 rounded-lg p-3">
-              <Text className="text-green-700 text-center">
-                {successMessage}
-              </Text>
-            </View>
-          </View>
-        )}
 
         <ScrollView
           className="flex-1"
@@ -413,6 +388,27 @@ export default function BuyerManagementScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      <ConfirmationModal
+        visible={showConfirm}
+        onClose={() => {
+          setShowConfirm(false);
+          setConfirmAction(null);
+        }}
+        onConfirm={handleConfirmAction}
+        title="Xác nhận"
+        message={confirmAction?.message || ""}
+        confirmText={
+          confirmAction?.type === "accept"
+            ? "Chấp nhận"
+            : confirmAction?.type === "reject"
+              ? "Từ chối"
+              : "Xác nhận"
+        }
+        cancelText="Hủy"
+        type={confirmAction?.type === "reject" ? "delete" : "info"}
+        isLoading={isSubmitting}
+      />
     </React.Fragment>
   );
 }

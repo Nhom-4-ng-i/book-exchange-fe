@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { AuthService } from "@/api";
+import ConfirmationModal from "../ConfirmationModal";
 
 interface ProfileHeaderProps {
   name: string;
@@ -40,6 +41,7 @@ export function ProfileHeader({
   const [digits, setDigits] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const formatted = useMemo(() => formatPhoneDigits(digits), [digits]);
 
@@ -126,11 +128,28 @@ export function ProfileHeader({
           </Pressable>
         </View>
       </View>
-      <Pressable onPress={onLogout} className="rounded-md bg-transparent p-2">
+      <Pressable 
+        onPress={() => setShowLogoutConfirm(true)} 
+        className="rounded-md bg-transparent p-2"
+      >
         <Text className="text-bodyMedium font-semibold text-textRed">
           Đăng xuất
         </Text>
       </Pressable>
+
+      <ConfirmationModal
+        visible={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          setShowLogoutConfirm(false);
+          onLogout?.();
+        }}
+        title="Xác nhận đăng xuất"
+        message="Bạn có chắc chắn muốn đăng xuất?"
+        confirmText="Đăng xuất"
+        cancelText="Hủy"
+        type="warning"
+      />
 
       <Modal
         visible={editOpen}

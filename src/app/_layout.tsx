@@ -75,6 +75,7 @@ function RootLayout() {
         name="profile/wishlist-edit"
         options={{ headerShown: false }}
       />
+      <Stack.Screen name="profile/edit-post" options={{ headerShown: false }} />
 
       <Stack.Screen
         name="notification/index"

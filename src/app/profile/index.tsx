@@ -143,8 +143,8 @@ export default function ProfileScreen() {
       <HeaderHome
         title="Hồ sơ"
         showSearch={false}
-        showChat={false}
-        showNotification={false}
+        showChat={true}
+        showNotification={true}
       />
 
       <ScrollView

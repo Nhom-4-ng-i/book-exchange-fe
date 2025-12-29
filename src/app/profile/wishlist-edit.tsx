@@ -1,5 +1,6 @@
+import SuccessModal from "@/components/SuccessModal";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, ChevronDown } from "lucide-react-native";
+import { ChevronDown } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CoursesService, WishlistsService } from "@/api";
 import { InfoBanner } from "@/components/profile/InfoBanner";
+import IconBack from "@/icons/IconBack";
 
 type Course = {
   id: number;
@@ -74,6 +76,7 @@ const WishlistEditScreen: React.FC = () => {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // modal
   const [courseModalOpen, setCourseModalOpen] = useState(false);
@@ -166,7 +169,7 @@ const WishlistEditScreen: React.FC = () => {
         payload as any
       );
 
-      router.back();
+      setShowSuccess(true);
     } catch (e) {
       console.log("Update wishlist error:", e);
       setSubmitError("Không thể cập nhật wishlist. Vui lòng thử lại.");
@@ -193,7 +196,7 @@ const WishlistEditScreen: React.FC = () => {
           onPress={() => router.back()}
           className="rounded-full p-2 active:opacity-70"
         >
-          <ArrowLeft size={22} />
+          <IconBack />
         </Pressable>
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
           Chỉnh sửa Wishlist
@@ -229,6 +232,9 @@ const WishlistEditScreen: React.FC = () => {
                 }}
                 className="rounded-lg px-2 text-bodyMedium text-textPrimary900"
               />
+              <Text className="text-bodySmall mt-1 text-textGray600">
+                Không cần chính xác, hệ thống sẽ tìm sách có tên tương tự
+              </Text>
             </View>
 
             <View>
@@ -286,6 +292,27 @@ const WishlistEditScreen: React.FC = () => {
                 }}
                 className="rounded-lg px-2 text-bodyMedium text-textPrimary900"
               />
+              <Text className="text-bodySmall mt-1 text-textGray600">
+                Chỉ thông báo khi sách có giá ≤ số tiền này
+              </Text>
+            </View>
+            <View
+              className="rounded-2xl bg-textGray100 p-4"
+              style={{ backgroundColor: "#F5F5F5" }}
+            >
+              <Text className="text-xs font-semibold text-textGray700">
+                Ví dụ Wishlist:
+              </Text>
+              <Text className="text-xs text-textGray600">
+                - &quot;Giải Tích 2&quot; - Toán - Giá tối đa 50.000đ
+              </Text>
+              <Text className="text-xs text-textGray600">
+                - &quot;Vật Lý&quot; - Lý - Không giới hạn giá
+              </Text>
+              <Text className="text-xs text-textGray600">
+                - &quot;Giáo Trình CTDL&quot; - Trí tuệ nhân tạo - Giá tối đa
+                100,000đ
+              </Text>
             </View>
           </View>
         </View>
@@ -293,7 +320,7 @@ const WishlistEditScreen: React.FC = () => {
 
       <View
         className="absolute bottom-0 left-0 right-0 px-6 bg-textGray50"
-        style={{ paddingTop: 20, paddingBottom: 20 }}
+        style={{ paddingTop: 20 }}
       >
         <Pressable
           className="items-center rounded-lg bg-textPrimary500 py-3 disabled:opacity-60"
@@ -443,6 +470,22 @@ const WishlistEditScreen: React.FC = () => {
           <View style={{ height: 20 }} />
         </View>
       </Modal>
+
+      <SuccessModal
+        visible={showSuccess}
+        onClose={() => {
+          setShowSuccess(false);
+          router.back();
+        }}
+        onViewOrder={() => {
+          setShowSuccess(false);
+          router.back();
+        }}
+        title="Cập nhật thành công!"
+        message="Wishlist của bạn đã được cập nhật thành công."
+        viewOrderText="Đã hiểu"
+        continueText="Đóng"
+      />
     </SafeAreaView>
   );
 };

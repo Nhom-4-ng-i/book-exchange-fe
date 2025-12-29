@@ -1,5 +1,6 @@
+import SuccessModal from "@/components/SuccessModal";
 import { useRouter } from "expo-router";
-import { ArrowLeft, ChevronDown } from "lucide-react-native";
+import { ChevronDown } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CoursesService, WishlistsService } from "@/api";
 import { InfoBanner } from "@/components/profile/InfoBanner";
+import IconBack from "@/icons/IconBack";
 
 type Course = {
   id: number;
@@ -35,6 +37,7 @@ export default function WishlistCreateScreen() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [courseModalOpen, setCourseModalOpen] = useState(false);
   const [courseSearch, setCourseSearch] = useState("");
@@ -115,8 +118,7 @@ export default function WishlistCreateScreen() {
       };
 
       await WishlistsService.insertWishlistRouteApiWishlistsPost(payload);
-
-      router.back();
+      setShowSuccess(true);
     } catch (e) {
       console.log("Create wishlist error:", e);
       setSubmitError("Không thể tạo wishlist. Vui lòng thử lại.");
@@ -135,7 +137,7 @@ export default function WishlistCreateScreen() {
           onPress={() => router.back()}
           className="rounded-full p-2 active:opacity-70"
         >
-          <ArrowLeft size={22} />
+          <IconBack />
         </Pressable>
         <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
           Tạo Wishlist
@@ -171,6 +173,9 @@ export default function WishlistCreateScreen() {
                 }}
                 className="rounded-lg px-2 text-bodyMedium text-textPrimary900"
               />
+              <Text className="text-bodySmall mt-1 text-textGray600">
+                Không cần chính xác, hệ thống sẽ tìm sách có tên tương tự
+              </Text>
             </View>
 
             <View>
@@ -233,6 +238,9 @@ export default function WishlistCreateScreen() {
                 }}
                 className="rounded-lg px-2 text-bodyMedium"
               />
+              <Text className="text-bodySmall mt-1 text-textGray600">
+                Chỉ thông báo khi sách có giá ≤ số tiền này
+              </Text>
             </View>
 
             <View
@@ -407,6 +415,22 @@ export default function WishlistCreateScreen() {
           <View style={{ height: 20 }} />
         </View>
       </Modal>
+
+      <SuccessModal
+        visible={showSuccess}
+        onClose={() => {
+          setShowSuccess(false);
+          router.back();
+        }}
+        onViewOrder={() => {
+          setShowSuccess(false);
+          router.back();
+        }}
+        title="Tạo Wishlist thành công!"
+        message="Wishlist của bạn đã được tạo thành công. Bạn sẽ nhận được thông báo khi có sách phù hợp."
+        viewOrderText="Đã hiểu"
+        continueText="Đóng"
+      />
     </SafeAreaView>
   );
 }
