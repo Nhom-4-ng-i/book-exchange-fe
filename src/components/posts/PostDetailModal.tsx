@@ -280,7 +280,7 @@ export default function PostDetailModal({
                       disabled={!post.seller_phone}
                     >
                       <View className="w-8">
-                        <IconPhone size={15} />
+                        <IconPhone size={16} />
                       </View>
                       <Text className="text-textGray500 flex-1">
                         {post.seller_phone || "Chưa có số điện thoại"}

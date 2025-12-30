@@ -8,6 +8,26 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class OrdersService {
     /**
+     * Get Order Route
+     * @param orderId
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static getOrderRouteApiOrdersOrderIdGet(
+        orderId: number,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/orders/{order_id}',
+            path: {
+                'order_id': orderId,
+            },
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+    /**
      * Insert Order Route
      * @param requestBody
      * @returns any Successful Response

@@ -115,34 +115,44 @@ export default function Index() {
     setSelectedPost(post);
     setIsDetailModalVisible(true);
   };
-  const loadPosts = async () => {
+  type SearchType =
+    | "title"
+    | "author"
+    | "course"
+    | "location"
+    | "min_price"
+    | "max_price"
+    | "sort_by"
+    | "offset";
+
+  const loadPosts = async (opts?: { query?: string; type?: SearchType }) => {
     try {
       setLoading(true);
       await ensureAuthToken();
-      const query = searchQuery.trim();
-      const titleParam = searchType === "title" && query ? query : null;
-      const authorParam = searchType === "author" && query ? query : null;
+
+      const q = (opts?.query ?? searchQuery).trim();
+      const t = opts?.type ?? searchType;
+
+      const titleParam = t === "title" && q ? q : null;
+      const authorParam = t === "author" && q ? q : null;
       const courseIdParam =
-        searchType === "course" && query && !isNaN(Number(query))
-          ? Number(query)
-          : null;
-      const statusParam = "SELLING";
+        t === "course" && q && !isNaN(Number(q)) ? Number(q) : null;
+
       const response = await PostsService.getPostsListRouteApiPostsGet(
-        titleParam, // tham số 1: bookTitle
-        authorParam, // tham số 2: author
-        null, // tham số 3: bookStatus
-        courseIdParam, // tham số 4: courseId
-        null, // locationId
-        null, // minPrice
-        null, // maxPrice
-        null, // sortBy
-        0, // offset
-        100 // limit
+        titleParam,
+        authorParam,
+        null,
+        courseIdParam,
+        null,
+        null,
+        null,
+        null,
+        0,
+        100
       );
-      console.log(response);
 
       setPosts(response);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Lỗi khi tải danh sách bài đăng:", err);
     } finally {
       setLoading(false);
@@ -233,6 +243,13 @@ export default function Index() {
             onPress={() => {
               setIsSearching(false);
               setSearchQuery("");
+              setSelectedCategory(null);
+              setIsDropdownVisible(false);
+
+              setSearchType("title");
+              setSearchLabel("Tên sách");
+
+              loadPosts({ query: "", type: "title" });
             }}
             className="mr-3 hitSlop={{top: 12, bottom: 12, left: 12, right: 12}} mb-4" // Tăng vùng chạm cho iPhone
           >
@@ -249,7 +266,7 @@ export default function Index() {
               value={searchQuery}
               autoFocus={true} // Tự động mở bàn phím khi hiện thanh search
               onChangeText={setSearchQuery}
-              onSubmitEditing={loadPosts}
+              onSubmitEditing={() => loadPosts()}
               returnKeyType="search"
             />
 

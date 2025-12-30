@@ -1,5 +1,4 @@
 import { OpenAPI, OrdersService, UserService } from "@/api";
-import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -23,6 +22,9 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import AppHeader from "@/components/HeaderHome";
 import SuccessModal from "@/components/SuccessModal";
 import IconEmptyCart from "@/icons/IconEmptyCart";
+import IconLocation from "@/icons/IconLocation";
+import IconPhone from "@/icons/PhoneIcon";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface OrderItem {
@@ -37,10 +39,15 @@ interface OrderItem {
   course: string;
   location: string;
   book_status: string;
-  original_price: number;
+  original_price?: number;
   description: string;
   seller_name: string;
   seller_phone: string | null;
+  buyer_name?: string;
+  buyer_phone?: string;
+  post_status?: string;
+  post_status_code?: string;
+  book_status_code?: string;
 }
 
 export default function Index() {
@@ -53,16 +60,43 @@ export default function Index() {
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isLoadingOrderDetails, setIsLoadingOrderDetails] = useState(false);
 
   // Hàm định dạng tiền tệ
   const formatVND = (price: number) => {
     return price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
-  const openDetail = (order: OrderItem) => {
-    console.log(order);
+  const imgUri =
+    selectedOrder?.avatar_url === "DefaultAvatarURL" ||
+    !selectedOrder?.avatar_url
+      ? "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328"
+      : selectedOrder.avatar_url;
+
+  const openDetail = async (order: OrderItem) => {
     setSelectedOrder(order);
+    setIsLoadingOrderDetails(true);
     setIsDetailModalVisible(true);
+
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      if (token) {
+        OpenAPI.BASE = "http://160.187.246.140:8000";
+        OpenAPI.TOKEN = token;
+      }
+      const orderDetails = await OrdersService.getOrderRouteApiOrdersOrderIdGet(
+        order.order_id
+      );
+      setSelectedOrder((prev) => ({
+        ...prev,
+        ...orderDetails,
+        order_id: order.order_id, // Ensure order_id is preserved
+      }));
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    } finally {
+      setIsLoadingOrderDetails(false);
+    }
   };
 
   const fetchOrders = async () => {
@@ -206,10 +240,9 @@ export default function Index() {
         </>
       )}
 
-      {/* Detail Modal */}
       <Modal
         visible={isDetailModalVisible}
-        transparent={true}
+        transparent
         animationType="slide"
         onRequestClose={() => setIsDetailModalVisible(false)}
       >
@@ -224,224 +257,165 @@ export default function Index() {
               <View className="w-12 h-1.5 bg-gray-300 rounded-full" />
             </View>
 
-            <ScrollView className="flex-1 px-6 pb-10">
-              {selectedOrder && (
-                <>
-                  {/* Book Image */}
-                  <View className="w-full aspect-[1.5] bg-gray-100 rounded-2xl overflow-hidden mb-6">
+            {isLoadingOrderDetails ? (
+              <View className="flex-1 items-center justify-center">
+                <ActivityIndicator size="large" color="#5E3EA1" />
+              </View>
+            ) : selectedOrder ? (
+              <>
+                <ScrollView className="flex-1 px-6 pb-10">
+                  <View
+                    style={{ borderRadius: 16, overflow: "hidden" }}
+                    className="justify-center items-center mb-4"
+                  >
                     <Image
-                      source={{
-                        uri:
-                          selectedOrder.avatar_url === "DefaultAvatarURL"
-                            ? "https://api.builder.io/api/v1/image/assets/TEMP/52fd2ccb12a0cc8215ea23e7fce4db059c2ca1aa?width=328"
-                            : selectedOrder.avatar_url,
+                      source={{ uri: imgUri }}
+                      style={{
+                        width: 237,
+                        height: 313,
+                        borderRadius: 16,
+                        overflow: "hidden",
                       }}
-                      className="w-full h-full"
-                      resizeMode="contain"
+                      resizeMode="cover"
                     />
-                    <View className="absolute top-3 left-3 bg-white/90 px-2 py-1 rounded-md">
-                      <Text className="text-xs font-medium text-gray-800">
-                        {selectedOrder.book_status || "Chưa cập nhật"}
-                      </Text>
-                    </View>
                   </View>
 
-                  {/* Book Info */}
-                  <View className="mb-2">
-                    <Text className="text-2xl font-bold text-gray-900 mb-1">
-                      {selectedOrder.title?.trim()}
+                  <Text className="text-heading4 font-bold mt-4">
+                    {selectedOrder.title}
+                  </Text>
+
+                  <View className="flex-row gap-4 mt-2">
+                    <Text className="text-textGray700 text-bodyMedium">
+                      Tác giả: {selectedOrder.author || "Đang cập nhật"}
                     </Text>
-                    <View className="flex-row gap-4">
-                      <Text className="text-base text-gray-600 mr-4">
-                        Tác giả: {selectedOrder.author || "Không rõ"}
-                      </Text>
-                      <Text className="text-base text-gray-600">
-                        {selectedOrder.course || "Không xác định"}
-                      </Text>
-                    </View>
-
-                    <View className="flex-row items-center justify-between mb-2">
-                      <View>
-                        <Text className="text-2xl font-bold text-[#54408C]">
-                          {formatVND(selectedOrder.price)}đ
-                        </Text>
-                        {selectedOrder.original_price > selectedOrder.price && (
-                          <View className="flex-row items-center">
-                            <Text className="text-sm text-gray-400 line-through mr-2">
-                              {formatVND(selectedOrder.original_price)}đ
-                            </Text>
-                            <View className="bg-green-100 px-2 py-0.5 rounded">
-                              <Text className="text-xs font-medium text-green-700">
-                                Tiết kiệm{" "}
-                                {Math.round(
-                                  ((selectedOrder.original_price -
-                                    selectedOrder.price) /
-                                    selectedOrder.original_price) *
-                                    100
-                                )}
-                                %
-                              </Text>
-                            </View>
-                          </View>
-                        )}
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Divider */}
-                  <View className="h-[1px] bg-gray-200 w-full my-2" />
-
-                  {/* Transaction Info */}
-                  <View className="my-4">
-                    <Text className="text-base text-gray-900 mb-3">
-                      Thông tin giao dịch
-                    </Text>
-
-                    <View className="space-y-3">
-                      <View className="flex-row items-start">
-                        <View className="w-8 pr-1">
-                          <Ionicons
-                            name="location-outline"
-                            size={18}
-                            color="#6B7280"
-                          />
-                        </View>
-                        <View className="flex-1">
-                          <Text className="text-sm text-gray-500 mb-2">
-                            Địa điểm:{" "}
-                            <Text className="text-gray-900">
-                              {selectedOrder.location || "Chưa cập nhật"}
-                            </Text>
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View className="flex-row items-start">
-                        <View className="w-8">
-                          <Ionicons
-                            name="call-outline"
-                            size={18}
-                            color="#6B7280"
-                          />
-                        </View>
-                        <View className="flex-1">
-                          <Text className="text-sm text-gray-500 mb-2">
-                            Số điện thoại:{" "}
-                            <Text className="text-gray-900">
-                              {selectedOrder.seller_phone || "Chưa cập nhật"}
-                            </Text>
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View className="flex-row items-start">
-                        <View className="w-8">
-                          <Ionicons
-                            name="time-outline"
-                            size={18}
-                            color="#6B7280"
-                          />
-                        </View>
-                        <View className="flex-1">
-                          <Text className="text-sm text-gray-500 mb-2">
-                            Ngày đăng:{" "}
-                            <Text className="text-gray-900">
-                              {selectedOrder.order_time || "Chưa cập nhật"}
-                            </Text>
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Divider */}
-                  <View className="h-[1px] bg-gray-200 w-full my-2" />
-
-                  {/* Seller Info */}
-                  <View className="my-4">
-                    <Text className="text-base text-gray-900 mb-3">
-                      Thông tin người bán
-                    </Text>
-                    <View className="flex-row items-center">
-                      <View className="w-12 h-12 bg-purple-100 rounded-full items-center justify-center">
-                        <Ionicons name="person" size={24} color="#54408C" />
-                      </View>
-                      <View className="ml-3">
-                        <Text className="text-base text-gray-900">
-                          {selectedOrder.seller_name || "Người dùng"}
-                        </Text>
-                        <Text className="text-sm text-gray-500 mt-0.5">
-                          Đăng vào {selectedOrder.order_time || "Chưa cập nhật"}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Order Status */}
-                  <View className="mt-4 p-4 bg-blue-50 rounded-xl mb-8">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-base font-medium text-gray-900">
-                        Trạng thái đơn hàng
-                      </Text>
-                      <View
-                        className={`px-3 py-1 rounded-full ${
-                          selectedOrder.order_status_code === "COMPLETED"
-                            ? "bg-green-100"
-                            : selectedOrder.order_status_code === "PENDING"
-                              ? "bg-yellow-100"
-                              : "bg-gray-100"
-                        }`}
-                      >
-                        <Text
-                          className={`text-sm font-medium ${
-                            selectedOrder.order_status_code === "COMPLETED"
-                              ? "text-green-800"
-                              : selectedOrder.order_status_code === "PENDING"
-                                ? "text-yellow-800"
-                                : "text-gray-800"
-                          }`}
-                        >
-                          {selectedOrder.order_status}
-                        </Text>
-                      </View>
-                    </View>
-                    <Text className="text-sm text-gray-600 mt-2">
-                      {selectedOrder.order_status_code === "COMPLETED"
-                        ? "Đơn hàng đã được hoàn thành."
-                        : selectedOrder.order_status_code === "PENDING"
-                          ? "Đơn hàng đang chờ xử lý."
-                          : "Trạng thái đơn hàng không xác định."}
+                    <Text className="text-textGray700 text-bodyMedium">
+                      Môn: {selectedOrder.course || "Đang cập nhật"}
                     </Text>
                   </View>
-                </>
-              )}
-            </ScrollView>
 
-            {/* Footer Buttons */}
-            <View className="p-6">
-              <Pressable
-                className="  w-full bg-white border border-[#54408C] h-[54px] rounded-full items-center justify-center mb-3"
-                onPress={() => {
-                  const phone = selectedOrder?.seller_phone;
-                  if (phone) {
-                    Linking.openURL(`tel:${phone}`);
-                  } else {
-                    Alert.alert("Thông báo", "Số điện thoại không khả dụng");
-                  }
-                }}
-              >
-                <Text className="text-[#54408C] font-bold text-lg">
-                  Liên hệ
-                </Text>
-              </Pressable>
+                  <View className="flex-row items-baseline gap-2 mt-2">
+                    <Text className="text-[#54408C] font-bold text-heading3">
+                      {formatVND(selectedOrder.price)}đ
+                    </Text>
+                    {selectedOrder.original_price &&
+                      selectedOrder.original_price > selectedOrder.price && (
+                        <Text className="text-textGray400 text-bodyMedium line-through ml-2">
+                          {formatVND(selectedOrder.original_price)}đ
+                        </Text>
+                      )}
+                  </View>
 
-              <Pressable
-                className="w-full bg-[#54408C] h-[54px] rounded-full items-center justify-center"
-                onPress={() => setIsDetailModalVisible(false)}
-              >
-                <Text className="text-white font-bold text-lg">Hủy bỏ</Text>
-              </Pressable>
-            </View>
+                  <Text className="text-bodyMedium text-textGray700 mt-2">
+                    Mô tả
+                  </Text>
+                  <Text className="text-textGray500 mt-2">
+                    {"Trạng thái: " + selectedOrder.book_status}
+                  </Text>
+                  <Text className="text-textGray500">
+                    Chi tiết tình trạng:{" "}
+                    {selectedOrder.description || "Chưa có mô tả."}
+                  </Text>
+
+                  <View className="h-[1px] bg-gray-200 w-full my-4" />
+
+                  <Text className="text-bodyMedium text-textGray700">
+                    Thông tin giao dịch
+                  </Text>
+
+                  <View className="flex-row items-center mb-4 mt-4">
+                    <View className="w-8">
+                      <IconLocation size={15} />
+                    </View>
+                    <Text className="text-textGray500 flex-1">
+                      {selectedOrder.location || "Khu A - ĐHBK"}
+                    </Text>
+                  </View>
+                  <Pressable
+                    className="flex-row items-center"
+                    onPress={() => {
+                      const phone = selectedOrder.seller_phone;
+                      if (!phone) return;
+                      Linking.openURL(`tel:${phone}`);
+                    }}
+                    disabled={!selectedOrder.seller_phone}
+                  >
+                    <View className="w-8">
+                      <IconPhone size={16} />
+                    </View>
+                    <Text className="text-textGray500 flex-1">
+                      {selectedOrder.seller_phone || "Chưa có số điện thoại"}
+                    </Text>
+                  </Pressable>
+
+                  <View className="h-[1px] bg-gray-200 w-full my-4" />
+
+                  <Text className="text-bodyMedium text-textGray700 mb-4">
+                    Người bán
+                  </Text>
+                  <View className="flex-row items-center mb-2">
+                    <View className="w-12 h-12 bg-purple-100 rounded-full items-center justify-center">
+                      <Ionicons name="person" size={24} color="#54408C" />
+                    </View>
+                    <View className="ml-3 gap-2">
+                      <Text className=" text-textGray700 text-bodyMedium">
+                        {selectedOrder.seller_name || "Chưa cập nhật"}
+                      </Text>
+                      {!!selectedOrder.order_time && (
+                        <Text className="text-textGray500 text-bodyMedium">
+                          Đăng {selectedOrder.order_time}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                  <View className="h-[1px] bg-gray-200 w-full my-4" />
+
+                  <Text className="text-bodyMedium text-textGray700 mb-4">
+                    Thông tin đơn hàng
+                  </Text>
+                  <View className="flex-row items-center mb-4">
+                    <Text className="text-textGray500 w-32">Mã đơn hàng:</Text>
+                    <Text className="text-textGray700 font-medium">
+                      #{selectedOrder.order_id}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center mb-4">
+                    <Text className="text-textGray500 w-32">Trạng thái:</Text>
+                    <Text className="text-textGray700 font-medium">
+                      {selectedOrder.order_status}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center mb-10">
+                    <Text className="text-textGray500 w-32">
+                      Thời gian đặt:
+                    </Text>
+                    <Text className="text-textGray700 font-medium">
+                      {selectedOrder.order_time}
+                    </Text>
+                  </View>
+                </ScrollView>
+
+                <View className="p-4 bg-white">
+                  <Pressable
+                    className="w-full bg-white border border-[#54408C] h-[54px] rounded-full items-center justify-center mb-2"
+                    onPress={() => {
+                      const phone = selectedOrder.seller_phone;
+                      if (phone) Linking.openURL(`tel:${phone}`);
+                    }}
+                    disabled={!selectedOrder.seller_phone}
+                  >
+                    <Text className="text-[#54408C] font-bold text-lg">
+                      Liên hệ
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    className="w-full bg-[#54408C] h-[54px] rounded-full items-center justify-center shadow-sm "
+                    onPress={() => setIsDetailModalVisible(false)}
+                  >
+                    <Text className="text-white font-bold text-lg">Đóng</Text>
+                  </Pressable>
+                </View>
+              </>
+            ) : null}
           </View>
         </View>
       </Modal>
