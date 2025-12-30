@@ -241,19 +241,17 @@ export default function LoginScreen() {
           </Text>
         </View>
 
-        {__DEV__ && (
-          <Pressable
-            className={`${buttonBaseClass} ${buttonActiveClass}`}
-            onPress={handleDebugLogin}
-          >
-            <View className="absolute left-6">
-              <IconGoogle />
-            </View>
-            <Text className="text-sm font-normal text-gray-800">
-              Đăng nhập với Google để Debug
-            </Text>
-          </Pressable>
-        )}
+        <Pressable
+          className={`${buttonBaseClass} ${buttonActiveClass}`}
+          onPress={handleDebugLogin}
+        >
+          <View className="absolute left-6">
+            <IconGoogle />
+          </View>
+          <Text className="text-sm font-normal text-gray-800">
+            Đăng nhập với Google mẫu
+          </Text>
+        </Pressable>
 
         <View>
           <Pressable
