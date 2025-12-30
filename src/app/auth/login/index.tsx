@@ -1,11 +1,11 @@
 import { AntDesign } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { ApiError, AuthService, OpenAPI, UserService } from "@/api";
 import IconFacebook from "../../../icons/IconFacebook";
@@ -203,6 +203,7 @@ export default function LoginScreen() {
       const res = await signInOrSignUp(email, name);
 
       console.log("Debug Sign-in API response:", res);
+      Alert.alert("LOGIN", "API OK");
 
       await AsyncStorage.setItem("access_token", res.access_token);
       await AsyncStorage.setItem(
@@ -220,7 +221,9 @@ export default function LoginScreen() {
       router.push("/auth/phone");
     } catch (error: any) {
       console.log("Debug login error:", error);
+      Sentry.captureException(error);
       Alert.alert("Lỗi", "Không thể đăng nhập (debug). Kiểm tra lại API.");
+      Alert.alert("ERROR", String(error?.message ?? error));
     }
   };
 

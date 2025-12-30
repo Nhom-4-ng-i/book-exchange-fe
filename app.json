@@ -8,9 +8,7 @@
     "scheme": "exchangeoldbooks",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "assetBundlePatterns": [
-      "assets/images/*"
-    ],
+    "assetBundlePatterns": ["assets/images/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kandyz2705.exchangeoldbooks",
@@ -19,6 +17,7 @@
       }
     },
     "android": {
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,9 +37,13 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b", 
+          "iosUrlScheme": "com.googleusercontent.apps.826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b",
           "scopes": ["profile", "email"]
         }
+      ],
+      [
+        "expo-build-properties",
+        { "android": { "usesCleartextTraffic": true } }
       ],
       "expo-router",
       [
