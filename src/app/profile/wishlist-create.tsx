@@ -1,4 +1,5 @@
 import SuccessModal from "@/components/SuccessModal";
+import * as Sentry from "@sentry/react-native";
 import { useRouter } from "expo-router";
 import { ChevronDown } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
@@ -12,7 +13,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CoursesService, WishlistsService } from "@/api";
@@ -61,6 +61,15 @@ export default function WishlistCreateScreen() {
 
         setCourses(arr);
       } catch (e) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "WishlistCreateScreen");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/courses/",
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(e);
+        });
         console.log("Load courses error:", e);
         setCoursesError("Không thể tải danh sách môn học.");
         setCourses([]);
@@ -120,6 +129,15 @@ export default function WishlistCreateScreen() {
       await WishlistsService.insertWishlistRouteApiWishlistsPost(payload);
       setShowSuccess(true);
     } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "WishlistCreateScreen");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/wishlists/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(e);
+      });
       console.log("Create wishlist error:", e);
       setSubmitError("Không thể tạo wishlist. Vui lòng thử lại.");
     } finally {

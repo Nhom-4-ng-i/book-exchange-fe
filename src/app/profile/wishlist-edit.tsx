@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CoursesService, WishlistsService } from "@/api";
 import { InfoBanner } from "@/components/profile/InfoBanner";
 import IconBack from "@/icons/IconBack";
+import * as Sentry from "@sentry/react-native";
 
 type Course = {
   id: number;
@@ -135,6 +136,15 @@ const WishlistEditScreen: React.FC = () => {
           setSelectedCourse(null);
         }
       } catch (e) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "WishlistEditScreen");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/courses/",
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(e);
+        });
         console.log("Load courses error:", e);
         setCoursesError("Không thể tải danh sách môn học.");
       } finally {
@@ -171,6 +181,15 @@ const WishlistEditScreen: React.FC = () => {
 
       setShowSuccess(true);
     } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "WishlistEditScreen");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/wishlists/",
+          method: "PUT",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(e);
+      });
       console.log("Update wishlist error:", e);
       setSubmitError("Không thể cập nhật wishlist. Vui lòng thử lại.");
     } finally {

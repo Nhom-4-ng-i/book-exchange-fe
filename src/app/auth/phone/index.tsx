@@ -1,4 +1,5 @@
 import IconPhone from "@/icons/IconPhone";
+import * as Sentry from "@sentry/react-native";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -41,6 +42,15 @@ export default function PhoneNumberScreen() {
           return;
         }
       } catch (e) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "auth");
+          scope.setContext("api", {
+            url: UserService.getMyProfileRouteApiUserMeGet(),
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(e);
+        });
         console.log("Check user phone error:", e);
       } finally {
         setChecking(false);
@@ -83,6 +93,15 @@ export default function PhoneNumberScreen() {
       });
       router.replace("/success");
     } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "auth");
+        scope.setContext("api", {
+          url: UserService.getMyProfileRouteApiUserMeGet(),
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(e);
+      });
       console.log("Update phone error:", e);
       setError("Không thể cập nhật số điện thoại.");
     } finally {

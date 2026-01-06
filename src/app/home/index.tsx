@@ -7,6 +7,7 @@ import IconBack from "@/icons/IconBack";
 import IconSearch from "@/icons/IconSearch";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 
 import { StatusBar } from "expo-status-bar";
@@ -104,6 +105,15 @@ export default function Index() {
       setIsDetailModalVisible(false);
       setIsSuccessModalVisible(true);
     } catch (err) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "Home");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/orders/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(err);
+      });
       Alert.alert("Thông báo", "Có lỗi xảy ra khi đặt hàng, vui lòng thử lại.");
     } finally {
       setOrderLoading(false);
@@ -153,6 +163,15 @@ export default function Index() {
 
       setPosts(response);
     } catch (err) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "Home");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/posts/",
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(err);
+      });
       console.error("Lỗi khi tải danh sách bài đăng:", err);
     } finally {
       setLoading(false);
@@ -172,6 +191,15 @@ export default function Index() {
         console.log("API URL:", err.url);
         console.log("API BODY:", err.body);
       } else {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "Home");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/courses/",
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(err);
+        });
         console.log("Unknown error:", err);
       }
       setCategories([]);

@@ -14,6 +14,7 @@ import IconHeart from "@/icons/IconHeart";
 import IconPost from "@/icons/IconPost";
 import IconUser from "@/icons/IconUser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import { StatusBar } from "expo-status-bar";
 
 type Profile = {
@@ -110,6 +111,15 @@ export default function ProfileScreen() {
         newBuyerRequests,
       });
     } catch (err) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "ProfileScreen");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/posts/",
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(err);
+      });
       console.log("Fetch profile / stats error:", err);
     } finally {
       setLoading(false);

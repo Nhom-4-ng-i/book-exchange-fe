@@ -4,6 +4,7 @@ import IconArrowDown from "@/icons/IconArrowDown";
 import IconBack from "@/icons/IconBack";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -103,6 +104,15 @@ export default function AddPost() {
       console.log(data);
       setCategories(data);
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "addPost");
+        scope.setContext("api", {
+          url: CoursesService.getCoursesListRouteApiCoursesGet(),
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Lỗi lấy môn học:", error);
     }
   };
@@ -222,6 +232,15 @@ export default function AddPost() {
         );
       }
     } catch (err) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "addPost");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/posts/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(err);
+      });
       console.error("Lỗi kết nối:", err);
       Alert.alert("Lỗi", "Không thể kết nối đến máy chủ.");
     } finally {
@@ -240,6 +259,15 @@ export default function AddPost() {
         await LocationsService.getLocationsListRouteApiLocationsGet();
       setLocations(data);
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "addPost");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/locations/",
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Lỗi lấy địa điểm:", error);
     }
   };

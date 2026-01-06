@@ -2,6 +2,7 @@ import { NotificationsService } from "@/api";
 import BottomNav from "@/components/BottomNav";
 import IconBack from "@/icons/IconBack";
 import IconBell from "@/icons/IconBell";
+import * as Sentry from "@sentry/react-native";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -126,6 +127,15 @@ export default function NotificationScreen() {
 
         setNotifications(arr.map(toUiItem));
       } catch (e) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "Notification");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/notifications/",
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(e);
+        });
         console.log("Load notifications error:", e);
         setError("Không thể tải thông báo.");
         setNotifications([]);
@@ -164,6 +174,15 @@ export default function NotificationScreen() {
         notificationId
       );
     } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "Notification");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/notifications/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(e);
+      });
       console.log("Mark read error:", e);
       setNotifications((prev) =>
         prev.map((x) => (x.id === notificationId ? { ...x, isRead: false } : x))

@@ -20,6 +20,16 @@ async function signInOrSignUp(email: string, password: string, name?: string) {
   try {
     return await AuthService.signInRouteApiAuthSignInPost({ email });
   } catch (err: any) {
+    Sentry.withScope((scope) => {
+      scope.setTag("feature", "login");
+      scope.setContext("api", {
+        url: "http://160.187.246.140:8000/api/auth/sign-in/",
+        method: "POST",
+      });
+      scope.setLevel("error");
+      Sentry.captureException(err);
+    });
+
     const isApiError =
       err instanceof ApiError || typeof err?.status === "number";
     if (!isApiError) throw err;
@@ -52,6 +62,15 @@ export default function LoginScreen() {
         await UserService.getMyProfileRouteApiUserMeGet();
         router.replace("/home");
       } catch (e) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "login");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/user/me/",
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(e);
+        });
         await AsyncStorage.removeItem("access_token");
         await AsyncStorage.removeItem("user");
       }
@@ -101,7 +120,15 @@ export default function LoginScreen() {
 
       router.push("/auth/phone");
     } catch (error: any) {
-      Sentry.captureException(error);
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "login");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/auth/sign-in/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       Alert.alert("Lỗi", "Không thể đăng nhập test. Kiểm tra lại API.");
     }
   };
@@ -203,7 +230,15 @@ export default function LoginScreen() {
         }
       }
 
-      Sentry.captureException(err);
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "login");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/auth/sign-in/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(err);
+      });
       Alert.alert("Lỗi", "Không thể đăng nhập. Vui lòng thử lại.");
     }
   };

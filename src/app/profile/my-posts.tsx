@@ -1,4 +1,5 @@
 import ConfirmationModal from "@/components/ConfirmationModal";
+import * as Sentry from "@sentry/react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
@@ -80,6 +81,15 @@ export default function MyPostsScreen() {
       setSellingPosts(selling);
       setSoldPosts(sold);
     } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "MyPostsScreen");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/posts/",
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(e);
+      });
       console.log("Load my posts error:", e);
       setError("Không thể tải danh sách bài đăng.");
     } finally {
@@ -107,6 +117,15 @@ export default function MyPostsScreen() {
         await PostsService.cancelPostRouteApiPostsPostIdCancelPost(
           postToDelete
         ).catch((err) => {
+          Sentry.withScope((scope) => {
+            scope.setTag("feature", "MyPostsScreen");
+            scope.setContext("api", {
+              url: "http://160.187.246.140:8000/api/posts/",
+              method: "PUT",
+            });
+            scope.setLevel("error");
+            Sentry.captureException(err);
+          });
           console.error("Lỗi chi tiết từ API:", {
             message: err.message,
             status: err.status,
@@ -124,6 +143,15 @@ export default function MyPostsScreen() {
       setPostToDelete(null);
       setShowSuccess(true);
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "MyPostsScreen");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/posts/",
+          method: "PUT",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Lỗi khi xóa bài đăng:", { error });
 
       let errorMessage = "Không thể xóa bài đăng. Vui lòng thử lại sau.";

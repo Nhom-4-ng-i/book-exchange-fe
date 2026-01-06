@@ -5,6 +5,7 @@ import {
 } from "@/components/profile/OrderRequestCard";
 import IconBack from "@/icons/IconBack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import { useRouter } from "expo-router";
 
 import ConfirmationModal from "@/components/ConfirmationModal";
@@ -59,6 +60,15 @@ export default function BuyerManagementScreen() {
           res = { pending: [], accepted: [], completed: [], rejected: [] };
         }
       } catch (err) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "BuyerManagement");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/orders/",
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(err);
+        });
         console.error("Error fetching sales:", err);
         throw new Error(
           "Không thể tải danh sách yêu cầu. Vui lòng thử lại sau."
@@ -109,6 +119,15 @@ export default function BuyerManagementScreen() {
       setOrders(normalized);
       return normalized;
     } catch (err) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "BuyerManagement");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/orders/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(err);
+      });
       console.error("Failed to load orders:", err);
       setError(
         err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải dữ liệu"
@@ -128,6 +147,15 @@ export default function BuyerManagementScreen() {
 
         await loadOrders({ silent: true });
       } catch (err) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "BuyerManagement");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/orders/",
+            method: "POST",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(err);
+        });
         console.error("Order action error:", err);
         setError(
           err instanceof Error
@@ -147,6 +175,15 @@ export default function BuyerManagementScreen() {
       if (!digits) return;
       await Linking.openURL(`tel:${digits}`);
     } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "BuyerManagement");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/orders/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(e);
+      });
       console.log("Open chat error:", e);
     }
   }, []);
@@ -210,6 +247,15 @@ export default function BuyerManagementScreen() {
       setShowConfirm(false);
       setConfirmAction(null);
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "BuyerManagement");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/orders/",
+          method: "POST",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Action failed:", error);
     }
   }, [confirmAction, withReload]);

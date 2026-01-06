@@ -4,6 +4,7 @@ import IconArrowDown from "@/icons/IconArrowDown";
 import IconBack from "@/icons/IconBack";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -176,6 +177,15 @@ export default function EditPostScreen() {
 
       return p;
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "EditPost");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/posts/",
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Error loading post details:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin bài đăng.");
       router.back();
@@ -249,6 +259,15 @@ export default function EditPostScreen() {
         const foundStatus = mapBookStatusToOption(p?.book_status);
         setSelectedStatus(foundStatus);
       } catch (e) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "EditPost");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/posts/",
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(e);
+        });
         console.log("Load post detail error:", e);
         Alert.alert("Lỗi", "Không thể tải chi tiết bài đăng.");
         router.back();
@@ -332,6 +351,15 @@ export default function EditPostScreen() {
 
       setShowSuccessModal(true);
     } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "EditPost");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/posts/",
+          method: "PUT",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(e);
+      });
       console.log("Update error:", e);
       Alert.alert("Lỗi", "Không thể kết nối đến máy chủ.");
     } finally {

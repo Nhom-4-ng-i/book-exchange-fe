@@ -1,5 +1,6 @@
 import ConfirmationModal from "@/components/ConfirmationModal";
 import SuccessModal from "@/components/SuccessModal";
+import * as Sentry from "@sentry/react-native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -87,6 +88,15 @@ export default function WishlistScreen() {
         setCourses(cArr);
         setWishlists(wlArr);
       } catch (e) {
+        Sentry.withScope((scope) => {
+          scope.setTag("feature", "WishlistScreen");
+          scope.setContext("api", {
+            url: "http://160.187.246.140:8000/api/wishlists/",
+            method: "GET",
+          });
+          scope.setLevel("error");
+          Sentry.captureException(e);
+        });
         console.log("Load wishlists/courses error:", e);
         setError("Không thể tải danh sách wishlist.");
         setCourses([]);
@@ -109,6 +119,15 @@ export default function WishlistScreen() {
       setShowDeleteConfirm(false);
       setShowSuccess(true);
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "WishlistScreen");
+        scope.setContext("api", {
+          url: "http://160.187.246.140:8000/api/wishlists/",
+          method: "DELETE",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Delete wishlist error:", error);
       Alert.alert("Lỗi", "Không thể xóa wishlist. Vui lòng thử lại.");
     } finally {

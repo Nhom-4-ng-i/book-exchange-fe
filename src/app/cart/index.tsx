@@ -1,5 +1,6 @@
 import { OpenAPI, OrdersService, UserService } from "@/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
@@ -93,6 +94,15 @@ export default function Index() {
         order_id: order.order_id, // Ensure order_id is preserved
       }));
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "cart");
+        scope.setContext("api", {
+          url: UserService.getMyProfileRouteApiUserMeGet(),
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Error fetching order details:", error);
     } finally {
       setIsLoadingOrderDetails(false);
@@ -113,6 +123,15 @@ export default function Index() {
 
       setOrders(finalData);
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "cart");
+        scope.setContext("api", {
+          url: UserService.getMyProfileRouteApiUserMeGet(),
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Lỗi fetch orders:", error);
     } finally {
       setLoading(false);
@@ -149,6 +168,15 @@ export default function Index() {
       setShowDeleteConfirm(false);
       setShowSuccess(true);
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setTag("feature", "cart");
+        scope.setContext("api", {
+          url: UserService.getMyProfileRouteApiUserMeGet(),
+          method: "GET",
+        });
+        scope.setLevel("error");
+        Sentry.captureException(error);
+      });
       console.error("Lỗi khi huỷ đơn hàng:", error);
       Alert.alert("Lỗi", "Không thể huỷ đơn hàng. Vui lòng thử lại sau.");
     } finally {
