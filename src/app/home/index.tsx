@@ -237,54 +237,57 @@ export default function Index() {
 
       {/* ################################### */}
       {isSearching ? (
-        <View className="px-6 pt-4 bg-white flex-row items-center">
-          {/* Nút Quay lại - Margin Right 12px để tách biệt */}
-          <Pressable
-            onPress={() => {
-              setIsSearching(false);
-              setSearchQuery("");
-              setSelectedCategory(null);
-              setIsDropdownVisible(false);
-
-              setSearchType("title");
-              setSearchLabel("Tên sách");
-
-              loadPosts({ query: "", type: "title" });
-            }}
-            className="mr-3 hitSlop={{top: 12, bottom: 12, left: 12, right: 12}} mb-4" // Tăng vùng chạm cho iPhone
-          >
-            <IconBack />
-          </Pressable>
-
-          {/* Khung Search */}
-          <View className="flex-1 flex-row items-center bg-gray-100 rounded-[10px] px-3 h-10 mb-4">
-            <IconSearch color="#A6A6A6" />
-            <TextInput
-              className="flex-1 ml-2 text-bodyLarge text-gray-900 h-full" // iPhone nên để text 16px để tránh tự động zoom
-              placeholder="Tìm kiếm"
-              placeholderTextColor="#b3b3b3"
-              value={searchQuery}
-              autoFocus={true} // Tự động mở bàn phím khi hiện thanh search
-              onChangeText={setSearchQuery}
-              onSubmitEditing={() => loadPosts()}
-              returnKeyType="search"
-            />
-
-            {/* Đường vạch ngăn cách */}
-            <View className="w-[1px] h-5 bg-gray-300 mx-2" />
-
-            {/* Nút chọn tiêu chí */}
+        <SafeAreaView
+          edges={["left", "right", "top"]}
+          className="bg-white h-[84px] px-6"
+        >
+          <View className="flex-row items-center h-full">
+            {/* Back */}
             <Pressable
-              className="flex-row items-center py-1"
-              onPress={() => setIsDropdownVisible(true)}
+              onPress={() => {
+                setIsSearching(false);
+                setSearchQuery("");
+                setSelectedCategory(null);
+                setIsDropdownVisible(false);
+                setSearchType("title");
+                setSearchLabel("Tên sách");
+                loadPosts({ query: "", type: "title" });
+              }}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              className="mr-3 p-2 rounded-full active:opacity-70"
             >
-              <Text className="text-gray-500 text-[12px] mr-1">
-                {searchLabel}
-              </Text>
-              <IconArrowDown size={16} />
+              <IconBack />
             </Pressable>
+
+            <View className="flex-1 flex-row items-center bg-gray-100 rounded-[10px] px-3 h-10">
+              <IconSearch color="#A6A6A6" />
+
+              <TextInput
+                className="flex-1 ml-2 text-[16px] text-gray-900 h-full text-sm pb-[10px]"
+                placeholder="Tìm kiếm"
+                placeholderTextColor="#b3b3b3"
+                value={searchQuery}
+                autoFocus
+                onChangeText={setSearchQuery}
+                onSubmitEditing={() => loadPosts()}
+                returnKeyType="search"
+              />
+
+              <View className="w-[1px] h-5 bg-gray-300 mx-2" />
+
+              <Pressable
+                className="flex-row items-center py-1"
+                onPress={() => setIsDropdownVisible(true)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text className="text-gray-500 text-[12px] mr-1">
+                  {searchLabel}
+                </Text>
+                <IconArrowDown size={16} />
+              </Pressable>
+            </View>
           </View>
-        </View>
+        </SafeAreaView>
       ) : (
         <HeaderHome
           title="Trang chủ"

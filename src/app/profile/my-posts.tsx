@@ -156,7 +156,7 @@ export default function MyPostsScreen() {
   return (
     <SafeAreaView
       className="flex-1 bg-white"
-      edges={["left", "right", "bottom"]}
+      edges={["left", "right", "bottom", "top"]}
     >
       <StatusBar style="dark" />
       <View className="flex-row items-center justify-between px-6 py-2 h-16">

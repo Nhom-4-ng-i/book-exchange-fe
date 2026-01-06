@@ -22,6 +22,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 async function ensureAuthToken() {
   const token = await AsyncStorage.getItem("access_token");
@@ -249,20 +250,30 @@ export default function AddPost() {
       className="flex-1 bg-white"
       keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
     >
-      {/* Header - Padding 14px */}
       <StatusBar style="dark" />
-      <View className="flex-row items-center justify-between px-6 py-2 h-16">
-        <Pressable
-          onPress={() => router.back()}
-          className="rounded-full p-2 active:opacity-70"
-        >
-          <IconBack />
-        </Pressable>
-        <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
-          Đăng sách/tài liệu mới
-        </Text>
-        <View className="w-8" />
-      </View>
+      <SafeAreaView
+        edges={["left", "right", "top"]}
+        className="bg-white h-[84px] px-6"
+      >
+        <View className="flex-row items-center h-full">
+          <View className="w-10 items-start">
+            <Pressable
+              onPress={() => router.back()}
+              className="rounded-full p-2 active:opacity-70"
+            >
+              <IconBack />
+            </Pressable>
+          </View>
+
+          <View className="flex-1 items-center">
+            <Text className="text-xl font-bold text-textPrimary900">
+              Đăng sách/tài liệu mới
+            </Text>
+          </View>
+
+          <View className="w-10" />
+        </View>
+      </SafeAreaView>
 
       <ScrollView
         contentContainerStyle={{

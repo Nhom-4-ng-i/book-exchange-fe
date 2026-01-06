@@ -99,7 +99,7 @@ export default function OnboardingScreen() {
   return (
     <SafeAreaView
       className="flex-1 bg-white"
-      edges={["left", "right", "bottom"]}
+      edges={["left", "right", "bottom", "top"]}
     >
       <StatusBar barStyle="dark-content" />
 

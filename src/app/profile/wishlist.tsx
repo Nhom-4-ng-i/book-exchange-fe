@@ -1,15 +1,16 @@
-import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert } from "react-native";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import SuccessModal from "@/components/SuccessModal";
+import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   Text,
   View,
 } from "react-native";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CoursesService, UserService, WishlistsService } from "@/api";
@@ -61,7 +62,9 @@ export default function WishlistScreen() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [selectedWishlist, setSelectedWishlist] = useState<ApiWishlist | null>(null);
+  const [selectedWishlist, setSelectedWishlist] = useState<ApiWishlist | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -99,13 +102,15 @@ export default function WishlistScreen() {
   const handleDeleteWishlist = useCallback(async (id: number) => {
     try {
       setDeletingId(id);
-      await WishlistsService.deleteWishlistRouteApiWishlistsWishlistIdDelete(id);
-      setWishlists(prev => prev.filter(w => w.id !== id));
+      await WishlistsService.deleteWishlistRouteApiWishlistsWishlistIdDelete(
+        id
+      );
+      setWishlists((prev) => prev.filter((w) => w.id !== id));
       setShowDeleteConfirm(false);
       setShowSuccess(true);
     } catch (error) {
-      console.error('Delete wishlist error:', error);
-      Alert.alert('Lỗi', 'Không thể xóa wishlist. Vui lòng thử lại.');
+      console.error("Delete wishlist error:", error);
+      Alert.alert("Lỗi", "Không thể xóa wishlist. Vui lòng thử lại.");
     } finally {
       setDeletingId(null);
       setSelectedWishlist(null);
@@ -153,10 +158,7 @@ export default function WishlistScreen() {
   }
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-white"
-      edges={["left", "right", "bottom"]}
-    >
+    <SafeAreaView className="flex-1 bg-white" edges={["left", "right", "top"]}>
       <View className="flex-row items-center justify-between px-6 py-2 h-16">
         <Pressable
           onPress={() => router.back()}
@@ -183,8 +185,8 @@ export default function WishlistScreen() {
             const wishlist = wishlists[index];
             return (
               <View key={`wishlist-${index}`} className="mb-4">
-                <WishlistCard 
-                  {...item} 
+                <WishlistCard
+                  {...item}
                   onDelete={() => handleDeletePress(wishlist)}
                   onEdit={() => {
                     router.push({
@@ -209,19 +211,18 @@ export default function WishlistScreen() {
           )}
         </View>
       </ScrollView>
-      <View
-        className="absolute bottom-0 left-0 right-0 px-6 bg-textGray50"
-        style={{ paddingTop: 20 }}
-      >
-        <Pressable
-          className="items-center rounded-lg bg-textPrimary500 py-3"
-          onPress={() => router.push("/profile/wishlist-create")}
-        >
-          <Text className="text-heading6 font-bold text-white">
-            + Thêm Wishlist mới
-          </Text>
-        </Pressable>
-      </View>
+      <SafeAreaView edges={["bottom"]} className="bg-textGray50">
+        <View className="px-6 pt-3 pb-5">
+          <Pressable
+            className="items-center rounded-lg bg-textPrimary500 py-3 active:opacity-80"
+            onPress={() => router.push("/profile/wishlist-create")}
+          >
+            <Text className="text-heading6 font-bold text-white">
+              + Thêm Wishlist mới
+            </Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
 
       <ConfirmationModal
         visible={showDeleteConfirm}
@@ -229,7 +230,9 @@ export default function WishlistScreen() {
           setShowDeleteConfirm(false);
           setSelectedWishlist(null);
         }}
-        onConfirm={() => selectedWishlist && handleDeleteWishlist(selectedWishlist.id)}
+        onConfirm={() =>
+          selectedWishlist && handleDeleteWishlist(selectedWishlist.id)
+        }
         title="Xác nhận xóa"
         message="Bạn có chắc chắn muốn xóa wishlist này?"
         confirmText="Xác nhận xóa"

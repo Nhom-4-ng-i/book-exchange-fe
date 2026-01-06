@@ -1,7 +1,7 @@
 import { CoursesService, LocationsService, OpenAPI, PostsService } from "@/api";
+import SuccessModal from "@/components/SuccessModal";
 import IconArrowDown from "@/icons/IconArrowDown";
 import IconBack from "@/icons/IconBack";
-import SuccessModal from "@/components/SuccessModal";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
@@ -22,6 +22,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 async function ensureAuthToken() {
   const token = await AsyncStorage.getItem("access_token");
@@ -353,18 +354,29 @@ export default function EditPostScreen() {
       keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
     >
       <StatusBar style="dark" />
-      <View className="flex-row items-center justify-between px-6 py-2 h-16">
-        <Pressable
-          onPress={() => router.back()}
-          className="rounded-full p-2 active:opacity-70"
-        >
-          <IconBack />
-        </Pressable>
-        <Text className="flex-1 text-center text-xl font-bold text-textPrimary900">
-          Chỉnh sửa bài đăng
-        </Text>
-        <View className="w-8" />
-      </View>
+      <SafeAreaView
+        edges={["left", "right", "top"]}
+        className="bg-white h-[84px] px-6"
+      >
+        <View className="flex-row items-center h-full">
+          <View className="w-10 items-start">
+            <Pressable
+              onPress={() => router.back()}
+              className="rounded-full p-2 active:opacity-70"
+            >
+              <IconBack />
+            </Pressable>
+          </View>
+
+          <View className="flex-1 items-center">
+            <Text className="text-xl font-bold text-textPrimary900">
+              Chỉnh sửa bài đăng/tài liệu
+            </Text>
+          </View>
+
+          <View className="w-10" />
+        </View>
+      </SafeAreaView>
 
       <ScrollView
         contentContainerStyle={{

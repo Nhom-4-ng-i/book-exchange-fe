@@ -187,10 +187,7 @@ const WishlistEditScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-white"
-      edges={["left", "right", "bottom"]}
-    >
+    <SafeAreaView className="flex-1 bg-white" edges={["left", "right", "top"]}>
       <View className="flex-row items-center justify-between px-6 py-2 h-16">
         <Pressable
           onPress={() => router.back()}
@@ -318,24 +315,23 @@ const WishlistEditScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      <View
-        className="absolute bottom-0 left-0 right-0 px-6 bg-textGray50"
-        style={{ paddingTop: 20 }}
-      >
-        <Pressable
-          className="items-center rounded-lg bg-textPrimary500 py-3 disabled:opacity-60"
-          onPress={submitWishlist}
-          disabled={!canSubmit}
-        >
-          {submitting ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text className="text-heading6 font-bold text-white">
-              Cập nhật Wishlist
-            </Text>
-          )}
-        </Pressable>
-      </View>
+      <SafeAreaView edges={["bottom"]} className="bg-textGray50">
+        <View className="px-6 pt-3 pb-5">
+          <Pressable
+            className="items-center rounded-lg bg-textPrimary500 py-3 active:opacity-80 disabled:opacity-60"
+            onPress={submitWishlist}
+            disabled={!canSubmit}
+          >
+            {submitting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-heading6 font-bold text-white">
+                Cập nhật Wishlist
+              </Text>
+            )}
+          </Pressable>
+        </View>
+      </SafeAreaView>
 
       <Modal
         visible={courseModalOpen}

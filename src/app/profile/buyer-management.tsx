@@ -246,7 +246,7 @@ export default function BuyerManagementScreen() {
     <React.Fragment key={screenKey}>
       <SafeAreaView
         className="flex-1 bg-white"
-        edges={["left", "right", "bottom"]}
+        edges={["left", "right", "bottom", "top"]}
       >
         <StatusBar style="dark" />
 
