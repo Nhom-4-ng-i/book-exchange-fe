@@ -11,6 +11,13 @@ on:
     branches: ["main"]
     paths:
       - "app/**"
+      - "src/**"
+      - "assets/**"
+      - "package.json"
+      - "package-lock.json"
+      - "app.json"
+      - "app.config.*"
+      - "eas.json"
 
 jobs:
   eas-build:
@@ -32,14 +39,27 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Build Android
-        run: eas build --platform android --profile ${{ github.event.inputs.profile || 'production' }} --non-interactive
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Build Android (EAS)
+        id: eas
+        run: |
+          PROFILE="${{ github.event.inputs.profile || 'production' }}"
+          eas build --platform android --profile "$PROFILE" --non-interactive --json > build.json
+          echo "build_id=$(jq -r '.[0].id' build.json)" >> $GITHUB_OUTPUT
+          echo "build_url=$(jq -r '.[0].buildUrl' build.json)" >> $GITHUB_OUTPUT
 
       - name: Download APK from EAS
-        uses: actions/download-artifact@v3
+        run: |
+          mkdir -p artifacts
+          eas build:download --platform android --id "${{ steps.eas.outputs.build_id }}" --output artifacts/app-release.apk --non-interactive
+
+      - name: Upload APK artifact (GitHub Actions)
+        uses: actions/upload-artifact@v4
         with:
-          name: app-release.apk
-          path: ./artifacts
+          name: app-release-apk
+          path: artifacts/app-release.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -47,7 +67,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: BKoo ${{ github.ref_name }}
-          files: ./artifacts/*.apk
+          files: artifacts/app-release.apk
           draft: false
           prerelease: false
         env:
