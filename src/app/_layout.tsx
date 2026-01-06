@@ -59,6 +59,10 @@ function RootLayout() {
       <Stack.Screen name="cart/index" options={{ headerShown: false }} />
 
       <Stack.Screen name="auth/login/index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="auth/register/index"
+        options={{ headerShown: false }}
+      />
       <Stack.Screen name="auth/phone/index" options={{ headerShown: false }} />
       <Stack.Screen name="auth/phone/otp" options={{ headerShown: false }} />
 

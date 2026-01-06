@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
 import Constants from "expo-constants";
-import { router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -14,9 +14,8 @@ import {
   View,
 } from "react-native";
 
-import { ApiError, AuthService, OpenAPI, UserService } from "@/api";
+import { AuthService, OpenAPI, UserService } from "@/api";
 import { loadGoogleSignin } from "googleAuth";
-import IconGoogle from "../../../icons/IconGoogle";
 
 OpenAPI.BASE = "http://160.187.246.140:8000";
 
@@ -35,67 +34,17 @@ async function persistSession(accessToken: string) {
   return me;
 }
 
-async function signInWithEmailPassword(email: string, password: string) {
+async function signIn(email: string, password: string) {
   return await AuthService.signInRouteApiAuthSignInPost({
     email,
     password,
   } as any);
 }
 
-async function signInOrSignUp(email: string, password: string, name?: string) {
-  try {
-    return await AuthService.signInRouteApiAuthSignInPost({ email });
-  } catch (err: any) {
-    Sentry.withScope((scope) => {
-      scope.setTag("feature", "login");
-      scope.setContext("api", {
-        url: "http://160.187.246.140:8000/api/auth/sign-in/",
-        method: "POST",
-      });
-      scope.setLevel("error");
-      Sentry.captureException(err);
-    });
-    const isApiError =
-      err instanceof ApiError || typeof err?.status === "number";
-    if (!isApiError) throw err;
-    const status = err.status ?? err?.statusCode;
-    if (status === 404 || status === 401) {
-      await AuthService.signUpRouteApiAuthSignUpPost({
-        email,
-        password,
-        name,
-      } as any);
-      return await AuthService.signInRouteApiAuthSignInPost({ email });
-    }
-    throw err;
-  }
-}
-
-const handleTestEmailLogin = async () => {
-  try {
-    const email = "ttqthinh2004@gmail.com";
-    const password = "password";
-    const name = "Thinh";
-    const res = await signInOrSignUp(email, password, name);
-    await persistSession(res.access_token);
-    router.push("/auth/phone");
-  } catch (error: any) {
-    Sentry.withScope((scope) => {
-      scope.setTag("feature", "login");
-      scope.setContext("api", {
-        url: "http://160.187.246.140:8000/api/auth/sign-in/",
-        method: "POST",
-      });
-      scope.setLevel("error");
-      Sentry.captureException(error);
-    });
-    Alert.alert("Lỗi", "Không thể đăng nhập test. Kiểm tra lại API.");
-  }
-};
-
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const router = useRouter();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -105,24 +54,6 @@ export default function LoginScreen() {
     () => asString(Constants.expoConfig?.extra?.googleSignIn?.webClientId),
     []
   );
-
-  // Auto-login if token exists
-  useEffect(() => {
-    const run = async () => {
-      try {
-        const token = await AsyncStorage.getItem("access_token");
-        if (!token) return;
-
-        OpenAPI.TOKEN = token;
-        await UserService.getMyProfileRouteApiUserMeGet();
-        router.replace("/home");
-      } catch (e) {
-        await AsyncStorage.removeItem("access_token");
-        await AsyncStorage.removeItem("user");
-      }
-    };
-    run();
-  }, [router]);
 
   // Configure GoogleSignin once (native build)
   useEffect(() => {
@@ -136,34 +67,45 @@ export default function LoginScreen() {
           scopes: ["profile", "email"],
         });
       } catch (e) {
-        // Không chặn UI nếu configure fail; chỉ log để debug
         Sentry.captureException(e);
       }
     };
     init();
   }, [webClientId]);
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
+    const n = name.trim();
     const e = email.trim();
-    if (!e || !password) {
-      Alert.alert("Thiếu thông tin", "Vui lòng nhập email và mật khẩu.");
+
+    if (!n || !e || !password) {
+      Alert.alert(
+        "Thiếu thông tin",
+        "Vui lòng nhập họ tên, email và mật khẩu."
+      );
       return;
     }
 
     setBusy(true);
     try {
-      const res = await signInWithEmailPassword(e, password);
+      await AuthService.signUpRouteApiAuthSignUpPost({
+        name: n,
+        email: e,
+        password,
+      } as any);
+
+      const res = await signIn(e, password);
       await persistSession((res as any).access_token);
+
       router.push("/auth/phone");
     } catch (err: any) {
       Sentry.captureException(err);
-      Alert.alert("Lỗi", "Không thể đăng nhập. Vui lòng kiểm tra lại.");
+      Alert.alert("Lỗi", "Không thể đăng ký. Vui lòng thử lại.");
     } finally {
       setBusy(false);
     }
   };
 
-  const handleGoogle = async () => {
+  const handleGoogleSignUp = async () => {
     if (!webClientId) {
       Alert.alert(
         "Thiếu cấu hình",
@@ -191,21 +133,35 @@ export default function LoginScreen() {
 
       const googleUser = response.data?.user;
       const gEmail = googleUser?.email;
-      const name = googleUser?.name ?? googleUser?.givenName;
+      const gName = googleUser?.name ?? googleUser?.givenName;
 
       if (!gEmail) {
         Alert.alert("Lỗi", "Không lấy được email từ Google.");
         return;
       }
 
-      // Password “mặc định” để khớp schema BE hiện tại của bạn
-      const defaultPassword = "password";
+      try {
+        // Try to sign in first
+        const res = await signIn(gEmail, "password");
+        await persistSession((res as any).access_token);
+        router.push("/auth/phone");
+      } catch (err: any) {
+        // If sign in fails, try to sign up
+        if (err.status === 404 || err.status === 401) {
+          await AuthService.signUpRouteApiAuthSignUpPost({
+            name: gName || "User",
+            email: gEmail,
+            password: "password",
+          } as any);
 
-      const res = await signInOrSignUp(gEmail, defaultPassword, name);
-      await persistSession((res as any).access_token);
-      router.push("/auth/phone");
+          const res = await signIn(gEmail, "password");
+          await persistSession((res as any).access_token);
+          router.push("/auth/phone");
+        } else {
+          throw err;
+        }
+      }
     } catch (err: any) {
-      // Cancel => im lặng
       try {
         const { statusCodes, isErrorWithCode, isCancelledResponse } =
           await loadGoogleSignin();
@@ -228,7 +184,7 @@ export default function LoginScreen() {
       } catch {}
 
       Sentry.captureException(err);
-      Alert.alert("Lỗi", "Không thể đăng nhập Google. Vui lòng thử lại.");
+      Alert.alert("Lỗi", "Không thể đăng ký với Google. Vui lòng thử lại.");
     } finally {
       setBusy(false);
     }
@@ -244,14 +200,33 @@ export default function LoginScreen() {
         <View className="flex-1 px-6 pt-4 mt-20">
           <View className="mb-8">
             <Text className="text-2xl font-bold text-black mb-2">
-              Chào mừng bạn trở lại 👋
+              Tạo tài khoản
             </Text>
             <Text className="text-base text-gray-500">
-              Đăng nhập vào tài khoản của bạn
+              Hãy nhập thông tin để đăng ký tài khoản nào!
             </Text>
           </View>
 
           <View className="mt-2">
+            <Text className="font-medium mb-2 text-sm">Họ và tên</Text>
+            <View className="flex-row justify-center items-center bg-gray-50 rounded-lg h-14 px-3">
+              <TextInput
+                style={{
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                  lineHeight: 20,
+                }}
+                className="flex-1 text-[16px] text-gray-900"
+                value={name}
+                onChangeText={setName}
+                placeholder="Nguyễn Văn A"
+                placeholderTextColor="#9CA3AF"
+                editable={!busy}
+              />
+            </View>
+          </View>
+
+          <View className="mt-4">
             <Text className="font-medium mb-2 text-sm">Email</Text>
             <View className="flex-row justify-center items-center bg-gray-50 rounded-lg h-14 px-3">
               <TextInput
@@ -272,7 +247,7 @@ export default function LoginScreen() {
             </View>
           </View>
 
-          <View className="mt-4 mb-8">
+          <View className="mt-4 mb-4">
             <Text className="font-medium mb-2 text-sm">Mật khẩu</Text>
             <View className="flex-row justify-center items-center bg-gray-50 rounded-lg h-14 px-3">
               <TextInput
@@ -292,19 +267,6 @@ export default function LoginScreen() {
             </View>
           </View>
 
-          <Pressable
-            disabled={busy}
-            className={`${buttonBase} ${buttonActive}`}
-            onPress={handleTestEmailLogin}
-          >
-            <View className="absolute left-6">
-              <IconGoogle />
-            </View>
-            <Text className="text-sm font-normal text-gray-800">
-              Đăng nhập với Google mẫu
-            </Text>
-          </Pressable>
-
           <View className="flex-row items-center my-6 mt-4">
             <View className="flex-1 h-[1px] bg-gray-200" />
             <Text className="px-4 text-gray-500 text-sm">hoặc</Text>
@@ -313,31 +275,31 @@ export default function LoginScreen() {
 
           <Pressable
             disabled={busy}
-            onPress={handleLogin}
+            onPress={handleRegister}
             className="mt-6 bg-textPrimary500 h-14 rounded-[28px] items-center justify-center active:opacity-85 disabled:bg-violet-300"
           >
             {busy ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="text-white font-bold text-base">Đăng nhập</Text>
+              <Text className="text-white font-bold text-base">
+                Tạo tài khoản
+              </Text>
             )}
           </Pressable>
 
-          <View className="flex-row justify-center mt-3">
+          <View className="flex-row justify-center mt-4">
             <Text className="text-textGray500 font-semibold text-sm">
-              Chưa có tài khoản?{" "}
+              Đã có tài khoản?{" "}
             </Text>
             <Pressable
-              onPress={() => router.push("/auth/register")}
+              onPress={() => router.push("/auth/login")}
               disabled={busy}
             >
               <Text className="font-semibold text-sm text-textPrimary500">
-                Đăng ký
+                Đăng nhập
               </Text>
             </Pressable>
           </View>
-
-          <View className="mt-8 opacity-60"></View>
         </View>
       </View>
     </TouchableWithoutFeedback>
