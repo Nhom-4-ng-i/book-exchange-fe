@@ -1,7 +1,6 @@
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
-import * as AuthSession from "expo-auth-session";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
@@ -126,35 +125,35 @@ export default function LoginScreen() {
   // Nút 2: Google login thật
   const handleGoogleLogin = async () => {
     // Expo Go path: dùng backend OAuth (AuthSession)
-    if (isExpoGo) {
-      const redirectUrl = AuthSession.makeRedirectUri({
-        scheme: "exchangeoldbooks",
-        path: "auth",
-      });
+    // if (isExpoGo) {
+    //   const redirectUrl = AuthSession.makeRedirectUri({
+    //     scheme: "exchangeoldbooks",
+    //     path: "auth",
+    //   });
 
-      const authUrl = `${OpenAPI.BASE.replace(/\/+$/, "")}/api/auth/google/login?redirect_uri=${encodeURIComponent(
-        redirectUrl
-      )}`;
+    //   const authUrl = `${OpenAPI.BASE.replace(/\/+$/, "")}/api/auth/google/login?redirect_uri=${encodeURIComponent(
+    //     redirectUrl
+    //   )}`;
 
-      const result = await WebBrowser.openAuthSessionAsync(
-        authUrl,
-        redirectUrl
-      );
-      if (result.type !== "success") return;
+    //   const result = await WebBrowser.openAuthSessionAsync(
+    //     authUrl,
+    //     redirectUrl
+    //   );
+    //   if (result.type !== "success") return;
 
-      const urlObj = new URL(result.url);
-      const token = urlObj.searchParams.get("token");
+    //   const urlObj = new URL(result.url);
+    //   const token = urlObj.searchParams.get("token");
 
-      if (!token) {
-        Alert.alert("Lỗi", "Không nhận được token sau khi đăng nhập.");
-        return;
-      }
+    //   if (!token) {
+    //     Alert.alert("Lỗi", "Không nhận được token sau khi đăng nhập.");
+    //     return;
+    //   }
 
-      await persistSession(token);
-      router.push("/auth/phone");
+    //   await persistSession(token);
+    //   router.push("/auth/phone");
 
-      return;
-    }
+    //   return;
+    // }
 
     // Native path
     const {
