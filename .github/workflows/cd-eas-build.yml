@@ -33,3 +33,21 @@ jobs:
 
       - name: Build Android
         run: eas build --platform android --profile ${{ github.event.inputs.profile || 'production' }} --non-interactive
+
+      - name: Download APK from EAS
+        uses: actions/download-artifact@v3
+        with:
+          name: app-release.apk
+          path: ./artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: BKoo ${{ github.ref_name }}
+          files: ./artifacts/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
