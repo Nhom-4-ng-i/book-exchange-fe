@@ -8,8 +8,9 @@ on:
         required: true
         default: "preview"
   push:
-    tags:
-      - "v*"
+    branches: ["main"]
+    paths:
+      - "app/**"
 
 jobs:
   eas-build:
