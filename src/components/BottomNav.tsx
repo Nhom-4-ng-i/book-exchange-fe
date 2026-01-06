@@ -35,7 +35,7 @@ export default function BottomNav() {
 
   return (
     <SafeAreaView
-      className="absolute bottom-0 left-0 right-0 bg-textGray50 h-[83px]"
+      className=" bg-textGray50 h-[70px]"
       edges={["left", "right", "bottom"]}
     >
       <View className="flex-row items-center justify-around py-2">
@@ -61,7 +61,7 @@ export default function BottomNav() {
                 onPress={logBreadcrumb}
               >
                 <View
-                  className={`${isActive ? "text-textPrimary500" : "text-gray-500"}`}
+                  className={`${isActive ? "text-textPrimary500" : "text-gray-500"} mt-2`}
                 >
                   <Icon color={iconColor} />
                 </View>

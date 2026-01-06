@@ -76,8 +76,8 @@ export default function AppHeader({
 
   return (
     <SafeAreaView
-      className="bg-white z-50 mt-6 h-16"
-      edges={["left", "right", "bottom"]}
+      className="bg-white h-[84px]"
+      edges={["left", "right", "top"]}
     >
       <View className="px-4 py-2 flex-row items-center">
         {showSearch && (
