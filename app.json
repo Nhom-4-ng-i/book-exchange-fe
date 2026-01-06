@@ -9,6 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "assetBundlePatterns": ["assets/images/*"],
+    "platforms": ["android"],
     "android": {
       "usesCleartextTraffic": true,
       "package": "com.trieuman2705.bkoo",
@@ -25,7 +26,12 @@
       "bundler": "metro"
     },
     "plugins": [
-      ["@react-native-google-signin/google-signin", {}],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.826333210617-dogrjmu5121isqo1gdnblogr23j6qh6b"
+        }
+      ],
       [
         "expo-build-properties",
         { "android": { "usesCleartextTraffic": true } }
