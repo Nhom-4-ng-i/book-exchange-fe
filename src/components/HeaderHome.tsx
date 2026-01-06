@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface AppHeaderProps {
   title: string;
@@ -74,7 +75,10 @@ export default function AppHeader({
   }, [bellTick]);
 
   return (
-    <View className="bg-white z-50  pt-4">
+    <SafeAreaView
+      className="bg-white z-50 mt-6 h-16"
+      edges={["left", "right", "bottom"]}
+    >
       <View className="px-4 py-2 flex-row items-center">
         {showSearch && (
           <Pressable
@@ -123,6 +127,6 @@ export default function AppHeader({
           )}
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

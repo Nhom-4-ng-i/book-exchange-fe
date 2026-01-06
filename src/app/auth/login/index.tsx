@@ -1,6 +1,7 @@
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sentry from "@sentry/react-native";
+import * as AuthSession from "expo-auth-session";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
@@ -8,222 +9,203 @@ import React, { useEffect, useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
 
 import { ApiError, AuthService, OpenAPI, UserService } from "@/api";
+import { loadGoogleSignin } from "googleAuth";
 import IconFacebook from "../../../icons/IconFacebook";
 import IconGoogle from "../../../icons/IconGoogle";
 
-let GoogleSignin: any;
-let statusCodes: any;
-
-const isExpoGo = !Constants.appOwnership || Constants.appOwnership === "expo";
-
-if (!isExpoGo) {
-  try {
-    import("@react-native-google-signin/google-signin").then((module) => {
-      GoogleSignin = module.GoogleSignin;
-      statusCodes = module.statusCodes;
-    });
-  } catch (error) {
-    console.warn("Failed to load Google Sign-In module:", error);
-  }
-}
+WebBrowser.maybeCompleteAuthSession();
 
 OpenAPI.BASE = "http://160.187.246.140:8000";
 
-async function signInOrSignUp(email: string, name?: string) {
+async function signInOrSignUp(email: string, password: string, name?: string) {
   try {
     return await AuthService.signInRouteApiAuthSignInPost({ email });
   } catch (err: any) {
     const isApiError =
       err instanceof ApiError || typeof err?.status === "number";
-
-    if (!isApiError) {
-      throw err;
-    }
+    if (!isApiError) throw err;
 
     const status = err.status ?? err?.statusCode;
-
     if (status === 404 || status === 401) {
-      console.log("User chưa tồn tại, tiến hành sign-up rồi sign-in lại");
-
       await AuthService.signUpRouteApiAuthSignUpPost({
         email,
+        password,
         name,
       } as any);
-
       return await AuthService.signInRouteApiAuthSignInPost({ email });
     }
-
     throw err;
   }
 }
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [isExpoGoState, setIsExpoGoState] = useState(false);
+  const [isExpoGo, setIsExpoGo] = useState(false);
 
+  // 1) Check logged in
   useEffect(() => {
     const checkLoggedIn = async () => {
       try {
         const token = await AsyncStorage.getItem("access_token");
-        if (token) {
-          OpenAPI.BASE = "http://160.187.246.140:8000";
-          OpenAPI.TOKEN = token;
+        if (!token) return;
 
-          try {
-            await UserService.getMyProfileRouteApiUserMeGet();
-            router.replace("/home");
-          } catch (error) {
-            console.log("Token validation failed:", error);
-            await AsyncStorage.removeItem("access_token");
-            await AsyncStorage.removeItem("user");
-          }
-        }
+        OpenAPI.TOKEN = token;
+        await UserService.getMyProfileRouteApiUserMeGet();
+        router.replace("/home");
       } catch (e) {
-        console.log("Error checking login status:", e);
         await AsyncStorage.removeItem("access_token");
         await AsyncStorage.removeItem("user");
       }
     };
-
     checkLoggedIn();
   }, [router]);
 
+  // 2) Detect Expo Go and configure GoogleSignin ONCE for native builds
   useEffect(() => {
-    const checkExpoGo = async () => {
-      const expo = !Constants.appOwnership || Constants.appOwnership === "expo";
-      setIsExpoGoState(expo);
+    const expoGo = !Constants.appOwnership || Constants.appOwnership === "expo";
+    setIsExpoGo(expoGo);
 
-      if (!expo && GoogleSignin) {
-        GoogleSignin.configure({
-          webClientId: Constants.expoConfig?.extra?.googleSignIn?.webClientId,
-          iosClientId: Constants.expoConfig?.extra?.googleSignIn?.iosClientId,
-          offlineAccess: false,
-          scopes: ["profile", "email"],
-          forceCodeForRefreshToken: false,
-        });
-      }
-    };
+    const initNativeGoogleSignin = async () => {
+      // Only init when NOT Expo Go
+      if (expoGo) return;
 
-    checkExpoGo();
-  }, []);
+      const { GoogleSignin } = await loadGoogleSignin();
 
-  const handleGoogleLogin = async () => {
-    if (isExpoGoState) {
-      const redirectUrl = `${Constants.expoConfig?.scheme}://`;
-      const authUrl = `http://160.187.246.140:8000/api/auth/google/login?redirect_uri=${encodeURIComponent(
-        redirectUrl
-      )}`;
-
-      try {
-        const result = await WebBrowser.openAuthSessionAsync(
-          authUrl,
-          redirectUrl
-        );
-
-        if (result.type === "success") {
-          const url = new URL(result.url);
-          const token = url.searchParams.get("token");
-
-          if (token) {
-            await AsyncStorage.setItem("access_token", token);
-            OpenAPI.TOKEN = token;
-            router.push("/auth/phone");
-          }
-        }
-      } catch (error) {
-        console.error("Google Sign-In Error:", error);
-        Alert.alert("Lỗi", "Không thể mở trình duyệt để đăng nhập.");
-      }
-    } else if (GoogleSignin) {
-      try {
-        await GoogleSignin.hasPlayServices({
-          showPlayServicesUpdateDialog: true,
-        });
-
-        const userInfo = await GoogleSignin.signIn();
-
-        const googleId = userInfo.data?.user.id;
-        const email = userInfo.data?.user.email;
-        const name =
-          userInfo.data?.user.name ||
-          userInfo.data?.user.givenName ||
-          undefined;
-
-        console.log("Google user id:", googleId);
-        console.log("Google user email:", email);
-        console.log("Google user name:", name);
-
-        if (!email) {
-          Alert.alert(
-            "Lỗi",
-            "Không lấy được email từ Google. Vui lòng thử lại hoặc dùng cách đăng nhập khác."
-          );
-          return;
-        }
-
-        const res = await signInOrSignUp(email, name);
-
-        console.log("Sign-in API response:", res);
-
-        await AsyncStorage.setItem("access_token", res.access_token);
-        await AsyncStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: res.id,
-            email: res.email,
-            name: res.name,
-            role: res.role,
-          })
-        );
-
-        OpenAPI.TOKEN = res.access_token;
-
-        router.push("/auth/phone");
-      } catch (error: any) {
-        console.log("Google Sign-In Error RAW:", error);
-        console.log(
-          "Google Sign-In Error JSON:",
-          JSON.stringify(error, null, 2)
-        );
-
-        if (error.code === statusCodes?.SIGN_IN_CANCELLED) {
-          return;
-        }
-
-        Alert.alert("Lỗi", "Không thể đăng nhập. Vui lòng thử lại.");
-      }
-    }
-  };
-
-  const handleDebugLogin = async () => {
-    try {
-      const email = "ttqthinh2004@gmail.com";
-      const name = "Thinh";
-
-      const res = await signInOrSignUp(email, name);
-
-      console.log("Debug Sign-in API response:", res);
-      Alert.alert("LOGIN", "API OK");
-
-      await AsyncStorage.setItem("access_token", res.access_token);
-      await AsyncStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: res.id,
-          email: res.email,
-          name: res.name,
-          role: res.role,
-        })
+      const webClientId = asString(
+        Constants.expoConfig?.extra?.googleSignIn?.webClientId
       );
 
-      OpenAPI.TOKEN = res.access_token;
+      if (!webClientId) {
+        console.warn("Missing googleSignIn.webClientId in app config extra");
+        return;
+      }
+
+      GoogleSignin.configure({
+        webClientId,
+        offlineAccess: false,
+        scopes: ["profile", "email"],
+      });
+    };
+
+    initNativeGoogleSignin();
+  }, []);
+
+  // Nút 1: TEST email (không qua Google)
+  const handleTestEmailLogin = async () => {
+    try {
+      const email = "ttqthinh2004@gmail.com";
+      const password = "password";
+      const name = "Thinh";
+
+      const res = await signInOrSignUp(email, password, name);
+      await persistSession(res.access_token);
 
       router.push("/auth/phone");
     } catch (error: any) {
-      console.log("Debug login error:", error);
       Sentry.captureException(error);
-      Alert.alert("Lỗi", "Không thể đăng nhập (debug). Kiểm tra lại API.");
-      Alert.alert("ERROR", String(error?.message ?? error));
+      Alert.alert("Lỗi", "Không thể đăng nhập test. Kiểm tra lại API.");
+    }
+  };
+
+  function asString(v: unknown): string | undefined {
+    if (typeof v === "string") return v;
+    if (Array.isArray(v) && typeof v[0] === "string") return v[0];
+    return undefined;
+  }
+
+  async function persistSession(accessToken: string) {
+    await AsyncStorage.setItem("access_token", accessToken);
+    OpenAPI.TOKEN = accessToken;
+
+    const me = await UserService.getMyProfileRouteApiUserMeGet();
+    await AsyncStorage.setItem("user", JSON.stringify(me));
+
+    return me;
+  }
+
+  // Nút 2: Google login thật
+  const handleGoogleLogin = async () => {
+    // Expo Go path: dùng backend OAuth (AuthSession)
+    if (isExpoGo) {
+      const redirectUrl = AuthSession.makeRedirectUri({
+        scheme: "exchangeoldbooks",
+        path: "auth",
+      });
+
+      const authUrl = `${OpenAPI.BASE.replace(/\/+$/, "")}/api/auth/google/login?redirect_uri=${encodeURIComponent(
+        redirectUrl
+      )}`;
+
+      const result = await WebBrowser.openAuthSessionAsync(
+        authUrl,
+        redirectUrl
+      );
+      if (result.type !== "success") return;
+
+      const urlObj = new URL(result.url);
+      const token = urlObj.searchParams.get("token");
+
+      if (!token) {
+        Alert.alert("Lỗi", "Không nhận được token sau khi đăng nhập.");
+        return;
+      }
+
+      await persistSession(token);
+      router.push("/auth/phone");
+
+      return;
+    }
+
+    // Native path
+    const {
+      GoogleSignin,
+      statusCodes,
+      isErrorWithCode,
+      isSuccessResponse,
+      isCancelledResponse,
+    } = await loadGoogleSignin();
+
+    try {
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+
+      const response = await GoogleSignin.signIn();
+      if (!isSuccessResponse(response)) return;
+
+      const googleUser = response.data?.user;
+      const email = googleUser?.email;
+      const name = googleUser?.name ?? googleUser?.givenName;
+      const password = "password";
+
+      if (!email) {
+        Alert.alert("Lỗi", "Không lấy được email từ Google.");
+        return;
+      }
+
+      const res = await signInOrSignUp(email, password, name);
+      await persistSession(res.access_token);
+      router.push("/auth/phone");
+    } catch (err: any) {
+      if (
+        isCancelledResponse?.(err) ||
+        err?.code === statusCodes?.SIGN_IN_CANCELLED
+      )
+        return;
+
+      if (isErrorWithCode?.(err)) {
+        if (err.code === statusCodes.IN_PROGRESS) return;
+        if (err.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          Alert.alert(
+            "Lỗi",
+            "Google Play Services không khả dụng hoặc đã lỗi thời."
+          );
+          return;
+        }
+      }
+
+      Sentry.captureException(err);
+      Alert.alert("Lỗi", "Không thể đăng nhập. Vui lòng thử lại.");
     }
   };
 
@@ -246,7 +228,7 @@ export default function LoginScreen() {
 
         <Pressable
           className={`${buttonBaseClass} ${buttonActiveClass}`}
-          onPress={handleDebugLogin}
+          onPress={handleTestEmailLogin}
         >
           <View className="absolute left-6">
             <IconGoogle />

@@ -197,7 +197,7 @@ export default function Index() {
         <ActivityIndicator size="large" color="#54408C" className="mt-10" />
       ) : (
         <>
-          <View className="px-6 mt-4 mb-3">
+          <View className="px-6 mb-3">
             <Text className="font-medium text-bodyXLarge text-textGray900">
               Đang xử lý ({orders.length})
             </Text>
