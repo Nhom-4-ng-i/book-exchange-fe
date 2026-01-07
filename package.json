@@ -52,7 +52,8 @@
       "text",
       "html"
     ],
-    "coverageDirectory": "coverage"
+    "coverageDirectory": "coverage",
+    "rootDir": "."
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
