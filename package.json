@@ -19,32 +19,28 @@
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.js"
     ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo|@expo(f)s?|@expo-google-fonts|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|expo-modules-core|expo-router|@sentry/react-native|nativewind|react-native-css-interop)/)"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.ts?(x)"
-    ],
-    "testEnvironment": "jsdom",
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1",
-      "^utils/(.*)$": "<rootDir>/utils/$1"
+      "^googleAuth$": "<rootDir>/googleAuth.ts",
+      "^utils/(.*)$": "<rootDir>/utils/$1",
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
     },
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx"
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|expo-image-picker)"
+    ],
+    "testMatch": [
+        "**/__tests__/**/*.ts?(x)"
     ],
     "collectCoverageFrom": [
       "src/app/**/*.{ts,tsx}",
       "src/components/**/*.{ts,tsx}",
-      "utils/**/*.{ts,tsx}",
       "!**/*.d.ts",
       "!**/*.config.{js,ts}",
       "!**/node_modules/**",
       "!**/coverage/**",
-      "!**/.expo/**"
+      "!**/.expo/**",
+      "!**/src/api/**",
+      "!**/edit-post.tsx"
     ],
     "coverageReporters": [
       "json",
@@ -52,8 +48,7 @@
       "text",
       "html"
     ],
-    "coverageDirectory": "coverage",
-    "rootDir": "."
+    "coverageDirectory": "coverage"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

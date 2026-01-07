@@ -109,3 +109,40 @@ jest.mock("@react-native-async-storage/async-storage", () => {
     },
   };
 });
+
+// Mock googleAuth module
+jest.mock("googleAuth", () => ({
+  loadGoogleSignin: jest.fn(async () => ({
+    GoogleSignin: {
+      configure: jest.fn(),
+      hasPlayServices: jest.fn(),
+      signIn: jest.fn(),
+    },
+    statusCodes: {
+      SIGN_IN_CANCELLED: "SIGN_IN_CANCELLED",
+      PLAY_SERVICES_NOT_AVAILABLE: "PLAY_SERVICES_NOT_AVAILABLE",
+    },
+    isErrorWithCode: jest.fn(),
+    isSuccessResponse: jest.fn(),
+    isCancelledResponse: jest.fn(),
+  })),
+}));
+
+// Mock utils/asyncStorage
+jest.mock("utils/asyncStorage", () => ({
+  storeData: jest.fn(async () => {}),
+  getData: jest.fn(async () => null),
+  removeData: jest.fn(async () => {}),
+}));
+
+// Mock expo-status-bar
+jest.mock("expo-status-bar", () => ({
+  StatusBar: () => null,
+}));
+
+// Mock react-native-safe-area-context
+jest.mock("react-native-safe-area-context", () => ({
+  SafeAreaView: "SafeAreaView",
+  SafeAreaProvider: ({ children }) => children,
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
