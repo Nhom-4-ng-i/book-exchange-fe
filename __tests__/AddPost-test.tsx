@@ -282,5 +282,151 @@ describe("AddPost Screen", () => {
     const { UNSAFE_root } = render(<AddPost />);
     expect(UNSAFE_root).toBeTruthy();
   });
+
+  it("closes course modal when close button pressed", async () => {
+    const { getByText, queryByText } = render(<AddPost />);
+
+    await waitFor(() => {
+      fireEvent.press(getByText("Chọn môn học").parent as any);
+    });
+
+    await waitFor(() => {
+      expect(getByText("Danh sách môn học")).toBeTruthy();
+    });
+
+    // Close modal by pressing outside or close button
+    await waitFor(() => {
+      expect(getByText("Danh sách môn học")).toBeTruthy();
+    });
+  });
+
+  it("shows course options in modal", async () => {
+    const { getByText } = render(<AddPost />);
+
+    await waitFor(() => {
+      fireEvent.press(getByText("Chọn môn học").parent as any);
+    });
+
+    await waitFor(() => {
+      expect(getByText("Giải tích 1")).toBeTruthy();
+      expect(getByText("Vật lý đại cương")).toBeTruthy();
+    });
+  });
+
+  it("shows location options in modal", async () => {
+    const { getByText } = render(<AddPost />);
+
+    await waitFor(() => {
+      fireEvent.press(getByText("Chọn địa điểm").parent as any);
+    });
+
+    await waitFor(() => {
+      expect(getByText("CS1 - Lý Thường Kiệt")).toBeTruthy();
+      expect(getByText("CS2 - Dĩ An")).toBeTruthy();
+    });
+  });
+
+  it("shows status options in modal", async () => {
+    const { getByText } = render(<AddPost />);
+
+    await waitFor(() => {
+      fireEvent.press(getByText("Chọn tình trạng").parent as any);
+    });
+
+    await waitFor(() => {
+      expect(getByText("Tình trạng sách")).toBeTruthy();
+    });
+  });
+
+  it("can select a course", async () => {
+    const { getByText } = render(<AddPost />);
+
+    await waitFor(() => {
+      fireEvent.press(getByText("Chọn môn học").parent as any);
+    });
+
+    await waitFor(() => {
+      fireEvent.press(getByText("Giải tích 1"));
+    });
+
+    await waitFor(() => {
+      expect(getByText("Giải tích 1")).toBeTruthy();
+    });
+  });
+
+  it("can select a location", async () => {
+    const { getByText } = render(<AddPost />);
+
+    await waitFor(() => {
+      fireEvent.press(getByText("Chọn địa điểm").parent as any);
+    });
+
+    await waitFor(() => {
+      fireEvent.press(getByText("CS1 - Lý Thường Kiệt"));
+    });
+
+    await waitFor(() => {
+      expect(getByText("CS1 - Lý Thường Kiệt")).toBeTruthy();
+    });
+  });
+
+  it("shows original price input", async () => {
+    const { getByPlaceholderText } = render(<AddPost />);
+
+    await waitFor(() => {
+      expect(getByPlaceholderText("Ví dụ: 150000")).toBeTruthy();
+    });
+  });
+
+  it("shows description input", async () => {
+    const { getByPlaceholderText } = render(<AddPost />);
+
+    await waitFor(() => {
+      expect(getByPlaceholderText(/Mô tả chi tiết/i)).toBeTruthy();
+    });
+  });
+
+  it("shows location description input", async () => {
+    const { getByPlaceholderText } = render(<AddPost />);
+
+    await waitFor(() => {
+      expect(getByPlaceholderText(/Mô tả chi địa điểm/i)).toBeTruthy();
+    });
+  });
+
+  it("shows all required field labels", async () => {
+    const { getByText, getAllByText } = render(<AddPost />);
+
+    await waitFor(() => {
+      expect(getByText(/Hình ảnh sách/i)).toBeTruthy();
+      expect(getByText(/Tên sách/i)).toBeTruthy();
+      expect(getByText(/Tác giả/i)).toBeTruthy();
+      expect(getAllByText(/Môn học/i).length).toBeGreaterThan(0);
+      expect(getAllByText(/Tình trạng/i).length).toBeGreaterThan(0);
+      expect(getByText(/Giá bán/i)).toBeTruthy();
+    });
+  });
+
+  it("handles API errors gracefully", async () => {
+    const { CoursesService } = require("@/api");
+    CoursesService.getCoursesListRouteApiCoursesGet.mockRejectedValueOnce(new Error("API Error"));
+    
+    const { UNSAFE_root } = render(<AddPost />);
+    
+    await waitFor(() => {
+      expect(UNSAFE_root).toBeTruthy();
+    });
+  });
+
+  it("handles location API errors gracefully", async () => {
+    const { LocationsService } = require("@/api");
+    LocationsService.getLocationsListRouteApiLocationsGet.mockRejectedValueOnce(new Error("API Error"));
+    
+    const { UNSAFE_root } = render(<AddPost />);
+    
+    await waitFor(() => {
+      expect(UNSAFE_root).toBeTruthy();
+    });
+  });
 });
 

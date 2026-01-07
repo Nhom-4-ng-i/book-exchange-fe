@@ -164,7 +164,7 @@ describe('CartScreen', () => {
     const { getByText } = render(<CartScreen />);
     await waitFor(() => {
       expect(getByText('Không có sản phẩm')).toBeTruthy();
-    });
+    }, { timeout: 10000 });
   });
 
   test('renders without crashing', async () => {

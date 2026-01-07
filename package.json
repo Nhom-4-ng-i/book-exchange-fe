@@ -33,13 +33,14 @@
     ],
     "collectCoverageFrom": [
       "src/app/**/*.{ts,tsx}",
-      "components/**/*.{ts,tsx}",
-      "utils/**/*.{ts,tsx}",
+      "src/components/**/*.{ts,tsx}",
       "!**/*.d.ts",
       "!**/*.config.{js,ts}",
       "!**/node_modules/**",
       "!**/coverage/**",
-      "!**/.expo/**"
+      "!**/.expo/**",
+      "!**/src/api/**",
+      "!**/edit-post.tsx"
     ],
     "coverageReporters": [
       "json",

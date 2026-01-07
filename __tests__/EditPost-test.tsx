@@ -3,12 +3,11 @@ import React from "react";
 
 // Mock dependencies
 const mockRouterBack = jest.fn();
-const mockRouterReplace = jest.fn();
 
 jest.mock("expo-router", () => ({
   useRouter: () => ({
     back: mockRouterBack,
-    replace: mockRouterReplace,
+    replace: jest.fn(),
   }),
   useLocalSearchParams: () => ({
     id: "123",
@@ -38,7 +37,6 @@ jest.mock("@sentry/react-native", () => ({
 const mockGetCourses = jest.fn();
 const mockGetLocations = jest.fn();
 const mockGetPostById = jest.fn();
-const mockUpdatePost = jest.fn();
 
 jest.mock("@/api", () => ({
   CoursesService: {
@@ -49,7 +47,7 @@ jest.mock("@/api", () => ({
   },
   PostsService: {
     getPostByIdRouteApiPostsPostIdGet: (...args: any[]) => mockGetPostById(...args),
-    updatePostRouteApiPostsPostIdPut: (...args: any[]) => mockUpdatePost(...args),
+    updatePostRouteApiPostsPostIdPut: jest.fn().mockResolvedValue({}),
   },
   OpenAPI: { BASE: "", TOKEN: "" },
 }));
@@ -107,7 +105,6 @@ describe("EditPostScreen", () => {
       avatar_url: "http://example.com/image.jpg",
       description: "Test description",
     });
-    mockUpdatePost.mockResolvedValue({});
   });
 
   it("renders without crashing", async () => {
@@ -138,13 +135,6 @@ describe("EditPostScreen", () => {
     });
   });
 
-  it("renders with post id param", async () => {
-    const { UNSAFE_root } = render(<EditPostScreen />);
-    await waitFor(() => {
-      expect(UNSAFE_root).toBeTruthy();
-    });
-  });
-
   it("handles courses API error gracefully", async () => {
     mockGetCourses.mockRejectedValueOnce(new Error("API Error"));
     const { UNSAFE_root } = render(<EditPostScreen />);
@@ -166,6 +156,20 @@ describe("EditPostScreen", () => {
     const { UNSAFE_root } = render(<EditPostScreen />);
     await waitFor(() => {
       expect(UNSAFE_root).toBeTruthy();
+    });
+  });
+
+  it("calls courses API on mount", async () => {
+    render(<EditPostScreen />);
+    await waitFor(() => {
+      expect(mockGetCourses).toHaveBeenCalled();
+    });
+  });
+
+  it("calls locations API on mount", async () => {
+    render(<EditPostScreen />);
+    await waitFor(() => {
+      expect(mockGetLocations).toHaveBeenCalled();
     });
   });
 });
