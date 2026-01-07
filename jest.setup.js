@@ -109,3 +109,27 @@ jest.mock("@react-native-async-storage/async-storage", () => {
     },
   };
 });
+
+// Mock googleAuth module
+jest.mock("googleAuth", () => ({
+  loadGoogleSignin: jest.fn(async () => ({
+    GoogleSignin: {
+      configure: jest.fn(),
+      hasPlayServices: jest.fn(),
+      signIn: jest.fn(),
+    },
+    statusCodes: {
+      SIGN_IN_CANCELLED: "SIGN_IN_CANCELLED",
+      PLAY_SERVICES_NOT_AVAILABLE: "PLAY_SERVICES_NOT_AVAILABLE",
+    },
+    isErrorWithCode: jest.fn(),
+    isSuccessResponse: jest.fn(),
+    isCancelledResponse: jest.fn(),
+  })),
+}));
+
+// Mock utils/asyncStorage
+jest.mock("utils/asyncStorage", () => ({
+  storeData: jest.fn(async () => {}),
+  getData: jest.fn(async () => null),
+}));

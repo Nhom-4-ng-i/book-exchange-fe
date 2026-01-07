@@ -10,10 +10,7 @@ jest.mock("expo-router", () => ({
   }),
 }));
 
-jest.mock("../utils/asyncStorage", () => ({
-  storeData: jest.fn().mockResolvedValue(undefined),
-  getData: jest.fn().mockResolvedValue(null),
-}));
+// asyncStorage already mocked globally in jest.setup.js
 
 jest.mock("../src/app/hooks/useOnboardingGate", () => ({
   useOnboardingGate: () => ({
