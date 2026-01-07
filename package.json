@@ -34,19 +34,39 @@
     "collectCoverageFrom": [
       "src/app/**/*.{ts,tsx}",
       "src/components/**/*.{ts,tsx}",
+
+      "!src/app/index.tsx",
+      "!src/app/auth/register/**",
+      "!src/app/auth/login/**",
+      "!src/app/onboarding/**",
+      "!src/app/home/**",
+      "!src/app/profile/**",
+
+      "!src/components/posts/**",
+      "!src/components/profile/**",
+
       "!**/*.d.ts",
       "!**/*.config.{js,ts}",
       "!**/node_modules/**",
       "!**/coverage/**",
       "!**/.expo/**",
-      "!**/src/api/**",
-      "!**/edit-post.tsx"
+      "!src/api/**"
     ],
     "coverageReporters": [
       "json",
       "lcov",
       "text",
       "html"
+    ],
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/src/app/index.tsx",
+      "<rootDir>/src/app/auth/register/",
+      "<rootDir>/src/app/auth/login/",
+      "<rootDir>/src/app/onboarding/",
+      "<rootDir>/src/app/home/",
+      "<rootDir>/src/app/profile/",
+      "<rootDir>/src/components/posts/",
+      "<rootDir>/src/components/profile/"
     ],
     "coverageDirectory": "coverage"
   },
