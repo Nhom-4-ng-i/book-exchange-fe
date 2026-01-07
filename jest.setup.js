@@ -132,4 +132,17 @@ jest.mock("googleAuth", () => ({
 jest.mock("utils/asyncStorage", () => ({
   storeData: jest.fn(async () => {}),
   getData: jest.fn(async () => null),
+  removeData: jest.fn(async () => {}),
+}));
+
+// Mock expo-status-bar
+jest.mock("expo-status-bar", () => ({
+  StatusBar: () => null,
+}));
+
+// Mock react-native-safe-area-context
+jest.mock("react-native-safe-area-context", () => ({
+  SafeAreaView: "SafeAreaView",
+  SafeAreaProvider: ({ children }) => children,
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));

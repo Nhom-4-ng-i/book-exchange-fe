@@ -1,12 +1,16 @@
-import { render, waitFor } from "@testing-library/react-native";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 
 // Mock dependencies
+const mockPush = jest.fn();
+const mockReplace = jest.fn();
+const mockBack = jest.fn();
+
 jest.mock("expo-router", () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    back: jest.fn(),
+    push: mockPush,
+    replace: mockReplace,
+    back: mockBack,
   }),
 }));
 
@@ -19,9 +23,88 @@ jest.mock("@sentry/react-native", () => ({
   })),
 }));
 
+const mockGetWishlists = jest.fn();
+const mockGetCourses = jest.fn();
+const mockDeleteWishlist = jest.fn();
+
 jest.mock("@/api", () => ({
   UserService: {
-    getMyWishlistsRouteApiUserWishlistsGet: jest.fn().mockResolvedValue([
+    getMyWishlistsRouteApiUserWishlistsGet: () => mockGetWishlists(),
+  },
+  CoursesService: {
+    getCoursesListRouteApiCoursesGet: () => mockGetCourses(),
+  },
+  WishlistsService: {
+    deleteWishlistRouteApiWishlistsWishlistIdDelete: (...args: any[]) => mockDeleteWishlist(...args),
+  },
+}));
+
+jest.mock("@/components/ConfirmationModal", () => {
+  const { View, Text, Pressable } = require("react-native");
+  return function MockConfirmationModal({ visible, onClose, onConfirm, title }: any) {
+    if (!visible) return null;
+    return (
+      <View testID="confirmation-modal">
+        <Text>{title}</Text>
+        <Pressable testID="confirm-btn" onPress={onConfirm}><Text>Confirm</Text></Pressable>
+        <Pressable testID="cancel-btn" onPress={onClose}><Text>Cancel</Text></Pressable>
+      </View>
+    );
+  };
+});
+
+jest.mock("@/components/SuccessModal", () => {
+  const { View, Text } = require("react-native");
+  return function MockSuccessModal({ visible, title }: any) {
+    if (!visible) return null;
+    return (
+      <View testID="success-modal">
+        <Text>{title}</Text>
+      </View>
+    );
+  };
+});
+
+jest.mock("@/components/profile/InfoBanner", () => ({
+  InfoBanner: ({ message }: any) => {
+    const { View, Text } = require("react-native");
+    return (
+      <View testID="info-banner">
+        <Text>{message}</Text>
+      </View>
+    );
+  },
+}));
+
+jest.mock("@/components/profile/WishlistCard", () => ({
+  WishlistCard: ({ title, subject, price, onDelete, onEdit }: any) => {
+    const { View, Text, Pressable } = require("react-native");
+    return (
+      <View testID="wishlist-card">
+        <Text>{title}</Text>
+        <Text>{subject}</Text>
+        <Text>{price}</Text>
+        <Pressable testID="delete-wishlist" onPress={onDelete}><Text>Delete</Text></Pressable>
+        <Pressable testID="edit-wishlist" onPress={onEdit}><Text>Edit</Text></Pressable>
+      </View>
+    );
+  },
+}));
+
+jest.mock("@/icons/IconBack", () => {
+  const { View } = require("react-native");
+  return function MockIconBack() {
+    return <View testID="icon-back" />;
+  };
+});
+
+// Import component
+import WishlistScreen from "@/app/profile/wishlist";
+
+describe("WishlistScreen", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockGetWishlists.mockResolvedValue([
       {
         id: 1,
         user_id: "user1",
@@ -30,63 +113,12 @@ jest.mock("@/api", () => ({
         max_price: 100000,
         created_at: "2024-01-01T00:00:00Z",
       },
-    ]),
-  },
-  CoursesService: {
-    getCoursesListRouteApiCoursesGet: jest.fn().mockResolvedValue([
+    ]);
+    mockGetCourses.mockResolvedValue([
       { id: 1, name: "Toán" },
       { id: 2, name: "Lý" },
-    ]),
-  },
-  WishlistsService: {
-    deleteWishlistRouteApiWishlistsWishlistIdDelete: jest.fn().mockResolvedValue({}),
-  },
-}));
-
-jest.mock("@/components/ConfirmationModal", () => {
-  const React = require("react");
-  const { View } = require("react-native");
-  return function MockConfirmationModal() {
-    return <View testID="confirmation-modal" />;
-  };
-});
-
-jest.mock("@/components/SuccessModal", () => {
-  const React = require("react");
-  const { View } = require("react-native");
-  return function MockSuccessModal() {
-    return <View testID="success-modal" />;
-  };
-});
-
-jest.mock("@/components/profile/InfoBanner", () => ({
-  InfoBanner: () => {
-    const { View } = require("react-native");
-    return <View testID="info-banner" />;
-  },
-}));
-
-jest.mock("@/components/profile/WishlistCard", () => ({
-  WishlistCard: () => {
-    const { View } = require("react-native");
-    return <View testID="wishlist-card" />;
-  },
-}));
-
-jest.mock("@/icons/IconBack", () => {
-  const React = require("react");
-  const { View } = require("react-native");
-  return function MockIconBack() {
-    return <View testID="icon-back" />;
-  };
-});
-
-// Import sau khi mock
-import WishlistScreen from "@/app/profile/wishlist";
-
-describe("WishlistScreen", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+    ]);
+    mockDeleteWishlist.mockResolvedValue({});
   });
 
   it("renders wishlist screen correctly", async () => {
@@ -112,5 +144,64 @@ describe("WishlistScreen", () => {
       expect(getByTestId("wishlist-card")).toBeTruthy();
     });
   });
-});
 
+  it("calls API on mount", async () => {
+    render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(mockGetWishlists).toHaveBeenCalled();
+    });
+  });
+
+  it("calls courses API on mount", async () => {
+    render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(mockGetCourses).toHaveBeenCalled();
+    });
+  });
+
+  it("shows info banner", async () => {
+    const { getByTestId } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(getByTestId("info-banner")).toBeTruthy();
+    });
+  });
+
+  it("shows back icon", async () => {
+    const { getByTestId } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(getByTestId("icon-back")).toBeTruthy();
+    });
+  });
+
+  it("handles empty wishlists", async () => {
+    mockGetWishlists.mockResolvedValueOnce([]);
+    const { getByText } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(getByText(/Chưa có Wishlist/i)).toBeTruthy();
+    });
+  });
+
+  it("handles API error gracefully", async () => {
+    mockGetWishlists.mockRejectedValueOnce(new Error("API Error"));
+    const { UNSAFE_root } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(UNSAFE_root).toBeTruthy();
+    });
+  });
+
+  it("navigates to create wishlist", async () => {
+    const { getByText } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      fireEvent.press(getByText(/Thêm Wishlist/i));
+    });
+
+    expect(mockPush).toHaveBeenCalledWith("/profile/wishlist-create");
+  });
+});

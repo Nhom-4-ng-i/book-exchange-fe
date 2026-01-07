@@ -1,22 +1,20 @@
 import { render } from "@testing-library/react-native";
 import React from "react";
 
-/**
- * MOCK PageHeader Component
- */
-jest.mock("@/components/PageHeader", () => {
+// Mock icons
+jest.mock("@/icons/IconMessenger", () => {
   const React = require("react");
-  const { Text, View } = require("react-native");
+  const { View } = require("react-native");
+  return function MockIcon() {
+    return <View testID="icon-messenger" />;
+  };
+});
 
-  return function MockPageHeader({ title, subtitle, showBack }: any) {
-    return (
-      <View>
-        <Text>PAGE_HEADER_COMPONENT</Text>
-        {showBack && <Text>Back Button</Text>}
-        {title && <Text>{title}</Text>}
-        {subtitle && <Text>{subtitle}</Text>}
-      </View>
-    );
+jest.mock("@/icons/IconNotification", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  return function MockIcon() {
+    return <View testID="icon-notification" />;
   };
 });
 
@@ -24,28 +22,24 @@ jest.mock("@/components/PageHeader", () => {
 import PageHeader from "@/components/PageHeader";
 
 describe("PageHeader Component", () => {
-  it("renders page header component", () => {
-    const { getByText } = render(<PageHeader title="Page Title" />);
-    expect(getByText("PAGE_HEADER_COMPONENT")).toBeTruthy();
-  });
-
   it("renders page header with title", () => {
-    const { getByText } = render(<PageHeader title="Page Title" />);
-    expect(getByText("Page Title")).toBeTruthy();
+    const { getByText } = render(<PageHeader title="Test Title" />);
+    expect(getByText("Test Title")).toBeTruthy();
   });
 
-  it("renders page header with subtitle", () => {
-    const { getByText } = render(<PageHeader title="Page Title" />);
+  it("renders chat and bell icons", () => {
+    const { getByTestId } = render(<PageHeader title="Test" />);
+    expect(getByTestId("icon-messenger")).toBeTruthy();
+    expect(getByTestId("icon-notification")).toBeTruthy();
   });
 
-  it("renders page header with back button", () => {
-    const { getByText } = render(<PageHeader title="Page Title" />);
+  it("renders without crashing", () => {
+    const { UNSAFE_root } = render(<PageHeader title="Test" />);
+    expect(UNSAFE_root).toBeTruthy();
   });
 
-  it("renders page header with all props", () => {
-    const { getByText } = render(
-      <PageHeader title="Full Page" />
-    );
-    expect(getByText("Full Page")).toBeTruthy();
+  it("handles empty callbacks gracefully", () => {
+    const { UNSAFE_root } = render(<PageHeader title="Test" />);
+    expect(UNSAFE_root).toBeTruthy();
   });
 });
