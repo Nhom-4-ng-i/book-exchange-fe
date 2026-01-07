@@ -15,6 +15,7 @@ import {
 import { OpenAPI, PostsService } from "@/api";
 import IconLocation from "@/icons/IconLocation";
 import IconPhone from "@/icons/PhoneIcon";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 async function ensureAuthToken() {
   const token = await AsyncStorage.getItem("access_token");
@@ -312,9 +313,12 @@ export default function PostDetailModal({
               </ScrollView>
 
               {post && (
-                <View className="p-4 bg-white gap-y-3">
+                <SafeAreaView
+                  edges={["bottom"]}
+                  className="p-4 bg-white gap-y-3"
+                >
                   {renderActions ? renderActions(post) : null}
-                </View>
+                </SafeAreaView>
               )}
             </>
           )}

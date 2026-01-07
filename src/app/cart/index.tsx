@@ -422,7 +422,7 @@ export default function Index() {
                   </View>
                 </ScrollView>
 
-                <View className="p-4 bg-white">
+                <SafeAreaView edges={["bottom"]} className="p-4 bg-white">
                   <Pressable
                     className="w-full bg-white border border-[#54408C] h-[54px] rounded-full items-center justify-center mb-2"
                     onPress={() => {
@@ -441,7 +441,7 @@ export default function Index() {
                   >
                     <Text className="text-white font-bold text-lg">Đóng</Text>
                   </Pressable>
-                </View>
+                </SafeAreaView>
               </>
             ) : null}
           </View>
