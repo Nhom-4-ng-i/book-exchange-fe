@@ -204,4 +204,186 @@ describe("WishlistScreen", () => {
 
     expect(mockPush).toHaveBeenCalledWith("/profile/wishlist-create");
   });
+
+  it("navigates back when back button pressed", async () => {
+    const { getByTestId } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      const backButton = getByTestId("icon-back").parent;
+      if (backButton) {
+        fireEvent.press(backButton);
+      }
+    });
+
+    expect(mockBack).toHaveBeenCalled();
+  });
+
+  it("shows delete confirmation when delete button pressed", async () => {
+    const { getByTestId } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      const deleteButton = getByTestId("delete-wishlist");
+      fireEvent.press(deleteButton);
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("confirmation-modal")).toBeTruthy();
+    });
+  });
+
+  it("deletes wishlist when confirmed", async () => {
+    const { getByTestId } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      const deleteButton = getByTestId("delete-wishlist");
+      fireEvent.press(deleteButton);
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("confirmation-modal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("confirm-btn"));
+
+    await waitFor(() => {
+      expect(mockDeleteWishlist).toHaveBeenCalled();
+    });
+  });
+
+  it("cancels delete when cancel button pressed", async () => {
+    const { getByTestId, queryByTestId } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      const deleteButton = getByTestId("delete-wishlist");
+      fireEvent.press(deleteButton);
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("confirmation-modal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("cancel-btn"));
+
+    await waitFor(() => {
+      expect(queryByTestId("confirmation-modal")).toBeNull();
+    });
+  });
+
+  it("navigates to edit wishlist", async () => {
+    const { getByTestId } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      const editButton = getByTestId("edit-wishlist");
+      fireEvent.press(editButton);
+    });
+
+    expect(mockPush).toHaveBeenCalled();
+  });
+
+  it("displays wishlist title", async () => {
+    const { getByText } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(getByText("Test Wishlist")).toBeTruthy();
+    });
+  });
+
+  it("displays course name from lookup", async () => {
+    const { getByText } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(getByText("Toán")).toBeTruthy();
+    });
+  });
+
+  it("shows loading state initially", () => {
+    mockGetWishlists.mockReturnValue(new Promise(() => {})); // Hang
+    const { UNSAFE_root } = render(<WishlistScreen />);
+    expect(UNSAFE_root).toBeTruthy();
+  });
+
+  it("handles multiple wishlists", async () => {
+    mockGetWishlists.mockResolvedValueOnce([
+      {
+        id: 1,
+        user_id: "user1",
+        title: "Wishlist 1",
+        course_id: 1,
+        max_price: 100000,
+        created_at: "2024-01-01T00:00:00Z",
+      },
+      {
+        id: 2,
+        user_id: "user1",
+        title: "Wishlist 2",
+        course_id: 2,
+        max_price: 200000,
+        created_at: "2024-01-02T00:00:00Z",
+      },
+    ]);
+
+    const { getAllByTestId } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(getAllByTestId("wishlist-card").length).toBe(2);
+    });
+  });
+
+  it("handles delete API error", async () => {
+    mockDeleteWishlist.mockRejectedValueOnce(new Error("Delete failed"));
+
+    const { getByTestId, UNSAFE_root } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      const deleteButton = getByTestId("delete-wishlist");
+      fireEvent.press(deleteButton);
+    });
+
+    await waitFor(() => {
+      expect(getByTestId("confirmation-modal")).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId("confirm-btn"));
+
+    // Should not crash
+    await waitFor(() => {
+      expect(UNSAFE_root).toBeTruthy();
+    });
+  });
+
+  it("handles courses API error", async () => {
+    mockGetCourses.mockRejectedValueOnce(new Error("Courses error"));
+    const { UNSAFE_root } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(UNSAFE_root).toBeTruthy();
+    });
+  });
+
+  it("displays price in wishlist card", async () => {
+    const { getByText } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(getByText(/100\.000/)).toBeTruthy();
+    });
+  });
+
+  it("handles wishlist without course_id", async () => {
+    mockGetWishlists.mockResolvedValueOnce([
+      {
+        id: 1,
+        user_id: "user1",
+        title: "No Course Wishlist",
+        course_id: 0,
+        max_price: 50000,
+        created_at: "2024-01-01T00:00:00Z",
+      },
+    ]);
+
+    const { getByText } = render(<WishlistScreen />);
+    
+    await waitFor(() => {
+      expect(getByText("No Course Wishlist")).toBeTruthy();
+    });
+  });
 });

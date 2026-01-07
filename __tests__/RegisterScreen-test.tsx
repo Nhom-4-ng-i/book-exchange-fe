@@ -557,4 +557,68 @@ describe("RegisterScreen", () => {
       });
     });
   });
+
+  it("handles empty name with spaces only", async () => {
+    const { getByPlaceholderText, getAllByText, getAllByPlaceholderText } = render(<RegisterScreen />);
+
+    await waitFor(() => {
+      fireEvent.changeText(getByPlaceholderText("Nguyễn Văn A"), "   ");
+      fireEvent.changeText(getByPlaceholderText("example@gmail.com"), "test@example.com");
+    });
+
+    const passwordInputs = getAllByPlaceholderText("••••••••");
+    fireEvent.changeText(passwordInputs[0], "password123");
+
+    const createButtons = getAllByText("Tạo tài khoản");
+    
+    await act(async () => {
+      fireEvent.press(createButtons[1]);
+    });
+
+    // Should not call API with whitespace-only name
+    expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it("handles empty email with spaces only", async () => {
+    const { getByPlaceholderText, getAllByText, getAllByPlaceholderText } = render(<RegisterScreen />);
+
+    await waitFor(() => {
+      fireEvent.changeText(getByPlaceholderText("Nguyễn Văn A"), "Test User");
+      fireEvent.changeText(getByPlaceholderText("example@gmail.com"), "   ");
+    });
+
+    const passwordInputs = getAllByPlaceholderText("••••••••");
+    fireEvent.changeText(passwordInputs[0], "password123");
+
+    const createButtons = getAllByText("Tạo tài khoản");
+    
+    await act(async () => {
+      fireEvent.press(createButtons[1]);
+    });
+
+    // Should not call API with whitespace-only email
+    expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it("calls getProfile after sign in", async () => {
+    const { getByPlaceholderText, getAllByText, getAllByPlaceholderText } = render(<RegisterScreen />);
+
+    await waitFor(() => {
+      fireEvent.changeText(getByPlaceholderText("Nguyễn Văn A"), "New User");
+      fireEvent.changeText(getByPlaceholderText("example@gmail.com"), "new@test.com");
+    });
+
+    const passwordInputs = getAllByPlaceholderText("••••••••");
+    fireEvent.changeText(passwordInputs[0], "password123");
+
+    const createButtons = getAllByText("Tạo tài khoản");
+    
+    await act(async () => {
+      fireEvent.press(createButtons[1]);
+    });
+
+    await waitFor(() => {
+      expect(mockGetProfile).toHaveBeenCalled();
+    });
+  });
 });
