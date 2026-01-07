@@ -55,6 +55,7 @@ function RootLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen name="home/addPost" options={{ headerShown: false }} />
 
       <Stack.Screen name="cart/index" options={{ headerShown: false }} />
 
