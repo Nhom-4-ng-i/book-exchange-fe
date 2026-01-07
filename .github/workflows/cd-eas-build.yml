@@ -42,10 +42,10 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Build Android (EAS)
+      - name: Build Android APK (EAS)
         id: eas
         run: |
-          PROFILE="${{ github.event.inputs.profile || 'production' }}"
+          PROFILE="${{ github.event.inputs.profile || 'apk' }}"
           eas build --platform android --profile "$PROFILE" --non-interactive --json > build.json
           echo "build_id=$(jq -r '.[0].id' build.json)" >> $GITHUB_OUTPUT
           echo "build_url=$(jq -r '.[0].buildUrl' build.json)" >> $GITHUB_OUTPUT
