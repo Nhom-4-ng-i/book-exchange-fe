@@ -56,6 +56,9 @@ jobs:
           path: coverage/lcov.info
           retention-days: 7
 
+      - name: Normalize lcov paths for Sonar
+        run: |
+          sed -i 's|/home/runner/work/.*/book-exchange-fe/||g' coverage/lcov.info
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
