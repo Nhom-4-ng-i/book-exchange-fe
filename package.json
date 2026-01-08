@@ -29,19 +29,21 @@
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|expo-image-picker)"
     ],
     "testMatch": [
-        "**/__tests__/**/*.ts?(x)"
+      "**/__tests__/**/*.ts?(x)"
     ],
     "collectCoverageFrom": [
-      "src/app/**/*.{ts,tsx}",
-      "src/components/**/*.{ts,tsx}",
+      "<rootDir>/src/app/**/*.{ts,tsx}",
+      "<rootDir>/src/components/**/*.{ts,tsx}",
+      "!<rootDir>/src/api/**",
+      "!<rootDir>/src/icons/**",
+      "!<rootDir>/utils/**",
       "!**/*.d.ts",
       "!**/*.config.{js,ts}",
       "!**/node_modules/**",
       "!**/coverage/**",
       "!**/.expo/**",
-      "!**/src/api/**",
       "!**/edit-post.tsx",
-      "!**/src/app/auth/register/*.tsx"
+      "!<rootDir>/src/app/auth/register/**"
     ],
     "coverageReporters": [
       "json",
@@ -52,7 +54,9 @@
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "<rootDir>/src/api/",
-      "<rootDir>/src/app/auth/register/*.tsx"
+      "<rootDir>/src/icons/",
+      "<rootDir>/utils/",
+      "<rootDir>/src/app/auth/register/"
     ],
     "coverageDirectory": "coverage"
   },
@@ -66,8 +70,9 @@
     "@react-navigation/native-stack": "^7.3.16",
     "@sentry/react-native": "~7.2.0",
     "@tanstack/react-query": "^5.90.5",
+    "@types/jest": "29.5.14",
     "axios": "^1.13.2",
-    "expo": "54.0.21",
+    "expo": "^54.0.21",
     "expo-auth-session": "~7.0.10",
     "expo-blur": "~15.0.7",
     "expo-build-properties": "~1.0.10",
@@ -87,6 +92,8 @@
     "expo-system-ui": "~6.0.7",
     "expo-updates": "~29.0.12",
     "expo-web-browser": "~15.0.8",
+    "jest": "~29.7.0",
+    "jest-expo": "~54.0.16",
     "lucide-react-native": "^0.552.0",
     "nativewind": "^4.2.1",
     "prettier-plugin-tailwindcss": "^0.5.11",
