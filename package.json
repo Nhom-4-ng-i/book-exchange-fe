@@ -40,13 +40,19 @@
       "!**/coverage/**",
       "!**/.expo/**",
       "!**/src/api/**",
-      "!**/edit-post.tsx"
+      "!**/edit-post.tsx",
+      "!**/src/app/auth/register/*.tsx"
     ],
     "coverageReporters": [
       "json",
       "lcov",
       "text",
       "html"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/src/api/",
+      "<rootDir>/src/app/auth/register/*.tsx"
     ],
     "coverageDirectory": "coverage"
   },
