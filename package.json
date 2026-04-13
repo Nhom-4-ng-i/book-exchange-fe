@@ -73,7 +73,7 @@
     "@types/jest": "29.5.14",
     "axios": "^1.13.2",
     "expo": "^54.0.21",
-    "expo-auth-session": "~7.0.10",
+    "expo-auth-session": "~55.0.14",
     "expo-blur": "~15.0.7",
     "expo-build-properties": "~1.0.10",
     "expo-constants": "~18.0.9",
