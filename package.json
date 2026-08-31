@@ -94,7 +94,7 @@
     "expo-web-browser": "~15.0.8",
     "jest": "~29.7.0",
     "jest-expo": "~54.0.16",
-    "lucide-react-native": "^0.552.0",
+    "lucide-react-native": "^1.35.0",
     "nativewind": "^4.2.1",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "react": "19.1.0",
